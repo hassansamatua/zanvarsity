@@ -1,0 +1,1673 @@
+[2025-09-19 10:47:29] === New Request ===
+Data: Array
+(
+    [method] => POST
+    [post] => Array
+        (
+            [id] => 15
+            [csrf_token] => e0cfac7e3d54a4d728f6cac40fa24ef2b00caf72159d6dda2df2a639be03918a
+        )
+
+    [session] => Array
+        (
+            [csrf_token] => e0cfac7e3d54a4d728f6cac40fa24ef2b00caf72159d6dda2df2a639be03918a
+            [user_id] => 1
+            [user_email] => hanscovd5@gmail.com
+            [role] => admin
+            [first_name] => hassan
+            [last_name] => samatua
+            [full_name] => hassan samatua
+            [last_regeneration] => 1758270021
+        )
+
+)
+
+[2025-09-19 10:47:29] Processing delete request
+Data: Array
+(
+    [id] => 15
+)
+
+[2025-09-19 10:47:29] Successfully deleted image file
+Data: C:/xampp/htdocs/zanvarsity/html/uploads/carousel/carousel_1758031881_68c97009bd80a.jpg
+[2025-09-19 10:47:29] Successfully deleted carousel item
+Data: Array
+(
+    [id] => 15
+)
+
+[2025-09-19 10:47:29] Sending JSON response
+Data: Array
+(
+    [statusCode] => 200
+    [response] => Array
+        (
+            [success] => 1
+            [message] => Carousel item deleted successfully
+            [data] => 
+        )
+
+    [json] => {"success":true,"message":"Carousel item deleted successfully","data":null}
+)
+
+[2025-09-19 10:47:34] === New Request ===
+Data: Array
+(
+    [method] => POST
+    [post] => Array
+        (
+            [id] => 15
+            [csrf_token] => e0cfac7e3d54a4d728f6cac40fa24ef2b00caf72159d6dda2df2a639be03918a
+        )
+
+    [session] => Array
+        (
+            [csrf_token] => e0cfac7e3d54a4d728f6cac40fa24ef2b00caf72159d6dda2df2a639be03918a
+            [user_id] => 1
+            [user_email] => hanscovd5@gmail.com
+            [role] => admin
+            [first_name] => hassan
+            [last_name] => samatua
+            [full_name] => hassan samatua
+            [last_regeneration] => 1758270021
+        )
+
+)
+
+[2025-09-19 10:47:34] Processing delete request
+Data: Array
+(
+    [id] => 15
+)
+
+[2025-09-19 10:47:34] Error in delete_carousel.php
+Data: Array
+(
+    [message] => Carousel item not found
+    [file] => C:\xampp\htdocs\zanvarsity\html\admin\delete_carousel.php
+    [line] => 118
+    [trace] => #0 {main}
+)
+
+[2025-09-19 10:47:38] === New Request ===
+Data: Array
+(
+    [method] => POST
+    [post] => Array
+        (
+            [id] => 14
+            [csrf_token] => e0cfac7e3d54a4d728f6cac40fa24ef2b00caf72159d6dda2df2a639be03918a
+        )
+
+    [session] => Array
+        (
+            [csrf_token] => e0cfac7e3d54a4d728f6cac40fa24ef2b00caf72159d6dda2df2a639be03918a
+            [user_id] => 1
+            [user_email] => hanscovd5@gmail.com
+            [role] => admin
+            [first_name] => hassan
+            [last_name] => samatua
+            [full_name] => hassan samatua
+            [last_regeneration] => 1758270021
+        )
+
+)
+
+[2025-09-19 10:47:38] Processing delete request
+Data: Array
+(
+    [id] => 14
+)
+
+[2025-09-19 10:47:38] Successfully deleted image file
+Data: C:/xampp/htdocs/zanvarsity/html/uploads/carousel/carousel_1758031782_68c96fa682ebb.jpg
+[2025-09-19 10:47:38] Successfully deleted carousel item
+Data: Array
+(
+    [id] => 14
+)
+
+[2025-09-19 10:47:38] Sending JSON response
+Data: Array
+(
+    [statusCode] => 200
+    [response] => Array
+        (
+            [success] => 1
+            [message] => Carousel item deleted successfully
+            [data] => 
+        )
+
+    [json] => {"success":true,"message":"Carousel item deleted successfully","data":null}
+)
+
+[2025-09-22 08:39:00] === New Request ===
+Data: Array
+(
+    [method] => POST
+    [post] => Array
+        (
+            [id] => 21
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+        )
+
+    [session] => Array
+        (
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+            [user_id] => 1
+            [user_email] => hanscovd5@gmail.com
+            [role] => admin
+            [first_name] => hassan
+            [last_name] => samatua
+            [full_name] => hassan samatua
+        )
+
+)
+
+[2025-09-22 08:39:00] Processing delete request
+Data: Array
+(
+    [id] => 21
+)
+
+[2025-09-22 08:39:00] Successfully deleted image file
+Data: C:/xampp/htdocs/zanvarsity/html/uploads/carousel/carousel_1758032548_68c972a4bde73.jpg
+[2025-09-22 08:39:01] Successfully deleted carousel item
+Data: Array
+(
+    [id] => 21
+)
+
+[2025-09-22 08:39:01] Sending JSON response
+Data: Array
+(
+    [statusCode] => 200
+    [response] => Array
+        (
+            [success] => 1
+            [message] => Carousel item deleted successfully
+            [data] => 
+        )
+
+    [json] => {"success":true,"message":"Carousel item deleted successfully","data":null}
+)
+
+[2025-09-22 08:39:04] === New Request ===
+Data: Array
+(
+    [method] => POST
+    [post] => Array
+        (
+            [id] => 20
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+        )
+
+    [session] => Array
+        (
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+            [user_id] => 1
+            [user_email] => hanscovd5@gmail.com
+            [role] => admin
+            [first_name] => hassan
+            [last_name] => samatua
+            [full_name] => hassan samatua
+        )
+
+)
+
+[2025-09-22 08:39:05] Processing delete request
+Data: Array
+(
+    [id] => 20
+)
+
+[2025-09-22 08:39:05] Successfully deleted image file
+Data: C:/xampp/htdocs/zanvarsity/html/uploads/carousel/carousel_1758032375_68c971f793af4.jpg
+[2025-09-22 08:39:05] Successfully deleted carousel item
+Data: Array
+(
+    [id] => 20
+)
+
+[2025-09-22 08:39:05] Sending JSON response
+Data: Array
+(
+    [statusCode] => 200
+    [response] => Array
+        (
+            [success] => 1
+            [message] => Carousel item deleted successfully
+            [data] => 
+        )
+
+    [json] => {"success":true,"message":"Carousel item deleted successfully","data":null}
+)
+
+[2025-09-22 08:39:09] === New Request ===
+Data: Array
+(
+    [method] => POST
+    [post] => Array
+        (
+            [id] => 19
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+        )
+
+    [session] => Array
+        (
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+            [user_id] => 1
+            [user_email] => hanscovd5@gmail.com
+            [role] => admin
+            [first_name] => hassan
+            [last_name] => samatua
+            [full_name] => hassan samatua
+        )
+
+)
+
+[2025-09-22 08:39:09] Processing delete request
+Data: Array
+(
+    [id] => 19
+)
+
+[2025-09-22 08:39:09] Successfully deleted image file
+Data: C:/xampp/htdocs/zanvarsity/html/uploads/carousel/carousel_1758032185_68c97139ac696.jpg
+[2025-09-22 08:39:09] Successfully deleted carousel item
+Data: Array
+(
+    [id] => 19
+)
+
+[2025-09-22 08:39:09] Sending JSON response
+Data: Array
+(
+    [statusCode] => 200
+    [response] => Array
+        (
+            [success] => 1
+            [message] => Carousel item deleted successfully
+            [data] => 
+        )
+
+    [json] => {"success":true,"message":"Carousel item deleted successfully","data":null}
+)
+
+[2025-09-22 08:39:17] === New Request ===
+Data: Array
+(
+    [method] => POST
+    [post] => Array
+        (
+            [id] => 18
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+        )
+
+    [session] => Array
+        (
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+            [user_id] => 1
+            [user_email] => hanscovd5@gmail.com
+            [role] => admin
+            [first_name] => hassan
+            [last_name] => samatua
+            [full_name] => hassan samatua
+        )
+
+)
+
+[2025-09-22 08:39:17] Processing delete request
+Data: Array
+(
+    [id] => 18
+)
+
+[2025-09-22 08:39:17] Successfully deleted image file
+Data: C:/xampp/htdocs/zanvarsity/html/uploads/carousel/carousel_1758032182_68c9713652ba2.jpg
+[2025-09-22 08:39:17] Successfully deleted carousel item
+Data: Array
+(
+    [id] => 18
+)
+
+[2025-09-22 08:39:17] Sending JSON response
+Data: Array
+(
+    [statusCode] => 200
+    [response] => Array
+        (
+            [success] => 1
+            [message] => Carousel item deleted successfully
+            [data] => 
+        )
+
+    [json] => {"success":true,"message":"Carousel item deleted successfully","data":null}
+)
+
+[2025-09-22 08:39:21] === New Request ===
+Data: Array
+(
+    [method] => POST
+    [post] => Array
+        (
+            [id] => 17
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+        )
+
+    [session] => Array
+        (
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+            [user_id] => 1
+            [user_email] => hanscovd5@gmail.com
+            [role] => admin
+            [first_name] => hassan
+            [last_name] => samatua
+            [full_name] => hassan samatua
+        )
+
+)
+
+[2025-09-22 08:39:21] Processing delete request
+Data: Array
+(
+    [id] => 17
+)
+
+[2025-09-22 08:39:21] Successfully deleted image file
+Data: C:/xampp/htdocs/zanvarsity/html/uploads/carousel/carousel_1758032111_68c970efcd8ec.jpg
+[2025-09-22 08:39:21] Successfully deleted carousel item
+Data: Array
+(
+    [id] => 17
+)
+
+[2025-09-22 08:39:21] Sending JSON response
+Data: Array
+(
+    [statusCode] => 200
+    [response] => Array
+        (
+            [success] => 1
+            [message] => Carousel item deleted successfully
+            [data] => 
+        )
+
+    [json] => {"success":true,"message":"Carousel item deleted successfully","data":null}
+)
+
+[2025-09-22 08:39:24] === New Request ===
+Data: Array
+(
+    [method] => POST
+    [post] => Array
+        (
+            [id] => 13
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+        )
+
+    [session] => Array
+        (
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+            [user_id] => 1
+            [user_email] => hanscovd5@gmail.com
+            [role] => admin
+            [first_name] => hassan
+            [last_name] => samatua
+            [full_name] => hassan samatua
+        )
+
+)
+
+[2025-09-22 08:39:24] Processing delete request
+Data: Array
+(
+    [id] => 13
+)
+
+[2025-09-22 08:39:24] Successfully deleted image file
+Data: C:/xampp/htdocs/zanvarsity/html/uploads/carousel/carousel_1758031658_68c96f2ab1c5d.jpg
+[2025-09-22 08:39:24] Successfully deleted carousel item
+Data: Array
+(
+    [id] => 13
+)
+
+[2025-09-22 08:39:24] Sending JSON response
+Data: Array
+(
+    [statusCode] => 200
+    [response] => Array
+        (
+            [success] => 1
+            [message] => Carousel item deleted successfully
+            [data] => 
+        )
+
+    [json] => {"success":true,"message":"Carousel item deleted successfully","data":null}
+)
+
+[2025-09-22 08:39:28] === New Request ===
+Data: Array
+(
+    [method] => POST
+    [post] => Array
+        (
+            [id] => 12
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+        )
+
+    [session] => Array
+        (
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+            [user_id] => 1
+            [user_email] => hanscovd5@gmail.com
+            [role] => admin
+            [first_name] => hassan
+            [last_name] => samatua
+            [full_name] => hassan samatua
+        )
+
+)
+
+[2025-09-22 08:39:28] Processing delete request
+Data: Array
+(
+    [id] => 12
+)
+
+[2025-09-22 08:39:28] Successfully deleted image file
+Data: C:/xampp/htdocs/zanvarsity/html/uploads/carousel/carousel_1758031562_68c96eca4b977.jpg
+[2025-09-22 08:39:28] Successfully deleted carousel item
+Data: Array
+(
+    [id] => 12
+)
+
+[2025-09-22 08:39:28] Sending JSON response
+Data: Array
+(
+    [statusCode] => 200
+    [response] => Array
+        (
+            [success] => 1
+            [message] => Carousel item deleted successfully
+            [data] => 
+        )
+
+    [json] => {"success":true,"message":"Carousel item deleted successfully","data":null}
+)
+
+[2025-09-22 08:39:31] === New Request ===
+Data: Array
+(
+    [method] => POST
+    [post] => Array
+        (
+            [id] => 11
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+        )
+
+    [session] => Array
+        (
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+            [user_id] => 1
+            [user_email] => hanscovd5@gmail.com
+            [role] => admin
+            [first_name] => hassan
+            [last_name] => samatua
+            [full_name] => hassan samatua
+        )
+
+)
+
+[2025-09-22 08:39:31] Processing delete request
+Data: Array
+(
+    [id] => 11
+)
+
+[2025-09-22 08:39:31] Successfully deleted image file
+Data: C:/xampp/htdocs/zanvarsity/html/uploads/carousel/carousel_1758031437_68c96e4d7da85.jpg
+[2025-09-22 08:39:31] Successfully deleted carousel item
+Data: Array
+(
+    [id] => 11
+)
+
+[2025-09-22 08:39:31] Sending JSON response
+Data: Array
+(
+    [statusCode] => 200
+    [response] => Array
+        (
+            [success] => 1
+            [message] => Carousel item deleted successfully
+            [data] => 
+        )
+
+    [json] => {"success":true,"message":"Carousel item deleted successfully","data":null}
+)
+
+[2025-09-22 08:39:35] === New Request ===
+Data: Array
+(
+    [method] => POST
+    [post] => Array
+        (
+            [id] => 10
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+        )
+
+    [session] => Array
+        (
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+            [user_id] => 1
+            [user_email] => hanscovd5@gmail.com
+            [role] => admin
+            [first_name] => hassan
+            [last_name] => samatua
+            [full_name] => hassan samatua
+        )
+
+)
+
+[2025-09-22 08:39:35] Processing delete request
+Data: Array
+(
+    [id] => 10
+)
+
+[2025-09-22 08:39:35] Successfully deleted image file
+Data: C:/xampp/htdocs/zanvarsity/html/uploads/carousel/carousel_1758031434_68c96e4aa0e0c.jpg
+[2025-09-22 08:39:35] Successfully deleted carousel item
+Data: Array
+(
+    [id] => 10
+)
+
+[2025-09-22 08:39:35] Sending JSON response
+Data: Array
+(
+    [statusCode] => 200
+    [response] => Array
+        (
+            [success] => 1
+            [message] => Carousel item deleted successfully
+            [data] => 
+        )
+
+    [json] => {"success":true,"message":"Carousel item deleted successfully","data":null}
+)
+
+[2025-09-22 08:39:39] === New Request ===
+Data: Array
+(
+    [method] => POST
+    [post] => Array
+        (
+            [id] => 9
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+        )
+
+    [session] => Array
+        (
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+            [user_id] => 1
+            [user_email] => hanscovd5@gmail.com
+            [role] => admin
+            [first_name] => hassan
+            [last_name] => samatua
+            [full_name] => hassan samatua
+        )
+
+)
+
+[2025-09-22 08:39:39] Processing delete request
+Data: Array
+(
+    [id] => 9
+)
+
+[2025-09-22 08:39:39] Successfully deleted image file
+Data: C:/xampp/htdocs/zanvarsity/html/uploads/carousel/carousel_1758031333_68c96de5283f4.jpg
+[2025-09-22 08:39:39] Successfully deleted carousel item
+Data: Array
+(
+    [id] => 9
+)
+
+[2025-09-22 08:39:39] Sending JSON response
+Data: Array
+(
+    [statusCode] => 200
+    [response] => Array
+        (
+            [success] => 1
+            [message] => Carousel item deleted successfully
+            [data] => 
+        )
+
+    [json] => {"success":true,"message":"Carousel item deleted successfully","data":null}
+)
+
+[2025-09-22 08:39:42] === New Request ===
+Data: Array
+(
+    [method] => POST
+    [post] => Array
+        (
+            [id] => 8
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+        )
+
+    [session] => Array
+        (
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+            [user_id] => 1
+            [user_email] => hanscovd5@gmail.com
+            [role] => admin
+            [first_name] => hassan
+            [last_name] => samatua
+            [full_name] => hassan samatua
+        )
+
+)
+
+[2025-09-22 08:39:42] Processing delete request
+Data: Array
+(
+    [id] => 8
+)
+
+[2025-09-22 08:39:42] Successfully deleted image file
+Data: C:/xampp/htdocs/zanvarsity/html/uploads/carousel/carousel_1758031252_68c96d94097f2.jpg
+[2025-09-22 08:39:42] Successfully deleted carousel item
+Data: Array
+(
+    [id] => 8
+)
+
+[2025-09-22 08:39:42] Sending JSON response
+Data: Array
+(
+    [statusCode] => 200
+    [response] => Array
+        (
+            [success] => 1
+            [message] => Carousel item deleted successfully
+            [data] => 
+        )
+
+    [json] => {"success":true,"message":"Carousel item deleted successfully","data":null}
+)
+
+[2025-09-22 08:39:47] === New Request ===
+Data: Array
+(
+    [method] => POST
+    [post] => Array
+        (
+            [id] => 7
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+        )
+
+    [session] => Array
+        (
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+            [user_id] => 1
+            [user_email] => hanscovd5@gmail.com
+            [role] => admin
+            [first_name] => hassan
+            [last_name] => samatua
+            [full_name] => hassan samatua
+        )
+
+)
+
+[2025-09-22 08:39:47] Processing delete request
+Data: Array
+(
+    [id] => 7
+)
+
+[2025-09-22 08:39:47] Successfully deleted image file
+Data: C:/xampp/htdocs/zanvarsity/html/uploads/carousel/carousel_1758031206_68c96d667b16a.jpg
+[2025-09-22 08:39:47] Successfully deleted carousel item
+Data: Array
+(
+    [id] => 7
+)
+
+[2025-09-22 08:39:47] Sending JSON response
+Data: Array
+(
+    [statusCode] => 200
+    [response] => Array
+        (
+            [success] => 1
+            [message] => Carousel item deleted successfully
+            [data] => 
+        )
+
+    [json] => {"success":true,"message":"Carousel item deleted successfully","data":null}
+)
+
+[2025-09-22 09:06:23] === New Request ===
+Data: Array
+(
+    [method] => POST
+    [post] => Array
+        (
+            [id] => 23
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+        )
+
+    [session] => Array
+        (
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+            [user_id] => 1
+            [user_email] => hanscovd5@gmail.com
+            [role] => admin
+            [first_name] => hassan
+            [last_name] => samatua
+            [full_name] => hassan samatua
+        )
+
+)
+
+[2025-09-22 09:06:23] Processing delete request
+Data: Array
+(
+    [id] => 23
+)
+
+[2025-09-22 09:06:23] Successfully deleted image file
+Data: C:/xampp/htdocs/zanvarsity/html/uploads/carousel/carousel_1758523272_68d0ef8891f00.png
+[2025-09-22 09:06:23] Successfully deleted carousel item
+Data: Array
+(
+    [id] => 23
+)
+
+[2025-09-22 09:06:23] Sending JSON response
+Data: Array
+(
+    [statusCode] => 200
+    [response] => Array
+        (
+            [success] => 1
+            [message] => Carousel item deleted successfully
+            [data] => 
+        )
+
+    [json] => {"success":true,"message":"Carousel item deleted successfully","data":null}
+)
+
+[2025-09-22 09:06:28] === New Request ===
+Data: Array
+(
+    [method] => POST
+    [post] => Array
+        (
+            [id] => 24
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+        )
+
+    [session] => Array
+        (
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+            [user_id] => 1
+            [user_email] => hanscovd5@gmail.com
+            [role] => admin
+            [first_name] => hassan
+            [last_name] => samatua
+            [full_name] => hassan samatua
+        )
+
+)
+
+[2025-09-22 09:06:28] Processing delete request
+Data: Array
+(
+    [id] => 24
+)
+
+[2025-09-22 09:06:28] Successfully deleted image file
+Data: C:/xampp/htdocs/zanvarsity/html/uploads/carousel/carousel_1758524785_68d0f5719f584.png
+[2025-09-22 09:06:28] Successfully deleted carousel item
+Data: Array
+(
+    [id] => 24
+)
+
+[2025-09-22 09:06:28] Sending JSON response
+Data: Array
+(
+    [statusCode] => 200
+    [response] => Array
+        (
+            [success] => 1
+            [message] => Carousel item deleted successfully
+            [data] => 
+        )
+
+    [json] => {"success":true,"message":"Carousel item deleted successfully","data":null}
+)
+
+[2025-09-22 09:06:33] === New Request ===
+Data: Array
+(
+    [method] => POST
+    [post] => Array
+        (
+            [id] => 25
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+        )
+
+    [session] => Array
+        (
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+            [user_id] => 1
+            [user_email] => hanscovd5@gmail.com
+            [role] => admin
+            [first_name] => hassan
+            [last_name] => samatua
+            [full_name] => hassan samatua
+        )
+
+)
+
+[2025-09-22 09:06:33] Processing delete request
+Data: Array
+(
+    [id] => 25
+)
+
+[2025-09-22 09:06:33] Successfully deleted image file
+Data: C:/xampp/htdocs/zanvarsity/html/uploads/carousel/carousel_1758524790_68d0f576488f5.png
+[2025-09-22 09:06:33] Successfully deleted carousel item
+Data: Array
+(
+    [id] => 25
+)
+
+[2025-09-22 09:06:33] Sending JSON response
+Data: Array
+(
+    [statusCode] => 200
+    [response] => Array
+        (
+            [success] => 1
+            [message] => Carousel item deleted successfully
+            [data] => 
+        )
+
+    [json] => {"success":true,"message":"Carousel item deleted successfully","data":null}
+)
+
+[2025-09-22 09:06:38] === New Request ===
+Data: Array
+(
+    [method] => POST
+    [post] => Array
+        (
+            [id] => 22
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+        )
+
+    [session] => Array
+        (
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+            [user_id] => 1
+            [user_email] => hanscovd5@gmail.com
+            [role] => admin
+            [first_name] => hassan
+            [last_name] => samatua
+            [full_name] => hassan samatua
+        )
+
+)
+
+[2025-09-22 09:06:38] Processing delete request
+Data: Array
+(
+    [id] => 22
+)
+
+[2025-09-22 09:06:38] Successfully deleted image file
+Data: C:/xampp/htdocs/zanvarsity/html/uploads/carousel/carousel_1758523233_68d0ef61edf60.png
+[2025-09-22 09:06:38] Successfully deleted carousel item
+Data: Array
+(
+    [id] => 22
+)
+
+[2025-09-22 09:06:38] Sending JSON response
+Data: Array
+(
+    [statusCode] => 200
+    [response] => Array
+        (
+            [success] => 1
+            [message] => Carousel item deleted successfully
+            [data] => 
+        )
+
+    [json] => {"success":true,"message":"Carousel item deleted successfully","data":null}
+)
+
+[2025-09-22 09:06:43] === New Request ===
+Data: Array
+(
+    [method] => POST
+    [post] => Array
+        (
+            [id] => 26
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+        )
+
+    [session] => Array
+        (
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+            [user_id] => 1
+            [user_email] => hanscovd5@gmail.com
+            [role] => admin
+            [first_name] => hassan
+            [last_name] => samatua
+            [full_name] => hassan samatua
+        )
+
+)
+
+[2025-09-22 09:06:43] Processing delete request
+Data: Array
+(
+    [id] => 26
+)
+
+[2025-09-22 09:06:43] Successfully deleted image file
+Data: C:/xampp/htdocs/zanvarsity/html/uploads/carousel/carousel_1758524795_68d0f57b710f5.png
+[2025-09-22 09:06:43] Successfully deleted carousel item
+Data: Array
+(
+    [id] => 26
+)
+
+[2025-09-22 09:06:43] Sending JSON response
+Data: Array
+(
+    [statusCode] => 200
+    [response] => Array
+        (
+            [success] => 1
+            [message] => Carousel item deleted successfully
+            [data] => 
+        )
+
+    [json] => {"success":true,"message":"Carousel item deleted successfully","data":null}
+)
+
+[2025-09-22 09:06:47] === New Request ===
+Data: Array
+(
+    [method] => POST
+    [post] => Array
+        (
+            [id] => 27
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+        )
+
+    [session] => Array
+        (
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+            [user_id] => 1
+            [user_email] => hanscovd5@gmail.com
+            [role] => admin
+            [first_name] => hassan
+            [last_name] => samatua
+            [full_name] => hassan samatua
+        )
+
+)
+
+[2025-09-22 09:06:47] Processing delete request
+Data: Array
+(
+    [id] => 27
+)
+
+[2025-09-22 09:06:47] Successfully deleted image file
+Data: C:/xampp/htdocs/zanvarsity/html/uploads/carousel/carousel_1758524800_68d0f580677a0.png
+[2025-09-22 09:06:47] Successfully deleted carousel item
+Data: Array
+(
+    [id] => 27
+)
+
+[2025-09-22 09:06:47] Sending JSON response
+Data: Array
+(
+    [statusCode] => 200
+    [response] => Array
+        (
+            [success] => 1
+            [message] => Carousel item deleted successfully
+            [data] => 
+        )
+
+    [json] => {"success":true,"message":"Carousel item deleted successfully","data":null}
+)
+
+[2025-09-22 09:06:51] === New Request ===
+Data: Array
+(
+    [method] => POST
+    [post] => Array
+        (
+            [id] => 28
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+        )
+
+    [session] => Array
+        (
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+            [user_id] => 1
+            [user_email] => hanscovd5@gmail.com
+            [role] => admin
+            [first_name] => hassan
+            [last_name] => samatua
+            [full_name] => hassan samatua
+        )
+
+)
+
+[2025-09-22 09:06:51] Processing delete request
+Data: Array
+(
+    [id] => 28
+)
+
+[2025-09-22 09:06:51] Successfully deleted image file
+Data: C:/xampp/htdocs/zanvarsity/html/uploads/carousel/carousel_1758524805_68d0f5852e63f.png
+[2025-09-22 09:06:51] Successfully deleted carousel item
+Data: Array
+(
+    [id] => 28
+)
+
+[2025-09-22 09:06:51] Sending JSON response
+Data: Array
+(
+    [statusCode] => 200
+    [response] => Array
+        (
+            [success] => 1
+            [message] => Carousel item deleted successfully
+            [data] => 
+        )
+
+    [json] => {"success":true,"message":"Carousel item deleted successfully","data":null}
+)
+
+[2025-09-22 09:06:57] === New Request ===
+Data: Array
+(
+    [method] => POST
+    [post] => Array
+        (
+            [id] => 2
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+        )
+
+    [session] => Array
+        (
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+            [user_id] => 1
+            [user_email] => hanscovd5@gmail.com
+            [role] => admin
+            [first_name] => hassan
+            [last_name] => samatua
+            [full_name] => hassan samatua
+        )
+
+)
+
+[2025-09-22 09:06:57] Processing delete request
+Data: Array
+(
+    [id] => 2
+)
+
+[2025-09-22 09:06:57] Successfully deleted image file
+Data: C:/xampp/htdocs/zanvarsity/html/uploads/carousel/carousel_1758025911_68c958b747839.jpg
+[2025-09-22 09:06:57] Successfully deleted carousel item
+Data: Array
+(
+    [id] => 2
+)
+
+[2025-09-22 09:06:57] Sending JSON response
+Data: Array
+(
+    [statusCode] => 200
+    [response] => Array
+        (
+            [success] => 1
+            [message] => Carousel item deleted successfully
+            [data] => 
+        )
+
+    [json] => {"success":true,"message":"Carousel item deleted successfully","data":null}
+)
+
+[2025-09-22 09:07:02] === New Request ===
+Data: Array
+(
+    [method] => POST
+    [post] => Array
+        (
+            [id] => 29
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+        )
+
+    [session] => Array
+        (
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+            [user_id] => 1
+            [user_email] => hanscovd5@gmail.com
+            [role] => admin
+            [first_name] => hassan
+            [last_name] => samatua
+            [full_name] => hassan samatua
+        )
+
+)
+
+[2025-09-22 09:07:02] Processing delete request
+Data: Array
+(
+    [id] => 29
+)
+
+[2025-09-22 09:07:02] Successfully deleted image file
+Data: C:/xampp/htdocs/zanvarsity/html/uploads/carousel/carousel_1758524809_68d0f589cb0f1.png
+[2025-09-22 09:07:02] Successfully deleted carousel item
+Data: Array
+(
+    [id] => 29
+)
+
+[2025-09-22 09:07:02] Sending JSON response
+Data: Array
+(
+    [statusCode] => 200
+    [response] => Array
+        (
+            [success] => 1
+            [message] => Carousel item deleted successfully
+            [data] => 
+        )
+
+    [json] => {"success":true,"message":"Carousel item deleted successfully","data":null}
+)
+
+[2025-09-22 09:07:07] === New Request ===
+Data: Array
+(
+    [method] => POST
+    [post] => Array
+        (
+            [id] => 30
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+        )
+
+    [session] => Array
+        (
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+            [user_id] => 1
+            [user_email] => hanscovd5@gmail.com
+            [role] => admin
+            [first_name] => hassan
+            [last_name] => samatua
+            [full_name] => hassan samatua
+        )
+
+)
+
+[2025-09-22 09:07:07] Processing delete request
+Data: Array
+(
+    [id] => 30
+)
+
+[2025-09-22 09:07:07] Successfully deleted image file
+Data: C:/xampp/htdocs/zanvarsity/html/uploads/carousel/carousel_1758524814_68d0f58e335d2.png
+[2025-09-22 09:07:07] Successfully deleted carousel item
+Data: Array
+(
+    [id] => 30
+)
+
+[2025-09-22 09:07:07] Sending JSON response
+Data: Array
+(
+    [statusCode] => 200
+    [response] => Array
+        (
+            [success] => 1
+            [message] => Carousel item deleted successfully
+            [data] => 
+        )
+
+    [json] => {"success":true,"message":"Carousel item deleted successfully","data":null}
+)
+
+[2025-09-22 09:08:58] === New Request ===
+Data: Array
+(
+    [method] => POST
+    [post] => Array
+        (
+            [id] => 33
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+        )
+
+    [session] => Array
+        (
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+            [user_id] => 1
+            [user_email] => hanscovd5@gmail.com
+            [role] => admin
+            [first_name] => hassan
+            [last_name] => samatua
+            [full_name] => hassan samatua
+        )
+
+)
+
+[2025-09-22 09:08:58] Processing delete request
+Data: Array
+(
+    [id] => 33
+)
+
+[2025-09-22 09:08:58] Successfully deleted image file
+Data: C:/xampp/htdocs/zanvarsity/html/uploads/carousel/carousel_1758524829_68d0f59d76c51.png
+[2025-09-22 09:08:58] Successfully deleted carousel item
+Data: Array
+(
+    [id] => 33
+)
+
+[2025-09-22 09:08:58] Sending JSON response
+Data: Array
+(
+    [statusCode] => 200
+    [response] => Array
+        (
+            [success] => 1
+            [message] => Carousel item deleted successfully
+            [data] => 
+        )
+
+    [json] => {"success":true,"message":"Carousel item deleted successfully","data":null}
+)
+
+[2025-09-22 09:09:11] === New Request ===
+Data: Array
+(
+    [method] => POST
+    [post] => Array
+        (
+            [id] => 34
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+        )
+
+    [session] => Array
+        (
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+            [user_id] => 1
+            [user_email] => hanscovd5@gmail.com
+            [role] => admin
+            [first_name] => hassan
+            [last_name] => samatua
+            [full_name] => hassan samatua
+        )
+
+)
+
+[2025-09-22 09:09:11] Processing delete request
+Data: Array
+(
+    [id] => 34
+)
+
+[2025-09-22 09:09:11] Successfully deleted image file
+Data: C:/xampp/htdocs/zanvarsity/html/uploads/carousel/carousel_1758524932_68d0f604715b6.jpg
+[2025-09-22 09:09:11] Successfully deleted carousel item
+Data: Array
+(
+    [id] => 34
+)
+
+[2025-09-22 09:09:11] Sending JSON response
+Data: Array
+(
+    [statusCode] => 200
+    [response] => Array
+        (
+            [success] => 1
+            [message] => Carousel item deleted successfully
+            [data] => 
+        )
+
+    [json] => {"success":true,"message":"Carousel item deleted successfully","data":null}
+)
+
+[2025-09-22 09:12:19] === New Request ===
+Data: Array
+(
+    [method] => POST
+    [post] => Array
+        (
+            [id] => 35
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+        )
+
+    [session] => Array
+        (
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+            [user_id] => 1
+            [user_email] => hanscovd5@gmail.com
+            [role] => admin
+            [first_name] => hassan
+            [last_name] => samatua
+            [full_name] => hassan samatua
+        )
+
+)
+
+[2025-09-22 09:12:19] Processing delete request
+Data: Array
+(
+    [id] => 35
+)
+
+[2025-09-22 09:12:19] Successfully deleted image file
+Data: C:/xampp/htdocs/zanvarsity/html/uploads/carousel/carousel_1758524940_68d0f60cc3ba6.jpg
+[2025-09-22 09:12:19] Successfully deleted carousel item
+Data: Array
+(
+    [id] => 35
+)
+
+[2025-09-22 09:12:19] Sending JSON response
+Data: Array
+(
+    [statusCode] => 200
+    [response] => Array
+        (
+            [success] => 1
+            [message] => Carousel item deleted successfully
+            [data] => 
+        )
+
+    [json] => {"success":true,"message":"Carousel item deleted successfully","data":null}
+)
+
+[2025-09-22 09:16:47] === New Request ===
+Data: Array
+(
+    [method] => POST
+    [post] => Array
+        (
+            [id] => 31
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+        )
+
+    [session] => Array
+        (
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+            [user_id] => 1
+            [user_email] => hanscovd5@gmail.com
+            [role] => admin
+            [first_name] => hassan
+            [last_name] => samatua
+            [full_name] => hassan samatua
+        )
+
+)
+
+[2025-09-22 09:16:47] Processing delete request
+Data: Array
+(
+    [id] => 31
+)
+
+[2025-09-22 09:16:47] Successfully deleted image file
+Data: C:/xampp/htdocs/zanvarsity/html/uploads/carousel/carousel_1758524819_68d0f593a0cbd.png
+[2025-09-22 09:16:47] Successfully deleted carousel item
+Data: Array
+(
+    [id] => 31
+)
+
+[2025-09-22 09:16:47] Sending JSON response
+Data: Array
+(
+    [statusCode] => 200
+    [response] => Array
+        (
+            [success] => 1
+            [message] => Carousel item deleted successfully
+            [data] => 
+        )
+
+    [json] => {"success":true,"message":"Carousel item deleted successfully","data":null}
+)
+
+[2025-09-22 09:16:53] === New Request ===
+Data: Array
+(
+    [method] => POST
+    [post] => Array
+        (
+            [id] => 32
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+        )
+
+    [session] => Array
+        (
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+            [user_id] => 1
+            [user_email] => hanscovd5@gmail.com
+            [role] => admin
+            [first_name] => hassan
+            [last_name] => samatua
+            [full_name] => hassan samatua
+        )
+
+)
+
+[2025-09-22 09:16:53] Processing delete request
+Data: Array
+(
+    [id] => 32
+)
+
+[2025-09-22 09:16:53] Successfully deleted image file
+Data: C:/xampp/htdocs/zanvarsity/html/uploads/carousel/carousel_1758524824_68d0f59872526.png
+[2025-09-22 09:16:53] Successfully deleted carousel item
+Data: Array
+(
+    [id] => 32
+)
+
+[2025-09-22 09:16:53] Sending JSON response
+Data: Array
+(
+    [statusCode] => 200
+    [response] => Array
+        (
+            [success] => 1
+            [message] => Carousel item deleted successfully
+            [data] => 
+        )
+
+    [json] => {"success":true,"message":"Carousel item deleted successfully","data":null}
+)
+
+[2025-09-22 09:17:01] === New Request ===
+Data: Array
+(
+    [method] => POST
+    [post] => Array
+        (
+            [id] => 37
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+        )
+
+    [session] => Array
+        (
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+            [user_id] => 1
+            [user_email] => hanscovd5@gmail.com
+            [role] => admin
+            [first_name] => hassan
+            [last_name] => samatua
+            [full_name] => hassan samatua
+        )
+
+)
+
+[2025-09-22 09:17:01] Processing delete request
+Data: Array
+(
+    [id] => 37
+)
+
+[2025-09-22 09:17:01] Successfully deleted image file
+Data: C:/xampp/htdocs/zanvarsity/html/uploads/carousel/carousel_1758525130_68d0f6ca471dd.jpg
+[2025-09-22 09:17:01] Successfully deleted carousel item
+Data: Array
+(
+    [id] => 37
+)
+
+[2025-09-22 09:17:01] Sending JSON response
+Data: Array
+(
+    [statusCode] => 200
+    [response] => Array
+        (
+            [success] => 1
+            [message] => Carousel item deleted successfully
+            [data] => 
+        )
+
+    [json] => {"success":true,"message":"Carousel item deleted successfully","data":null}
+)
+
+[2025-09-22 09:17:08] === New Request ===
+Data: Array
+(
+    [method] => POST
+    [post] => Array
+        (
+            [id] => 38
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+        )
+
+    [session] => Array
+        (
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+            [user_id] => 1
+            [user_email] => hanscovd5@gmail.com
+            [role] => admin
+            [first_name] => hassan
+            [last_name] => samatua
+            [full_name] => hassan samatua
+        )
+
+)
+
+[2025-09-22 09:17:08] Processing delete request
+Data: Array
+(
+    [id] => 38
+)
+
+[2025-09-22 09:17:08] Successfully deleted image file
+Data: C:/xampp/htdocs/zanvarsity/html/uploads/carousel/carousel_1758525142_68d0f6d62a5c7.jpg
+[2025-09-22 09:17:08] Successfully deleted carousel item
+Data: Array
+(
+    [id] => 38
+)
+
+[2025-09-22 09:17:08] Sending JSON response
+Data: Array
+(
+    [statusCode] => 200
+    [response] => Array
+        (
+            [success] => 1
+            [message] => Carousel item deleted successfully
+            [data] => 
+        )
+
+    [json] => {"success":true,"message":"Carousel item deleted successfully","data":null}
+)
+
+[2025-09-22 09:17:13] === New Request ===
+Data: Array
+(
+    [method] => POST
+    [post] => Array
+        (
+            [id] => 39
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+        )
+
+    [session] => Array
+        (
+            [csrf_token] => 9ff14cb2379db2bf391c1cfb6c640776b37626f4d7abc09f452706591f3ec2b0
+            [user_id] => 1
+            [user_email] => hanscovd5@gmail.com
+            [role] => admin
+            [first_name] => hassan
+            [last_name] => samatua
+            [full_name] => hassan samatua
+        )
+
+)
+
+[2025-09-22 09:17:13] Processing delete request
+Data: Array
+(
+    [id] => 39
+)
+
+[2025-09-22 09:17:13] Successfully deleted image file
+Data: C:/xampp/htdocs/zanvarsity/html/uploads/carousel/carousel_1758525338_68d0f79ae4ab8.jpg
+[2025-09-22 09:17:13] Successfully deleted carousel item
+Data: Array
+(
+    [id] => 39
+)
+
+[2025-09-22 09:17:13] Sending JSON response
+Data: Array
+(
+    [statusCode] => 200
+    [response] => Array
+        (
+            [success] => 1
+            [message] => Carousel item deleted successfully
+            [data] => 
+        )
+
+    [json] => {"success":true,"message":"Carousel item deleted successfully","data":null}
+)
+

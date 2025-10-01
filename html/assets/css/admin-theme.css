@@ -1,0 +1,128 @@
+/* Admin Sidebar Styles */
+.sidebar {
+    background: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+    overflow: hidden;
+    width: 250px; /* Fixed width */
+}
+
+.sidebar-widget {
+    padding: 20px;
+}
+
+.sidebar-widget:first-child {
+    background-color:white ; /* Green header */
+    color: white;
+    padding: 30px 20px;
+    margin: 0;
+}
+
+.sidebar-widget:not(:first-child) {
+    border-bottom: 1px solid #eee;
+}
+
+.sidebar-widget.text-center {
+    text-align: center;
+    padding: 20px 0;
+}
+
+.user-avatar {
+    margin-bottom: 15px;
+}
+
+.user-avatar-initials {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 15px;
+    background-color: #fafcfaf7;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 30px;
+    font-weight: bold;
+    text-transform: uppercase;
+    line-height: 1.2;
+}
+
+.user-avatar h4 {
+    margin: 10px 0 5px;
+    color: white; /* White text for the header */
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.label {
+    display: inline-block;
+    padding: 3px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.4;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 20px;
+}
+
+.label-primary {
+    background-color: #e98b105a;
+    color: white;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+/* Navigation */
+.nav-dashboard {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.nav-dashboard > li {
+    border-bottom: 1px solid #eee;
+}
+
+.nav-dashboard > li > a {
+    display: block;
+    padding: 12px 20px;
+    color: #555;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    border-left: 3px solid transparent;
+}
+
+.nav-dashboard > li > a:hover,
+.nav-dashboard > li.active > a {
+    background-color: #f8f9fa;
+    color: #ffffff;
+    border-left: 3px solid #95a19a;
+    padding-left: 17px;
+}
+
+.nav-dashboard .fa {
+    width: 20px;
+    margin-right: 10px;
+    text-align: center;
+    font-size: 16px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 991.98px) {
+    .sidebar {
+        margin-bottom: 20px;
+    }
+    
+    .user-avatar-initials {
+        width: 80px;
+        height: 80px;
+        font-size: 24px;
+    }
+}

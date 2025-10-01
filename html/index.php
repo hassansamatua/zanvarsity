@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+
+<html lang="en-US">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="author" content="Theme Starz" />
+
+		<link
+			href="http://fonts.googleapis.com/css?family=Montserrat:400,700"
+			rel="stylesheet"
+			type="text/css"
+		/>
+		<link href="assets/css/font-awesome.css" rel="stylesheet" type="text/css" />
+		<link
+			rel="stylesheet"
+			href="assets/bootstrap/css/bootstrap.css"
+			type="text/css"
+		/>
+		<link rel="stylesheet" href="assets/css/selectize.css" type="text/css" />
+		<link rel="stylesheet" href="assets/css/owl.carousel.css" type="text/css" />
+		<link
+			rel="stylesheet"
+			href="assets/css/vanillabox/vanillabox.css"
+			type="text/css"
+		/>
+		<link
+			rel="stylesheet"
+			href="assets/css/vanillabox/vanillabox.css"
+			type="text/css"
+		/>
+
+		<link rel="stylesheet" href="assets/css/style.css" type="text/css" />
+
+		<title>Universo - Educational, Course and University Template</title>
+	</head>
+
+	<body class="page-homepage-carousel">
+		<!-- Wrapper -->
+		<div class="wrapper">
+			<!-- Header -->
+			<div class="navigation-wrapper">
+				<div class="secondary-navigation-wrapper">
+					<div class="container">
+						<div class="navigation-contact pull-left">
+							Call Us: <span class="opacity-70">000-123-456-789</span>
+						</div>
+						<div class="search">
+							<div class="input-group">
+								<input
+									type="search"
+									class="form-control"
+									name="search"
+									placeholder="Search"
+								/>
+								<span class="input-group-btn"
+									><button type="submit" id="search-submit" class="btn">
+										<i class="fa fa-search"></i></button
+								></span>
+							</div>
+							<!-- /.input-group -->
+						</div>
+						<ul class="secondary-navigation list-unstyled">
+							<li><a href="#">Zumis Portal</a></li>
+							<li><a href="#">Prospectus</a></li>
+							<li><a href="#">Almanac</a></li>
+							<li><a href="#">Fee Structure</a></li>
+
+							<li><a href="#">Alumni</a></li>
+							<li><a href="register-sign-in.html"><i class="fa fa-sign-in"></i> Admin Login</a></li>
+						</ul>
+					</div>
+				</div>
+				<!-- /.secondary-navigation -->
+				<div class="primary-navigation-wrapper">
+					<header class="navbar" id="top" role="banner">
+						<div class="container">
+							<div class="navbar-header">
+								<button
+									class="navbar-toggle"
+									type="button"
+									data-toggle="collapse"
+									data-target=".bs-navbar-collapse"
+								>
+									<span class="sr-only">Toggle navigation</span>
+									<span class="icon-bar"></span>
+									<span class="icon-bar"></span>
+									<span class="icon-bar"></span>
+								</button>
+								<div class="navbar-brand nav" id="brand">
+									<a href="index.html"
+										><img src="assets/img/logo.png" alt="brand"
+									/></a>
+								</div>
+							</div>
+							<nav
+								class="collapse navbar-collapse bs-navbar-collapse navbar-right"
+								role="navigation"
+							>
+								<ul class="nav navbar-nav">
+									<li class="active">
+										<a href="#" class="has-child no-link">Home</a>
+										<ul class="list-unstyled child-navigation">
+											<li><a href="index.html">Homepage Education</a></li>
+											<li>
+												<a href="homepage-courses.html">Homepage Courses</a>
+											</li>
+											<li>
+												<a href="homepage-events.html">Homepage Events</a>
+											</li>
+										</ul>
+									</li>
+									<li>
+										<a href="#" class="has-child no-link">About</a>
+										<ul class="list-unstyled child-navigation">
+											<li>
+												<a href="course-landing-page.html"
+													>Course Landing Page</a
+												>
+											</li>
+											<li><a href="course-listing.html">Course Listing</a></li>
+											<li>
+												<a href="course-listing-images.html"
+													>Course Listing with Images</a
+												>
+											</li>
+											<li>
+												<a href="course-detail-v1.html">Course Detail v1</a>
+											</li>
+											<li>
+												<a href="course-detail-v2.html">Course Detail v2</a>
+											</li>
+											<li>
+												<a href="course-detail-v3.html">Course Detail v3</a>
+											</li>
+										</ul>
+									</li>
+									<li>
+										<a href="#" class="has-child no-link">Admission</a>
+										<ul class="list-unstyled child-navigation">
+											<li>
+												<a href="event-listing-images.html"
+													>Events Listing with images</a
+												>
+											</li>
+											<li><a href="event-listing.html">Events Listing</a></li>
+											<li><a href="event-grid.html">Events Grid</a></li>
+											<li><a href="event-detail.html">Event Detail</a></li>
+											<li><a href="event-calendar.html">Events Calendar</a></li>
+										</ul>
+									</li>
+									<!-- <li>
+										<a href="about-us.html">About Us</a>
+									</li> -->
+									<li>
+										<a href="#" class="has-child no-link">Academics</a>
+										<ul class="list-unstyled child-navigation">
+											<li><a href="blog-listing.html">Blog listing</a></li>
+											<li><a href="blog-detail.html">Blog Detail</a></li>
+										</ul>
+									</li>
+									<li>
+										<a href="#" class="has-child no-link">Directorates</a>
+										<ul class="list-unstyled child-navigation">
+											<li><a href="full-width.html">Fullwidth</a></li>
+											<li><a href="left-sidebar.html">Left Sidebar</a></li>
+											<li><a href="right-sidebar.html">Right Sidebar</a></li>
+											<li><a href="microsite.html">Microsite</a></li>
+											<li><a href="my-account.html">My Account</a></li>
+											<li><a href="members.html">Members</a></li>
+											<li><a href="member-detail.html">Member Detail</a></li>
+											<li>
+												<a href="register-sign-in.html">Register & Sign In</a>
+											</li>
+											<li><a href="shortcodes.html">Shortcodes</a></li>
+										</ul>
+									</li>
+									<li>
+										<a href="#" class="has-child no-link">Facilities</a>
+										<ul class="list-unstyled child-navigation">
+											<li><a href="full-width.html">Fullwidth</a></li>
+											<li><a href="left-sidebar.html">Left Sidebar</a></li>
+											<li><a href="right-sidebar.html">Right Sidebar</a></li>
+											<li><a href="microsite.html">Microsite</a></li>
+											<li><a href="my-account.html">My Account</a></li>
+											<li><a href="members.html">Members</a></li>
+											<li><a href="member-detail.html">Member Detail</a></li>
+											<li>
+												<a href="register-sign-in.html">Register & Sign In</a>
+											</li>
+											<li><a href="shortcodes.html">Shortcodes</a></li>
+										</ul>
+									</li>
+									<li>
+										<a href="contact-us.html">Contact Us</a>
+									</li>
+								</ul>
+							</nav>
+							<!-- /.navbar collapse-->
+						</div>
+						<!-- /.container -->
+					</header>
+					<!-- /.navbar -->
+				</div>
+				<!-- /.primary-navigation -->
+				<div class="background">
+					<img src="assets/img/background-city.png" alt="background" />
+				</div>
+			</div>
+			<!-- end Header -->
+
+			<!-- Page Content -->
+			<div id="page-content">
+				<!-- Slider -->
+				<div id="homepage-carousel">
+					<div class="container">
+						<div class="homepage-carousel-wrapper">
+							<div class="row">
+								<div class="col-md-6 col-sm-7">
+									<div class="image-carousel">
+										<div class="image-carousel-slide">
+											<img src="assets/img/slide-1.jpg" alt="" />
+										</div>
+										<div class="image-carousel-slide">
+											<img src="assets/img/slide-2.jpg" alt="" />
+										</div>
+										<div class="image-carousel-slide">
+											<img src="assets/img/slide-3.jpg" alt="" />
+										</div>
+									</div>
+									<!-- /.slider-image -->
+								</div>
+								<!-- /.col-md-6 -->
+								<div class="col-md-6 col-sm-5">
+									<div class="slider-content">
+										<div class="row">
+											<div class="col-md-12">
+												<h1>Join the comunity of modern thinking students</h1>
+												<form
+													id="slider-form"
+													role="form"
+													action=""
+													method="post"
+												>
+													<!-- <div class="row">
+														<div class="col-md-6">
+															<div class="input-group">
+																<input
+																	class="form-control has-dark-background"
+																	name="slider-name"
+																	id="slider-name"
+																	placeholder="Full Name"
+																	type="text"
+																	required
+																/>
+															</div>
+														</div> -->
+													<!-- /.col-md-6 -->
+													<!-- <div class="col-md-6">
+															<div class="input-group">
+																<input
+																	class="form-control has-dark-background"
+																	name="slider-email"
+																	id="slider-email"
+																	placeholder="Email"
+																	type="email"
+																	required
+																/>
+															</div>
+														</div> -->
+													<!-- /.col-md-6 -->
+													<!-- </div> -->
+													<!-- /.row -->
+													<div class="row">
+														<div class="col-md-6">
+															<div class="input-group">
+																<select
+																	name="slider-study-level"
+																	id="slider-study-level"
+																	class="has-dark-background"
+																>
+																	<option value="- Not selected -">
+																		Study Level
+																	</option>
+																	<option value="Beginner">Beginner</option>
+																	<option value="Advanced">Advanced</option>
+																	<option value="Intermediate">
+																		Intermediate
+																	</option>
+																	<option value="Professional">
+																		Professional
+																	</option>
+																</select>
+															</div>
+															<!-- /.form-group -->
+														</div>
+														<!-- /.col-md-6 -->
+														<div class="col-md-6">
+															<div class="input-group">
+																<select
+																	name="slider-course"
+																	id="slider-course"
+																	class="has-dark-background"
+																>
+																	<option value="- Not selected -">
+																		Courses
+																	</option>
+																	<option value="Art and Design">
+																		Art and Design
+																	</option>
+																	<option value="Marketing">Marketing</option>
+																	<option value="Science">Science</option>
+																	<option
+																		value="History and Psychology"
+																	></option>
+																</select>
+															</div>
+															<!-- /.form-group -->
+														</div>
+														<!-- /.col-md-6 -->
+													</div>
+													<!-- /.row -->
+													<button
+														type="submit"
+														id="slider-submit"
+														class="btn btn-framed pull-right"
+													>
+														Search
+													</button>
+													<div id="form-status"></div>
+												</form>
+											</div>
+											<!-- /.col-md-12 -->
+										</div>
+										<!-- /.row -->
+									</div>
+									<!-- /.slider-content -->
+								</div>
+								<!-- /.col-md-6 -->
+							</div>
+							<!-- /.row -->
+							<div class="background"></div>
+						</div>
+						<!-- /.slider-wrapper -->
+						<div class="slider-inner"></div>
+					</div>
+					<!-- /.container -->
+				</div>
+				<!-- end Slider -->
+
+				<!-- News, Events, About -->
+				<div class="block">
+					<div class="container">
+						<div class="row">
+							<div class="col-md-4 col-sm-6">
+								<section class="news-small" id="news-small">
+									<header>
+										<h2>Upcoming Events</h2>
+									</header>
+									<div class="section-content">
+										<article>
+											<figure class="date">
+												<i class="fa fa-file-o"></i>08-24-2014
+											</figure>
+											<header>
+												<a href="#"
+													>U-M School of Public Health, Detroit partners aim to
+													improve air quality in the city</a
+												>
+											</header>
+										</article>
+										<!-- /article -->
+										<article>
+											<figure class="date">
+												<i class="fa fa-file-o"></i>08-24-2014
+											</figure>
+											<header>
+												<a href="#"
+													>At 50, Center for the Education of Women celebrates a
+													wider mission</a
+												>
+											</header>
+										</article>
+										<!-- /article -->
+										<article>
+											<figure class="date">
+												<i class="fa fa-file-o"></i>08-24-2014
+											</figure>
+											<header>
+												<a href="#"
+													>Three U-Michigan scientists receive Sloan
+													fellowships</a
+												>
+											</header>
+										</article>
+										<!-- /article -->
+									</div>
+									<!-- /.section-content -->
+									<a href="" class="read-more stick-to-bottom">All News</a>
+								</section>
+								<!-- /.news-small -->
+							</div>
+							<!-- /.col-md-4 -->
+							<?php include __DIR__ . '/includes/announcements_section.php'; ?>
+							<!-- /.col-md-9 -->
+							<div class="col-md-3 col-sm-3">
+								<section id="donation">
+									<header>
+										<h2>Make a Donation</h2>
+									</header>
+									<div class="section-content">
+										<a href="" class="universal-button">
+											<h3>Support the University of Universo!</h3>
+											<figure class="date">
+												<i class="fa fa-arrow-right"></i>
+											</figure>
+										</a>
+									</div>
+									<!-- /.section-content -->
+								</section>
+							</div>
+							<!-- /.col-md-3 -->
+						</div>
+						<!-- /.row -->
+					</div>
+					<!-- /.container -->
+				</div>
+				<!-- end Partners, Make a Donation -->
+			</div>
+			<!-- end Page Content -->
+
+			<!-- Footer -->
+			<footer id="page-footer">
+				<section id="footer-top">
+					<div class="container">
+						<div class="footer-inner">
+							<div class="footer-social">
+								<figure>Follow us:</figure>
+								<div class="icons">
+									<a href=""><i class="fa fa-twitter"></i></a>
+									<a href=""><i class="fa fa-facebook"></i></a>
+									<a href=""><i class="fa fa-pinterest"></i></a>
+									<a href=""><i class="fa fa-youtube-play"></i></a>
+								</div>
+								<!-- /.icons -->
+							</div>
+							<!-- /.social -->
+							<div class="search pull-right">
+								<div class="input-group">
+									<input
+										type="text"
+										class="form-control"
+										placeholder="Search"
+									/>
+									<span class="input-group-btn">
+										<button type="submit" class="btn">
+											<i class="fa fa-search"></i>
+										</button>
+									</span>
+								</div>
+								<!-- /input-group -->
+							</div>
+							<!-- /.pull-right -->
+						</div>
+						<!-- /.footer-inner -->
+					</div>
+					<!-- /.container -->
+				</section>
+				<!-- /#footer-top -->
+
+				<section id="footer-content">
+					<div class="container">
+						<div class="row">
+							<div class="col-md-3 col-sm-12">
+								<aside class="logo">
+									<img
+										src="assets/img/logo-white.png"
+										class="vertical-center"
+									/>
+								</aside>
+							</div>
+							<!-- /.col-md-3 -->
+							<div class="col-md-3 col-sm-4">
+								<aside>
+									<header><h4>Contact Us</h4></header>
+									<address>
+										<strong>University of Universo</strong>
+										<br />
+										<span>4877 Spruce Drive</span>
+										<br /><br />
+										<span>West Newton, PA 15089</span>
+										<br />
+										<abbr title="Telephone">Telephone:</abbr> +1 (734) 123-4567
+										<br />
+										<abbr title="Email">Email:</abbr>
+										<a href="#">questions@youruniversity.com</a>
+									</address>
+								</aside>
+							</div>
+							<!-- /.col-md-3 -->
+							<div class="col-md-3 col-sm-4">
+								<aside>
+									<header><h4>Important Links</h4></header>
+									<ul class="list-links">
+										<li><a href="#">Future Students</a></li>
+										<li><a href="#">Alumni</a></li>
+										<li><a href="#">Give a Donation</a></li>
+										<li><a href="#">Professors</a></li>
+										<li><a href="#">Libary & Health</a></li>
+										<li><a href="#">Research</a></li>
+									</ul>
+								</aside>
+							</div>
+							<!-- /.col-md-3 -->
+							<div class="col-md-3 col-sm-4">
+								<aside>
+									<header><h4>About Universo</h4></header>
+									<p>
+										Aliquam feugiat turpis quis felis adipiscing, non pulvinar
+										odio lacinia. Aliquam elementum pharetra fringilla. Duis
+										blandit, sapien in semper vehicula, tellus elit gravida
+										odio, ac tincidunt nisl mi at ante. Vivamus tincidunt nunc
+										nibh.
+									</p>
+									<div>
+										<a href="" class="read-more">All News</a>
+									</div>
+								</aside>
+							</div>
+							<!-- /.col-md-3 -->
+						</div>
+						<!-- /.row -->
+					</div>
+					<!-- /.container -->
+					<div class="background">
+						<img src="assets/img/background-city.png" class="" alt="" />
+					</div>
+				</section>
+				<!-- /#footer-content -->
+
+				<section id="footer-bottom">
+					<div class="container">
+						<div class="footer-inner">
+							<div class="copyright">© Theme Starz, All rights reserved</div>
+							<!-- /.copyright -->
+						</div>
+						<!-- /.footer-inner -->
+					</div>
+					<!-- /.container -->
+				</section>
+				<!-- /#footer-bottom -->
+			</footer>
+			<!-- end Footer -->
+		</div>
+		<!-- end Wrapper -->
+
+		<script type="text/javascript" src="assets/js/jquery-2.1.0.min.js"></script>
+		<script
+			type="text/javascript"
+			src="assets/js/jquery-migrate-1.2.1.min.js"
+		></script>
+		<script
+			type="text/javascript"
+			src="assets/bootstrap/js/bootstrap.min.js"
+		></script>
+		<script type="text/javascript" src="assets/js/selectize.min.js"></script>
+		<script type="text/javascript" src="assets/js/owl.carousel.min.js"></script>
+		<script
+			type="text/javascript"
+			src="assets/js/jquery.validate.min.js"
+		></script>
+		<script
+			type="text/javascript"
+			src="assets/js/jquery.placeholder.js"
+		></script>
+		<script
+			type="text/javascript"
+			src="assets/js/jQuery.equalHeights.js"
+		></script>
+		<script type="text/javascript" src="assets/js/icheck.min.js"></script>
+		<script
+			type="text/javascript"
+			src="assets/js/jquery.vanillabox-0.1.5.min.js"
+		></script>
+		<script type="text/javascript" src="assets/js/retina-1.1.0.min.js"></script>
+
+		<script type="text/javascript" src="assets/js/custom.js"></script>
+	</body>
+</html>
+
+		<script type="text/javascript" src="assets/js/icheck.min.js"></script>
+		<script
+			type="text/javascript"
+			src="assets/js/jquery.vanillabox-0.1.5.min.js"
+		></script>
+		<script type="text/javascript" src="assets/js/retina-1.1.0.min.js"></script>
+
+		<script type="text/javascript" src="assets/js/custom.js"></script>
+	</body>
+</html>
+
