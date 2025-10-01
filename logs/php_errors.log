@@ -127,3 +127,71 @@
 [01-Oct-2025 14:52:36 Europe/Berlin] Successfully fetched 4 events from database
 [01-Oct-2025 14:52:39 Europe/Berlin] Successfully fetched 4 events from database
 [01-Oct-2025 14:53:06 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 14:57:39 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 14:57:42 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 14:57:46 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 14:57:49 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 15:01:55 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 15:02:02 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 15:02:05 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 15:02:08 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 15:05:13 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 15:05:17 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 15:05:20 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 15:08:34 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 15:14:55 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined function imagecreatetruecolor() in C:\xampp\htdocs\c\zanvarsity\html\admin\manage_events.php:48
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\c\zanvarsity\html\admin\manage_events.php on line 48
+[01-Oct-2025 15:14:57 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined function imagecreatetruecolor() in C:\xampp\htdocs\c\zanvarsity\html\admin\manage_events.php:48
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\c\zanvarsity\html\admin\manage_events.php on line 48
+[01-Oct-2025 15:22:39 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined function imagecreatetruecolor() in C:\xampp\htdocs\c\zanvarsity\html\admin\manage_events.php:48
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\c\zanvarsity\html\admin\manage_events.php on line 48
+[01-Oct-2025 15:22:39 Europe/Berlin] PHP Fatal error:  Uncaught Error: Call to undefined function imagecreatetruecolor() in C:\xampp\htdocs\c\zanvarsity\html\admin\manage_events.php:48
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\c\zanvarsity\html\admin\manage_events.php on line 48
+[01-Oct-2025 15:23:17 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 15:24:35 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 15:24:40 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 15:24:48 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 15:25:59 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 15:26:06 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 15:28:34 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 15:32:42 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 15:32:42 Europe/Berlin] Image not found: C:/xampp/htdocs/zanvarsity/uploads/events/event_68dd2be55c50d_robot.png
+[01-Oct-2025 15:32:42 Europe/Berlin] Image not found: C:/xampp/htdocs/zanvarsity/uploads/events/event_68dd097ce068f_gym.jpg
+[01-Oct-2025 15:32:42 Europe/Berlin] Image not found: C:/xampp/htdocs/zanvarsity/uploads/events/event_68dd0c3b50111_football ground.jpg
+[01-Oct-2025 15:32:42 Europe/Berlin] Image not found: C:/xampp/htdocs/zanvarsity/uploads/events/event_68dd0a09a6851_robot.png
+[01-Oct-2025 15:33:00 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 15:33:00 Europe/Berlin] Image not found: C:/xampp/htdocs/zanvarsity/uploads/events/event_68dd2be55c50d_robot.png
+[01-Oct-2025 15:33:00 Europe/Berlin] Image not found: C:/xampp/htdocs/zanvarsity/uploads/events/event_68dd097ce068f_gym.jpg
+[01-Oct-2025 15:33:00 Europe/Berlin] Image not found: C:/xampp/htdocs/zanvarsity/uploads/events/event_68dd0c3b50111_football ground.jpg
+[01-Oct-2025 15:33:00 Europe/Berlin] Image not found: C:/xampp/htdocs/zanvarsity/uploads/events/event_68dd0a09a6851_robot.png
+[01-Oct-2025 15:33:11 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 15:33:11 Europe/Berlin] Image not found: C:/xampp/htdocs/zanvarsity/uploads/events/event_68dd2be55c50d_robot.png
+[01-Oct-2025 15:33:11 Europe/Berlin] Image not found: C:/xampp/htdocs/zanvarsity/uploads/events/event_68dd097ce068f_gym.jpg
+[01-Oct-2025 15:33:11 Europe/Berlin] Image not found: C:/xampp/htdocs/zanvarsity/uploads/events/event_68dd0c3b50111_football ground.jpg
+[01-Oct-2025 15:33:11 Europe/Berlin] Image not found: C:/xampp/htdocs/zanvarsity/uploads/events/event_68dd0a09a6851_robot.png
+[01-Oct-2025 15:33:17 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 15:33:17 Europe/Berlin] Image not found: C:/xampp/htdocs/zanvarsity/uploads/events/event_68dd2be55c50d_robot.png
+[01-Oct-2025 15:33:17 Europe/Berlin] Image not found: C:/xampp/htdocs/zanvarsity/uploads/events/event_68dd097ce068f_gym.jpg
+[01-Oct-2025 15:33:17 Europe/Berlin] Image not found: C:/xampp/htdocs/zanvarsity/uploads/events/event_68dd0c3b50111_football ground.jpg
+[01-Oct-2025 15:33:17 Europe/Berlin] Image not found: C:/xampp/htdocs/zanvarsity/uploads/events/event_68dd0a09a6851_robot.png
+[01-Oct-2025 15:33:25 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 15:33:25 Europe/Berlin] Image not found: C:/xampp/htdocs/zanvarsity/uploads/events/event_68dd2be55c50d_robot.png
+[01-Oct-2025 15:33:25 Europe/Berlin] Image not found: C:/xampp/htdocs/zanvarsity/uploads/events/event_68dd097ce068f_gym.jpg
+[01-Oct-2025 15:33:25 Europe/Berlin] Image not found: C:/xampp/htdocs/zanvarsity/uploads/events/event_68dd0c3b50111_football ground.jpg
+[01-Oct-2025 15:33:25 Europe/Berlin] Image not found: C:/xampp/htdocs/zanvarsity/uploads/events/event_68dd0a09a6851_robot.png
+[01-Oct-2025 15:33:36 Europe/Berlin] Successfully fetched 3 events from database
+[01-Oct-2025 15:33:36 Europe/Berlin] Image not found: C:/xampp/htdocs/zanvarsity/uploads/events/event_68dd097ce068f_gym.jpg
+[01-Oct-2025 15:33:36 Europe/Berlin] Image not found: C:/xampp/htdocs/zanvarsity/uploads/events/event_68dd0c3b50111_football ground.jpg
+[01-Oct-2025 15:33:36 Europe/Berlin] Image not found: C:/xampp/htdocs/zanvarsity/uploads/events/event_68dd0a09a6851_robot.png
+[01-Oct-2025 15:34:12 Europe/Berlin] Successfully fetched 3 events from database
+[01-Oct-2025 15:34:12 Europe/Berlin] Image not found: C:/xampp/htdocs/zanvarsity/uploads/events/event_68dd097ce068f_gym.jpg
+[01-Oct-2025 15:34:12 Europe/Berlin] Image not found: C:/xampp/htdocs/zanvarsity/uploads/events/event_68dd0c3b50111_football ground.jpg
+[01-Oct-2025 15:34:12 Europe/Berlin] Image not found: C:/xampp/htdocs/zanvarsity/uploads/events/event_68dd0a09a6851_robot.png

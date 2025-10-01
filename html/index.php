@@ -663,86 +663,130 @@
                 <header><h2>Our Latest Events</h2></header>
                 <div class="row">
                     <div class="events images featured">
-                        <div class="col-md-3 col-sm-6">
-                            <article class="event">
-                                <div class="event-thumbnail">
-                                    <figure class="event-image">
-                                        <div class="image-wrapper"><img src="assets/img/course-01.jpg"></div>
-                                    </figure>
-                                    <figure class="date">
-                                        <div class="month">jan</div>
-                                        <div class="day">18</div>
-                                    </figure>
-                                </div>
-                                <aside>
-                                    <header>
-                                        <a href="event-detail.html">February Half-Term Activities: Big Stars and Little Secrets </a>
-                                    </header>
-                                    <div class="additional-info"><span class="fa fa-map-marker"></span> Faculty of Music</div>
-                                    <a href="event-detail.html" class="btn btn-framed btn-color-grey btn-small">View Details</a>
-                                </aside>
-                            </article><!-- /.event -->
-                        </div><!-- /.col-md-3 -->
-                        <div class="col-md-3 col-sm-6">
-                            <article class="event">
-                                <div class="event-thumbnail">
-                                    <figure class="event-image">
-                                        <div class="image-wrapper"><img src="assets/img/course-03.jpg"></div>
-                                    </figure>
-                                    <figure class="date">
-                                        <div class="month">jan</div>
-                                        <div class="day">23</div>
-                                    </figure>
-                                </div>
-                                <aside>
-                                    <header>
-                                        <a href="event-detail.html">Conservatory Exhibit: The garden of india a country and culture revealed</a>
-                                    </header>
-                                    <div class="additional-info"><span class="fa fa-map-marker"></span> Matthaei Botanical Gardens</div>
-                                    <a href="event-detail.html" class="btn btn-framed btn-color-grey btn-small">View Details</a>
-                                </aside>
-                            </article><!-- /.event -->
-                        </div><!-- /.col-md-3 -->
-                        <div class="col-md-3 col-sm-6">
-                            <article class="event">
-                                <div class="event-thumbnail">
-                                    <figure class="event-image">
-                                        <div class="image-wrapper"><img src="assets/img/course-04.jpg"></div>
-                                    </figure>
-                                    <figure class="date">
-                                        <div class="month">feb</div>
-                                        <div class="day">07</div>
-                                    </figure>
-                                </div>
-                                <aside>
-                                    <header>
-                                        <a href="event-detail.html">Museums and the Construction of Identities</a>
-                                    </header>
-                                    <div class="additional-info"><span class="fa fa-map-marker"></span> Pitt Rivers and Natural History Museums</div>
-                                    <a href="event-detail.html" class="btn btn-framed btn-color-grey btn-small">View Details</a>
-                                </aside>
-                            </article><!-- /.event -->
-                        </div><!-- /.col-md-3 -->
-                        <div class="col-md-3 col-sm-6">
-                            <article class="event">
-                                <div class="event-thumbnail">
-                                    <figure class="event-image">
-                                        <div class="image-wrapper"><img src="assets/img/course-02.jpg"></div>
-                                    </figure>
-                                    <figure class="date">
-                                        <div class="month">mar</div>
-                                        <div class="day">12</div>
-                                    </figure>
-                                </div>
-                                <aside>
-                                    <header>
-                                        <a href="event-detail.html">The Orchestra of the Age of Enlightenment perform with Music</a>
-                                    </header>
-                                    <div class="additional-info"><span class="fa fa-map-marker"></span> Faculty of Music</div>
-                                    <a href="event-detail.html" class="btn btn-framed btn-color-grey btn-small">View Details</a>
-                                </aside>
-                            </article><!-- /.event -->
-                        </div><!-- /.col-md-3 -->
+                        <?php
+                        try {
+                            // Include database connection
+                            require_once __DIR__ . '/../includes/database.php';
+                            
+                            // Get current date for comparison
+                            $current_date = date('Y-m-d H:i:s');
+                            
+                            // Query to get all events, ordered by start date (newest first), limit to 4
+                            $query = "SELECT * FROM events 
+                                     ORDER BY start_date DESC 
+                                     LIMIT 4";
+                            
+                            $stmt = $conn->prepare($query);
+                            $stmt->execute();
+                            $result = $stmt->get_result();
+                            
+                            // Log the number of events found for debugging
+                            error_log('Number of events found: ' . $result->num_rows);
+                            
+                            // Fallback image path
+                            $fallbackImage = 'assets/img/no-image-available.jpg';
+                            $imagePlaceholders = [
+                                'assets/img/course-01.jpg',
+                                'assets/img/course-02.jpg',
+                                'assets/img/course-03.jpg',
+                                'assets/img/course-04.jpg'
+                            ];
+                            $placeholderIndex = 0;
+                            
+                            if ($result && $result->num_rows > 0) {
+                                while ($event = $result->fetch_assoc()) {
+                                    // Format dates
+                                    $start_date = new DateTime($event['start_date']);
+                                    $day = $start_date->format('d');
+                                    $month = strtolower($start_date->format('M'));
+                                    
+                                    // Get image URL or use fallback
+                                    if (!empty($event['image_url'])) {
+                                        // If it's already a full URL, use as is
+                                        if (strpos($event['image_url'], 'http') === 0) {
+                                            $image_url = $event['image_url'];
+                                        } 
+                                        // If it's an absolute path starting with /, make it relative to the site root
+                                        elseif ($event['image_url'][0] === '/') {
+                                            $image_url = ltrim($event['image_url'], '/');
+                                        }
+                                        // Otherwise, assume it's a relative path in the uploads directory
+                                        else {
+                                            $image_url = 'uploads/events/' . ltrim($event['image_url'], '/');
+                                        }
+                                        
+                                        // Log the image URL for debugging
+                                        error_log('Image URL: ' . $image_url);
+                                        
+                                        // Check if file exists
+                                        $full_path = $_SERVER['DOCUMENT_ROOT'] . '/' . ltrim($image_url, '/');
+                                        if (!file_exists($full_path)) {
+                                            error_log('Image not found: ' . $full_path);
+                                            $image_url = $imagePlaceholders[$placeholderIndex % count($imagePlaceholders)];
+                                            $placeholderIndex++;
+                                        }
+                                    } else {
+                                        // Use placeholder if no image URL is provided
+                                        $image_url = $imagePlaceholders[$placeholderIndex % count($imagePlaceholders)];
+                                        $placeholderIndex++;
+                                    }
+                                    
+                                    // Truncate title if too long
+                                    $title = htmlspecialchars($event['title']);
+                                    if (strlen($title) > 60) {
+                                        $title = substr($title, 0, 57) . '...';
+                                    }
+                                    
+                                    // Get location or use default
+                                    $location = !empty($event['location']) ? htmlspecialchars($event['location']) : 'Location TBD';
+                                    ?>
+                                    <div class="col-md-3 col-sm-6">
+                                        <article class="event">
+                                            <div class="event-thumbnail">
+                                                <figure class="event-image">
+                                                    <div class="image-wrapper">
+                                                        <img src="<?php echo htmlspecialchars($image_url); ?>" 
+                                                             onerror="this.onerror=null; this.src='<?php echo $fallbackImage; ?>'"
+                                                             alt="<?php echo htmlspecialchars($event['title']); ?>">
+                                                    </div>
+                                                </figure>
+                                                <figure class="date">
+                                                    <div class="month"><?php echo $month; ?></div>
+                                                    <div class="day"><?php echo $day; ?></div>
+                                                </figure>
+                                            </div>
+                                            <aside>
+                                                <header>
+                                                    <a href="event-detail.php?id=<?php echo $event['id']; ?>"><?php echo $title; ?></a>
+                                                </header>
+                                                <div class="additional-info">
+                                                    <span class="fa fa-map-marker"></span> <?php echo $location; ?>
+                                                </div>
+                                                <a href="event-detail.php?id=<?php echo $event['id']; ?>" class="btn btn-framed btn-color-grey btn-small">View Details</a>
+                                            </aside>
+                                        </article>
+                                    </div>
+                                    <?php
+                                }
+                            } else {
+                                // If no upcoming events, show a message
+                                echo '<div class="col-12 text-center">
+                                    <div class="alert alert-info">No upcoming events found. Please check back later.</div>
+                                </div>';
+                            }
+                            
+                            $stmt->close();
+                            
+                        } catch (Exception $e) {
+                            // Log the error
+                            error_log('Error fetching latest events: ' . $e->getMessage());
+                            
+                            // Show error message
+                            echo '<div class="col-12 text-center">
+                                <div class="alert alert-danger">Error loading events. Please try again later.</div>
+                            </div>';
+                        }
+                        ?>
                     </div><!-- /.events -->
                 </div><!-- /.row -->
             </div><!-- /.container -->

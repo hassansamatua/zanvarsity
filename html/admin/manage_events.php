@@ -41,6 +41,31 @@ if (!is_dir(ROOT_PATH . '/logs')) {
     mkdir(ROOT_PATH . '/logs', 0755, true);
 }
 
+// Ensure assets directory exists
+$assetsDir = ROOT_PATH . '/html/assets';
+$imgDir = $assetsDir . '/img';
+$fallbackImagePath = $imgDir . '/no-image-available.jpg';
+
+// Create directories if they don't exist
+foreach ([$assetsDir, $imgDir] as $dir) {
+    if (!is_dir($dir)) {
+        mkdir($dir, 0755, true);
+    }
+}
+
+// Create a simple SVG fallback image if it doesn't exist
+if (!file_exists($fallbackImagePath)) {
+    $svgContent = '<?xml version="1.0" encoding="UTF-8"?>
+    <svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100%" height="100%" fill="#f0f0f0"/>
+        <text x="50%" y="50%" font-family="Arial" font-size="16" text-anchor="middle" fill="#999" dy=".3em">
+            No Image Available
+        </text>
+    </svg>';
+    
+    file_put_contents($fallbackImagePath, $svgContent);
+}
+
 // Process form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Check if this is an AJAX request
@@ -423,6 +448,11 @@ $page_title = 'Manage Events';
     <link rel="stylesheet" href="/zanvarsity/html/assets/css/style.css" type="text/css">
     <link rel="stylesheet" href="/zanvarsity/html/assets/css/green-theme.css" type="text/css">
     <link rel="stylesheet" href="/zanvarsity/html/assets/css/admin-theme.css" type="text/css">
+    
+    <!-- jQuery and other required scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <style>
         /* Custom styles for events management */
@@ -907,6 +937,47 @@ $page_title = 'Manage Events';
                                     ?>
                                         <div class="col">
                                             <div class="card h-100">
+                                                <?php 
+                                                // Set fallback image path - using relative path
+                                                $fallbackImagePath = '../assets/img/no-image-available.jpg';
+                                                
+                                                // Process image URL
+                                                $imageUrl = '';
+                                                if (!empty($event['image_url'])) {
+                                                    $imgPath = $event['image_url'];
+                                                    
+                                                    // Handle different path formats
+                                                    if (strpos($imgPath, 'http') === 0) {
+                                                        // Already a full URL
+                                                        $imageUrl = $imgPath;
+                                                    } else {
+                                                        // Handle different relative path formats
+                                                        if (strpos($imgPath, '/') === 0) {
+                                                            // Absolute path from root
+                                                            $imageUrl = '//' . $_SERVER['HTTP_HOST'] . $imgPath;
+                                                            $fullPath = $_SERVER['DOCUMENT_ROOT'] . $imgPath;
+                                                        } else {
+                                                            // Relative path
+                                                            $imageUrl = '//' . $_SERVER['HTTP_HOST'] . '/zanvarsity/' . ltrim($imgPath, '/');
+                                                            $fullPath = ROOT_PATH . '/' . ltrim($imgPath, '/');
+                                                        }
+                                                        
+                                                        // Verify the file exists
+                                                        if (!file_exists($fullPath)) {
+                                                            error_log("Image not found: " . $fullPath);
+                                                            $imageUrl = $fallbackImagePath;
+                                                        }
+                                                    }
+                                                } else {
+                                                    $imageUrl = $fallbackImagePath;
+                                                }
+                                                ?>
+                                                <div class="card-img-top" style="height: 200px; overflow: hidden; background: #f8f9fa; display: flex; align-items: center; justify-content: center;">
+                                                    <img src="<?php echo htmlspecialchars($imageUrl); ?>" 
+                                                         onerror="this.onerror=null; this.src='<?php echo $fallbackImagePath; ?>'"
+                                                         style="width: 100%; height: 100%; object-fit: cover;"
+                                                         alt="<?php echo htmlspecialchars($event['title']); ?>">
+                                                </div>
                                                 <div class="card-body">
                                                     <h5 class="card-title"><?php echo htmlspecialchars($event['title']); ?></h5>
                                                     <p class="card-text"><?php echo htmlspecialchars($event['description']); ?></p>
@@ -1331,10 +1402,25 @@ $page_title = 'Manage Events';
             });
         });
         
+        // Ensure jQuery is loaded
+        if (typeof jQuery == 'undefined') {
+            console.error('jQuery is not loaded');
+            return;
+        }
+
+        // Initialize tooltips
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+
         // Handle delete event button - consolidated single handler with enhanced error handling
-        $(document).on('click', '.delete-event', function() {
+        $(document).on('click', '.delete-event', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
             const eventId = $(this).data('id');
             const button = $(this);
+            const cardWrapper = button.closest('.col'); // Changed to target the column wrapper for better removal
             
             console.log('Delete button clicked for event ID:', eventId);
             
@@ -1345,10 +1431,13 @@ $page_title = 'Manage Events';
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
                 cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Yes, delete it!'
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel',
+                reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
-                    const originalText = showLoading(button, 'Deleting...');
+                    const originalText = button.html();
+                    button.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> Deleting...');
                     
                     console.log('Sending delete request for event ID:', eventId);
                     
@@ -1361,139 +1450,244 @@ $page_title = 'Manage Events';
                             csrf_token: '<?php echo $_SESSION['csrf_token']; ?>'
                         },
                         dataType: 'json',
-                        success: function(response, status, xhr) {
+                        success: function(response) {
                             console.log('Delete response:', response);
                             
                             if (response && response.success) {
-                                // Remove the event card from the UI
-                                const eventCard = button.closest('.event-card');
-                                if (eventCard.length) {
-                                    // Add fade out animation
-                                    eventCard.fadeOut(400, function() {
-                                        $(this).remove();
-                                        
-                                        // Show success message
-                                        Swal.fire({
-                                            icon: 'success',
-                                            title: 'Deleted!',
-                                            text: response.message || 'The event has been deleted.',
-                                            timer: 2000,
-                                            showConfirmButton: false
-                                        });
-                                        
-                                        // If no events left, show a message
-                                        if ($('.event-card').length === 0) {
-                                            $('#events-container').html(`
-                                                <div class="col-12">
-                                                    <div class="alert alert-info">
-                                                        No events found. Click the "Add New Event" button to create one.
-                                                    </div>
-                                                </div>
-                                            `);
-                                        }
-                                    });
-            if (result.isConfirmed) {
-                const originalText = showLoading(button, 'Deleting...');
-                
-                console.log('Sending delete request for event ID:', eventId);
-                
-                $.ajax({
-                    url: '/zanvarsity/html/admin/api/events.php',
-                    type: 'POST',
-                    data: {
-                        action: 'delete_event',
-                        id: eventId,
-                        csrf_token: '<?php echo $_SESSION['csrf_token']; ?>'
-                    },
-                    dataType: 'json',
-                    success: function(response, status, xhr) {
-                        console.log('Delete response:', response);
-                        
-                        if (response && response.success) {
-                            // Remove the event card from the UI
-                            const eventCard = button.closest('.event-card');
-                            if (eventCard.length) {
-                                // Add fade out animation
-                                eventCard.fadeOut(400, function() {
+                                // Add fade out animation to the card wrapper
+                                cardWrapper.fadeOut(400, function() {
                                     $(this).remove();
                                     
                                     // Show success message
                                     Swal.fire({
                                         icon: 'success',
                                         title: 'Deleted!',
-                                        text: response.message || 'The event has been deleted.',
+                                        text: response.message || 'The event has been deleted successfully.',
                                         timer: 2000,
                                         showConfirmButton: false
                                     });
                                     
                                     // If no events left, show a message
-                                    if ($('.event-card').length === 0) {
-                                        $('#events-container').html(`
-                                            <div class="col-12">
-                                                <div class="alert alert-info">
-                                                    No events found. Click the "Add New Event" button to create one.
+                                    if ($('.col').length === 0) {
+                                        $('#eventsGrid').html(`
+                                            <div class="col-12 text-center py-5">
+                                                <div class="text-muted">
+                                                    <i class="bx bx-calendar-x display-4 mb-3"></i>
+                                                    <h5 class="mb-3">No events found</h5>
+                                                    <p>Click the "Add New Event" button to create an event.</p>
                                                 </div>
                                             </div>
                                         `);
                                     }
                                 });
                             } else {
-                                // Fallback to page reload if we can't find the card
-                                window.location.reload();
+                                // Show error message
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: response && response.message ? response.message : 'Failed to delete the event. Please try again.',
+                                    confirmButtonText: 'OK'
+                                });
+                                button.html(originalText).prop('disabled', false);
                             }
-                        } else {
-                            let errorMsg = response && response.message 
-                                ? response.message 
-                                : 'Failed to delete event. Please try again.';
-                                
-                            console.error('Delete failed:', errorMsg);
-                            
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Delete error:', error);
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Error',
-                                html: errorMsg + '<br><br>Please check the console for more details.',
+                                text: 'An error occurred while deleting the event. Please try again.',
                                 confirmButtonText: 'OK'
                             });
-                            
-                            resetButton(button, originalText);
+                            button.html(originalText).prop('disabled', false);
                         }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('AJAX Error:', {
-                            status: status,
-                            error: error,
-                            response: xhr.responseText
-                        });
-                        
-                        let errorMsg = 'An error occurred while deleting the event. ';
-                        
-                        try {
-                            const response = JSON.parse(xhr.responseText);
-                            if (response && response.message) {
-                                errorMsg = response.message;
-                            }
-                        } catch (e) {
-                            errorMsg += 'Please check the console for more details.';
-                        }
-                        
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            html: errorMsg + '<br><br>Status: ' + status,
-                            confirmButtonText: 'OK'
-                        });
-                        
-                        resetButton(button, originalText);
-                    }
-                });
-            }
+                    });
+                }
+            });
         });
-    });
+        
+        // Helper function to reset button state
+        function resetButton(button, originalText) {
+            button.html(originalText).prop('disabled', false);
+        }
+        
+        // Handle edit event button
+        $(document).on('click', '.edit-event', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const eventId = $(this).data('id');
+            const button = $(this);
+            
+            console.log('Edit button clicked for event ID:', eventId);
+            
+            // Show loading state
+            const originalText = button.html();
+            button.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> Loading...');
+            
+            // Fetch event data
+            $.get(`/c/zanvarsity/html/admin/api/events.php?action=get_event&id=${eventId}`, function(response) {
+                console.log('Edit response:', response);
+                
+                if (response && response.success) {
+                    const event = response.data;
+                    
+                    // Populate the edit form
+                    $('#editEventId').val(event.id);
+                    $('#editEventTitle').val(event.title);
+                    $('#editEventDescription').val(event.description || '');
+                    $('#editEventLocation').val(event.location || '');
+                    
+                    // Format date for datetime-local input
+                    function formatDateForInput(dateString) {
+                        if (!dateString) return '';
+                        // Replace space with T and remove timezone if present
+                        return dateString.replace(' ', 'T').replace(/\+\d{2}:\d{2}$/, '');
+                    }
+                    
+                    // Set start and end dates
+                    const startDate = formatDateForInput(event.start_date);
+                    $('#editStartDate').val(startDate);
+                    
+                    const endDate = formatDateForInput(event.end_date);
+                    $('#editEndDate').val(endDate);
+                    
+                    // Set status
+                    $('#editEventStatus').val(event.status || 'upcoming');
+                    
+                    // Handle event image
+                    if (event.image_url) {
+                        // Create a fallback image source with absolute path
+                        const fallbackImage = '/zanvarsity/html/assets/img/no-image-available.jpg';
+                        
+                        $('#currentImage').html(`
+                            <div class="mb-3">
+                                <label class="form-label">Current Image</label>
+                                <div class="border p-2 text-center">
+                                    <img src="${event.image_url}" 
+                                         onerror="this.onerror=null; this.src='${fallbackImage}'"
+                                         class="img-fluid mb-2" 
+                                         style="max-height: 150px; object-fit: cover;">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="remove_image" id="removeImage">
+                                        <label class="form-check-label" for="removeImage">
+                                            Remove image
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        `);
+                    } else {
+                        $('#currentImage').html('');
+                    }
+                    
+                    // Show the edit modal
+                    const editModal = new bootstrap.Modal(document.getElementById('editEventModal'));
+                    editModal.show();
+                    
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response && response.message ? response.message : 'Failed to load event data',
+                        confirmButtonText: 'OK'
+                    });
+                }
+                
+                button.html(originalText).prop('disabled', false);
+                
+            }).fail(function(xhr, status, error) {
+                console.error('Edit error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to load event data. Please try again.',
+                    confirmButtonText: 'OK'
+                });
+                button.html(originalText).prop('disabled', false);
+            });
+        });
+        
+        // Handle gallery management
+        $(document).on('click', '.manage-gallery', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const eventId = $(this).data('id');
+            const eventTitle = $(this).data('title');
+            const button = $(this);
+            
+            console.log('Gallery button clicked for event ID:', eventId);
+            
+            // Show loading state
+            const originalText = button.html();
+            button.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> Loading...');
+            
+            // Set event ID and title in the modal
+            $('#galleryModal').data('event-id', eventId);
+            $('#galleryModalLabel').text(`Gallery: ${eventTitle}`);
+            
+            // Load gallery images
+            loadGalleryImages(eventId);
+            
+            // Show the modal
+            const galleryModal = new bootstrap.Modal(document.getElementById('galleryModal'));
+            galleryModal.show();
+            
+            // Reset button state after a short delay to allow modal to open
+            setTimeout(function() {
+                button.html(originalText).prop('disabled', false);
+            }, 500);
+        });
+
+        // Initialize any other event handlers or plugins here
+        $(document).ready(function() {
+            // Initialize tooltips
+            $('[data-toggle="tooltip"]').tooltip();
+            
+            // Any other initialization code can go here
+        });
+        // Error handling for AJAX requests
+        $(document).ajaxError(function(event, xhr, settings, error) {
+            console.error('AJAX Error:', {
+                status: xhr.status,
+                statusText: xhr.statusText,
+                response: xhr.responseText,
+                error: error
+            });
+            
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'An error occurred while processing your request. Please try again.',
+                confirmButtonText: 'OK'
+            });
+        });
+
+        // Global error handler for uncaught errors
+        window.onerror = function(message, source, lineno, colno, error) {
+            console.error('Uncaught Error:', { message, source, lineno, colno, error });
+            return true; // Prevent default error handling
+        };
+
+        // Initialize any remaining plugins or components
+        $(function() {
+            // Any additional initialization code can go here
+            console.log('Event management system initialized');
+        }); // End of document ready
     
     // Handle gallery management
-    $(document).on('click', '.manage-gallery', function() {
+    $(document).on('click', '.manage-gallery', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
         const eventId = $(this).data('id');
         const eventTitle = $(this).data('title');
+        const button = $(this);
+        const originalText = button.html();
+        
+        // Show loading state
+        button.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span>');
         
         // Set event info in the modal
         $('#galleryEventId').val(eventId);
@@ -1504,35 +1698,106 @@ $page_title = 'Manage Events';
         $('#galleryImages').val('');
         
         // Load existing gallery images
-        loadGalleryImages(eventId);
-        
-        // Show the modal
-        $('#galleryModal').modal('show');
+        loadGalleryImages(eventId, function() {
+            // Reset button state when loading is complete
+            button.prop('disabled', false).html('<i class="bx bx-image-add"></i>');
+            
+            // Show the modal
+            $('#galleryModal').modal('show');
+        });
     });
     
-    // Handle file input change
+    // Handle file input change with enhanced validation and preview
     $('#galleryImages').on('change', function() {
         const files = this.files;
         const preview = $('#imagePreview');
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        const validFiles = [];
+        
         preview.empty();
         
         if (files.length > 0) {
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                if (file.type.match('image.*')) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        preview.append(`
-                            <div class="position-relative" style="width: 100px; height: 100px; overflow: hidden; border: 1px solid #ddd; border-radius: 4px;">
-                                <img src="${e.target.result}" class="img-fluid h-100 w-100" style="object-fit: cover;">
-                            </div>
-                        `);
-                    }
-                    reader.readAsDataURL(file);
+            // Process each file
+            Array.from(files).forEach((file, index) => {
+                // Check file type
+                if (!validTypes.includes(file.type)) {
+                    showError(`Skipped ${file.name}: Only JPG, PNG, and GIF images are allowed.`);
+                    return;
                 }
+                
+                // Check file size
+                if (file.size > maxSize) {
+                    showError(`Skipped ${file.name}: File must be less than 5MB.`);
+                    return;
+                }
+                
+                validFiles.push(file);
+                
+                // Create preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const previewItem = $(`
+                        <div class="position-relative d-inline-block me-2 mb-2" 
+                             style="width: 100px; height: 100px; overflow: hidden; border: 1px solid #ddd; border-radius: 4px;">
+                            <img src="${e.target.result}" 
+                                 class="img-fluid h-100 w-100" 
+                                 style="object-fit: cover;"
+                                 alt="Preview ${index + 1}">
+                            <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" 
+                                 style="background: rgba(0,0,0,0.5); color: white; opacity: 0; transition: opacity 0.3s; cursor: pointer;"
+                                 onmouseover="this.style.opacity='1'"
+                                 onmouseout="this.style.opacity='0'"
+                                 onclick="$(this).closest('.position-relative').remove(); updateFileInput($(this).closest('.position-relative').index());">
+                                <i class='bx bx-trash'></i>
+                            </div>
+                        </div>
+                    `);
+                    preview.append(previewItem);
+                };
+                
+                reader.onerror = function() {
+                    console.error('Error reading file:', file.name);
+                };
+                
+                reader.readAsDataURL(file);
+            });
+            
+            // Update the file input with only valid files
+            if (validFiles.length > 0) {
+                const dataTransfer = new DataTransfer();
+                validFiles.forEach(file => dataTransfer.items.add(file));
+                this.files = dataTransfer.files;
+            } else {
+                this.value = ''; // Clear the input if no valid files
             }
         }
     });
+    
+    // Helper function to update file input after removing a preview
+    window.updateFileInput = function(index) {
+        const input = document.getElementById('galleryImages');
+        const files = Array.from(input.files);
+        files.splice(index, 1);
+        
+        const dataTransfer = new DataTransfer();
+        files.forEach(file => dataTransfer.items.add(file));
+        input.files = dataTransfer.files;
+    };
+    
+    // Show error message using SweetAlert2
+    function showError(message) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: message,
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 5000,
+            timerProgressBar: true
+        });
+    }
     
     // Handle image upload
     $('#uploadGalleryImages').on('click', function() {
@@ -1575,11 +1840,19 @@ $page_title = 'Manage Events';
         $.get('/c/zanvarsity/html/admin/get_gallery_images.php', { event_id: eventId }, function(response) {
             if (response.success && response.images.length > 0) {
                 let html = '';
+                const fallbackImage = '/zanvarsity/html/assets/img/no-image-available.jpg';
+                
                 response.images.forEach(function(image) {
                     html += `
                         <div class="col-md-4 col-6 mb-3">
                             <div class="card h-100">
-                                <img src="${image.image_url}" class="card-img-top" style="height: 150px; object-fit: cover;" alt="Gallery Image">
+                                <div style="height: 150px; overflow: hidden; background: #f8f9fa; display: flex; align-items: center; justify-content: center;">
+                                    <img src="${image.image_url}" 
+                                         onerror="this.onerror=null; this.src='${fallbackImage}'"
+                                         class="card-img-top" 
+                                         style="max-width: 100%; max-height: 100%; object-fit: cover;" 
+                                         alt="Gallery Image">
+                                </div>
                                 <div class="card-body p-2">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <small class="text-muted">${new Date(image.created_at).toLocaleDateString()}</small>
