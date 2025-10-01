@@ -5,12 +5,49 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta name="author" content="Theme Starz" />
+		<style>
+			/* Custom styles for three-column layout */
+			.three-columns {
+				display: flex;
+				flex-wrap: wrap;
+				margin: 0 -15px;
+			}
 
-		<link
-			href="http://fonts.googleapis.com/css?family=Montserrat:400,700"
-			rel="stylesheet"
-			type="text/css"
-		/>
+			.three-columns > div {
+				flex: 1 0 33.333333%;
+				padding: 0 15px;
+				min-width: 300px;
+			}
+
+			.section-card {
+				height: 100%;
+				display: flex;
+				flex-direction: column;
+			}
+
+			.section-content {
+				flex: 1;
+				display: flex;
+				flex-direction: column;
+			}
+
+			/* Ensure all sections have the same height */
+			#upcoming-events,
+			#announcements,
+			#about {
+				height: 100%;
+				display: flex;
+				flex-direction: column;
+			}
+
+			/* Responsive adjustments */
+			@media (max-width: 991.98px) {
+				.three-columns > div {
+					flex: 0 0 100%;
+					max-width: 100%;
+				}
+			}
+		</style>
 		<link href="assets/css/font-awesome.css" rel="stylesheet" type="text/css" />
 		<link
 			rel="stylesheet"
@@ -67,7 +104,7 @@
 							<li><a href="#">Fee Structure</a></li>
 
 							<li><a href="#">Alumni</a></li>
-							<li><a href="register-sign-in.html"><i class="fa fa-sign-in"></i> Admin Login</a></li>
+							<li><a href="sign-in.php"><i class="fa fa-sign-in"></i> Admin Login</a></li>
 						</ul>
 					</div>
 				</div>
@@ -348,18 +385,189 @@
 				</div>
 				<!-- end Slider -->
 				<!-- News, Events, About -->
-					<div class="block">
-					<div class="container">
-						<div class="row">
-							<div class="col-md-4">
-								<?php include __DIR__ . '/includes/upcoming_events_section.php'; ?>
-							</div>
-							<!-- /.col-md-4 -->
-							<div class="col-md-4">
-								<?php include __DIR__ . '/includes/announcements_section.php'; ?>
-							</div>
-							<!-- /.col-md-4 -->
-							<div class="col-md-4 col-sm-12">
+                <div class="block">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-md-4 col-sm-6">
+                                <section class="news-small" id="news-small">
+                                    <header>
+                                        <h2>Upcoming Events</h2>
+                                    </header>
+                                    <div class="section-content">
+                                        <?php
+                                        try {
+                                            // Include database connection
+                                            require_once __DIR__ . '/../includes/database.php';
+                                            
+                                            // Get today's date in Y-m-d format for comparison
+                                            $today = date('Y-m-d');
+                                            
+                                            // Query to get events from today onwards
+                                            $sql = "SELECT id, title, start_date, end_date, location, status 
+                                                    FROM events 
+                                                    WHERE DATE(start_date) >= ? 
+                                                    AND status IN ('upcoming', 'ongoing')
+                                                    ORDER BY start_date ASC 
+                                                    LIMIT 3";
+                                            
+                                            $stmt = $conn->prepare($sql);
+                                            $stmt->bind_param('s', $today);
+                                            $stmt->execute();
+                                            $result = $stmt->get_result();
+                                            
+                                            if ($result && $result->num_rows > 0) {
+                                                while ($row = $result->fetch_assoc()) {
+                                                    $start_date = new DateTime($row['start_date']);
+                                                    $end_date = !empty($row['end_date']) ? new DateTime($row['end_date']) : null;
+                                                    $now = new DateTime();
+                                                    
+                                                    // Check if event is ongoing
+                                                    $is_ongoing = ($start_date <= $now && ($end_date === null || $end_date >= $now));
+                                                    
+                                                    // Format dates and times
+                                                    $formatted_date = $start_date->format('d M Y');
+                                                    $formatted_time = $start_date->format('h:i A');
+                                                    $end_time = $end_date ? $end_date->format('h:i A') : '';
+                                                    
+                                                    // Determine status class and text
+                                                    $status_class = '';
+                                                    $status_text = '';
+                                                    
+                                                    if ($is_ongoing) {
+                                                        $status_class = 'ongoing';
+                                                        $status_text = ' (Ongoing)';
+                                                    } elseif ($row['status'] === 'cancelled') {
+                                                        $status_class = 'cancelled';
+                                                        $status_text = ' (Cancelled)';
+                                                    }
+                                                    ?>
+                                                    <article class="event-item <?php echo $status_class; ?>" 
+                                                             style="border-left: 3px solid <?php echo $is_ongoing ? '#28a745' : '#007bff'; ?>; 
+                                                                    padding: 10px 15px; 
+                                                                    margin: 10px 0; 
+                                                                    border-radius: 4px;
+                                                                    background-color: <?php echo $is_ongoing ? '#e8f5e9' : '#f8f9fa'; ?>">
+                                                        <div class="event-date" style="color: #666; font-size: 0.9em; margin-bottom: 5px;">
+                                                            <i class="fa fa-calendar"></i> <?php echo htmlspecialchars($formatted_date); ?>
+                                                            <?php if (!empty($formatted_time)): ?>
+                                                                <span style="margin-left: 10px;">
+                                                                    <i class="fa fa-clock-o"></i> 
+                                                                    <?php 
+                                                                    echo htmlspecialchars($formatted_time);
+                                                                    if (!empty($end_time) && $end_time !== $formatted_time) {
+                                                                        echo ' - ' . htmlspecialchars($end_time);
+                                                                    }
+                                                                    ?>
+                                                                </span>
+                                                            <?php endif; ?>
+                                                            <?php if ($status_text): ?>
+                                                                <span class="status-badge" style="margin-left: 10px; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; background-color: <?php echo $is_ongoing ? '#28a745' : '#dc3545'; ?>; color: white;">
+                                                                    <?php echo $status_text; ?>
+                                                                </span>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                        <h3 class="event-title" style="color: #000; font-weight: bold; margin: 5px 0 10px 0;">
+                                                            <a href="event-detail.php?id=<?php echo $row['id']; ?>" style="color: <?php echo $is_ongoing ? '#28a745' : '#007bff'; ?>;">
+                                                                <?php echo htmlspecialchars($row['title']); ?>
+                                                            </a>
+                                                        </h3>
+                                                        <?php if (!empty($row['location'])): ?>
+                                                            <div class="event-location" style="color: #666; font-size: 0.9em; margin-bottom: 5px;">
+                                                                <i class="fa fa-map-marker"></i> <?php echo htmlspecialchars($row['location']); ?>
+                                                            </div>
+                                                        <?php endif; ?>
+                                                    <?php
+                                                }
+                                            } else {
+                                                // Show a message if no upcoming events
+                                                echo '<article class="event-item">
+                                                    <div class="alert alert-info" style="margin: 0;">
+                                                        <i class="fa fa-info-circle"></i> No upcoming events scheduled. Please check back later.
+                                                    </div>
+                                                </article>';
+                                            }
+                                        } catch (Exception $e) {
+                                            // Log the error (in a real application, you'd want to log this properly)
+                                            error_log('Error fetching events: ' . $e->getMessage());
+                                            
+                                            // Show user-friendly error message
+                                            echo '<article class="event-item">
+                                                <div class="alert alert-warning" style="margin: 0;">
+                                                    <i class="fa fa-exclamation-triangle"></i> Unable to load events. Please try again later.
+                                                </div>
+                                            </article>';
+                                        }
+                                        ?>
+                                    </div>
+                                    <!-- /.section-content -->
+                                    <a href="event.php" class="read-more stick-to-bottom">View All Events</a>
+                                </section>
+                                <!-- /.news-small -->
+                            </div>
+                            <!-- /.col-md-4 -->
+                            <div class="col-md-4 col-sm-6">
+                                <section class="events small" id="announcements">
+                                    <header>
+                                        <h2>Announcements</h2>
+                                        <a href="announcements.php" class="link-calendar">View All</a>
+                                    </header>
+                                    <div class="section-content">
+                                        <?php
+                                        // Query to get active announcements (active and within date range)
+                                        $sql = "SELECT id, title, content, start_date 
+                                                FROM announcements 
+                                                WHERE status = 'active' 
+                                                AND (start_date <= NOW() AND (end_date IS NULL OR end_date >= NOW()))
+                                                ORDER BY start_date DESC 
+                                                LIMIT 3";
+                                        
+                                        $result = $conn->query($sql);
+                                        
+                                        if ($result && $result->num_rows > 0) {
+                                            $count = 0;
+                                            while ($row = $result->fetch_assoc()) {
+                                                $count++;
+                                                $month = date('M', strtotime($row['start_date']));
+                                                $day = date('d', strtotime($row['start_date']));
+                                                $class = $count === 1 ? 'nearest' : ($count === 2 ? 'nearest-second' : '');
+                                                ?>
+                                                <article class="event <?php echo $class; ?>">
+                                                    <figure class="date">
+                                                        <div class="month"><?php echo strtolower($month); ?></div>
+                                                        <div class="day"><?php echo $day; ?></div>
+                                                    </figure>
+                                                    <aside>
+                                                        <header>
+                                                            <a href="announcement-detail.php?id=<?php echo $row['id']; ?>">
+                                                                <?php echo htmlspecialchars($row['title']); ?>
+                                                            </a>
+                                                        </header>
+                                                        <div class="additional-info">
+                                                            <?php 
+                                                            // Truncate content for preview
+                                                            $content = strip_tags($row['content']);
+                                                            echo strlen($content) > 50 ? substr($content, 0, 50) . '...' : $content;
+                                                            ?>
+                                                        </div>
+                                                    </aside>
+                                                </article>
+                                                <?php
+                                            }
+                                        } else {
+                                            // Show a message if no announcements
+                                            echo '<article class="event">
+                                                <aside>
+                                                    <div class="additional-info">No current announcements.</div>
+                                                </aside>
+                                            </article>';
+                                        }
+                                        ?>
+                                    </div>
+                                </section>
+                                <!-- /.events-small -->
+                            </div>
+                            <!-- /.col-md-4 -->
+                            <div class="col-md-4 col-sm-12">
 								<?php
 								// Include database connection
 								require_once __DIR__ . '/../includes/database.php';
@@ -435,14 +643,20 @@
 								<!-- /.section-content -->
 							</section>
 							<!-- /.about -->
-						</div>
-						<!-- /.col-md-4 -->
-{{ ... }}
+                            </div>
+                            <!-- /.col-md-4 -->
+                        </div>
+                        <!-- /.row -->
+                    </div>
+                    <!-- /.container -->
+                </div>
+                <!-- end News, Events, About -->
+					<div class="row">
+
 							
 							<!-- /.col-md-3 -->
 						</div>
-						<!-- /.row -->
-{{ ... }}
+
 					</div>
 					<!-- /.container -->
 				</div>

@@ -31,129 +31,15 @@ if (!isset($page_title)) {
     <!-- Boxicons -->
     <link href="https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css" rel="stylesheet">
     
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap5.min.css" rel="stylesheet">
+    
     <!-- Custom CSS -->
     <link href="/zanvarsity/html/assets/css/admin.css" rel="stylesheet">
     
+    <!-- Custom styles for this template -->
     <style>
-        body {
-            padding-top: 56px;
-        }
-        
-        .sidebar {
-            position: fixed;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            z-index: 100;
-            padding: 56px 0 0;
-            box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
-            background-color: #2c3e50;
-            color: white;
-        }
-        
-        .sidebar-sticky {
-            position: relative;
-            top: 0;
-            height: calc(100vh - 56px);
-            padding-top: .5rem;
-            overflow-x: hidden;
-            overflow-y: auto;
-        }
-        
-        .nav-link {
-            color: rgba(255, 255, 255, 0.8);
-            padding: 0.5rem 1rem;
-        }
-        
-        .nav-link:hover {
-            color: #fff;
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-        
-        .nav-link.active {
-            color: #fff;
-            background-color: rgba(255, 255, 255, 0.2);
-        }
-        
-        .main-content {
-            margin-left: 200px;
-            padding: 20px;
-        }
-        
-        @media (max-width: 767.98px) {
-            .sidebar {
-                width: 100%;
-                height: auto;
-                position: relative;
-            }
-            .main-content {
-                margin-left: 0;
-            }
-        }
-        
-        /* Dropdown Menu */
-        .dropdown-menu {
-            border: none;
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
-            border-radius: 0.5rem;
-            margin-top: 0.5rem;
-            padding: 0.5rem 0;
-        }
-        
-        .dropdown-item {
-            padding: 0.5rem 1.5rem;
-            font-size: 0.9rem;
-        }
-        
-        .dropdown-item i {
-            width: 20px;
-            text-align: center;
-            margin-right: 0.5rem;
-        }
-        
-        /* User Dropdown */
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: #f8f9fa;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid #dee2e6;
-        }
-        
-        .user-info {
-            margin-right: 0.75rem;
-            text-align: right;
-        }
-        
-        .user-info .name {
-            font-weight: 600;
-            display: block;
-            line-height: 1.2;
-        }
-        
-        .user-info .role {
-            font-size: 0.75rem;
-            color: #6c757d;
-            display: block;
-            line-height: 1.2;
-        }
-        
-        /* Responsive Adjustments */
-        @media (max-width: 991.98px) {
-            .search-form {
-                margin: 1rem 0;
-                max-width: 100%;
-            }
-            
-            .user-info {
-                display: none;
-            }
-        }
-        
-        /* Sidebar */
         .sidebar {
             position: fixed;
             top: 0;
@@ -597,106 +483,76 @@ if (!isset($page_title)) {
     <!-- Main Content -->
     <main class="main-content">
         <!-- Top Navigation -->
-        <div class="navigation-wrapper">
-            <div class="secondary-navigation-wrapper bg-dark py-1">
-                <div class="container">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="navigation-contact text-white small">
-                            <i class='bx bx-phone me-1'></i> Call Us: <span class="opacity-75">000-123-456-789</span>
-                        </div>
-                        <ul class="secondary-navigation list-unstyled d-flex mb-0">
-                            <li class="me-3"><a href="/zanvarsity/html/index.php" class="text-white-50 small">Frontend</a></li>
-                            <li class="me-3"><a href="dashboard.php" class="text-white-50 small">Dashboard</a></li>
-                            <li class="me-0"><a href="/zanvarsity/logout.php" class="text-white-50 small">Logout</a></li>
+        <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+            <div class="container-fluid">
+                <button class="btn btn-link" id="sidebarToggle">
+                    <i class='bx bx-menu'></i>
+                </button>
+                
+                <div class="d-flex align-items-center">
+                    <div class="dropdown">
+                        <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle" id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class='bx bx-bell fs-4'></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                3
+                                <span class="visually-hidden">unread notifications</span>
+                            </span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="notificationsDropdown">
+                            <li><h6 class="dropdown-header">Notifications</h6></li>
+                            <li><a class="dropdown-item d-flex align-items-center" href="#">
+                                <div class="flex-shrink-0 me-3">
+                                    <div class="bg-primary bg-opacity-10 p-2 rounded">
+                                        <i class='bx bx-user-plus text-primary'></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="small text-muted">5 minutes ago</div>
+                                    New user registered
+                                </div>
+                            </a></li>
+                            <li><a class="dropdown-item d-flex align-items-center" href="#">
+                                <div class="flex-shrink-0 me-3">
+                                    <div class="bg-warning bg-opacity-10 p-2 rounded">
+                                        <i class='bx bx-calendar-exclamation text-warning'></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="small text-muted">1 hour ago</div>
+                                    Event "Open Day" is starting soon
+                                </div>
+                            </a></li>
+                            <li><a class="dropdown-item d-flex align-items-center" href="#">
+                                <div class="flex-shrink-0 me-3">
+                                    <div class="bg-success bg-opacity-10 p-2 rounded">
+                                        <i class='bx bx-news text-success'></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="small text-muted">2 hours ago</div>
+                                    New article published: "Campus Updates"
+                                </div>
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-center" href="#">View all notifications</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="dropdown ms-3">
+                        <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class='bx bxs-user-circle fs-4 me-2'></i>
+                            <span class="d-none d-md-inline"><?php echo htmlspecialchars($_SESSION['user_email']); ?></span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" href="profile.php"><i class='bx bx-user me-2'></i> Profile</a></li>
+                            <li><a class="dropdown-item" href="settings.php"><i class='bx bx-cog me-2'></i> Settings</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/zanvarsity/logout.php"><i class='bx bx-log-out me-2'></i> Sign out</a></li>
                         </ul>
                     </div>
                 </div>
             </div>
-            
-            <div class="primary-navigation-wrapper bg-white border-bottom">
-                <div class="container">
-                    <nav class="navbar navbar-expand-lg p-0">
-                        <div class="d-flex align-items-center w-100">
-                            <button class="btn btn-link p-0 me-3 d-lg-none" id="sidebarToggle">
-                                <i class='bx bx-menu fs-2'></i>
-                            </button>
-                            
-                            <a class="navbar-brand p-0 me-4" href="dashboard.php">
-                                <h4 class="mb-0 text-primary">Zanvarsity</h4>
-                                <small class="text-muted d-none d-md-inline">Admin Panel</small>
-                            </a>
-                            
-                            <div class="d-none d-lg-flex align-items-center flex-grow-1">
-                                <form class="w-100 me-3" style="max-width: 400px;">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control form-control-sm" placeholder="Search...">
-                                        <button class="btn btn-outline-secondary" type="submit">
-                                            <i class='bx bx-search'></i>
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-                            
-                            <div class="d-flex align-items-center ms-auto">
-                                <!-- Notifications -->
-                                <div class="dropdown me-3">
-                                    <a href="#" class="nav-link p-2 text-dark" data-bs-toggle="dropdown">
-                                        <i class='bx bx-bell fs-5 position-relative'>
-                                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 9px; padding: 2px 4px;">
-                                                3
-                                            </span>
-                                        </i>
-                                    </a>
-                                    <div class="dropdown-menu dropdown-menu-end shadow" style="min-width: 300px;">
-                                        <div class="dropdown-header d-flex justify-content-between align-items-center">
-                                            <span>Notifications</span>
-                                            <span class="badge bg-primary rounded-pill">3 New</span>
-                                        </div>
-                                        <div class="dropdown-divider"></div>
-                                        <a href="#" class="dropdown-item d-flex py-2">
-                                            <div class="me-3 text-primary">
-                                                <i class='bx bx-user-plus fs-4'></i>
-                                            </div>
-                                            <div>
-                                                <div class="small text-muted">5 minutes ago</div>
-                                                <div>New user registered</div>
-                                            </div>
-                                        </a>
-                                        <div class="dropdown-divider"></div>
-                                        <a href="#" class="dropdown-item text-center py-2">View all notifications</a>
-                                    </div>
-                                </div>
-                                
-                                <!-- User Menu -->
-                                <div class="dropdown">
-                                    <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown">
-                                        <div class="me-2 d-none d-md-block text-end">
-                                            <div class="fw-semibold"><?php echo htmlspecialchars($_SESSION['username'] ?? 'Admin'); ?></div>
-                                            <small class="text-muted"><?php echo ucfirst($_SESSION['role'] ?? 'admin'); ?></small>
-                                        </div>
-                                        <div class="rounded-circle bg-light border d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                                            <i class='bx bxs-user-circle fs-4 text-muted'></i>
-                                        </div>
-                                    </a>
-                                    <div class="dropdown-menu dropdown-menu-end shadow">
-                                        <a class="dropdown-item" href="profile.php">
-                                            <i class='bx bx-user me-2'></i>Profile
-                                        </a>
-                                        <a class="dropdown-item" href="settings.php">
-                                            <i class='bx bx-cog me-2'></i>Settings
-                                        </a>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger" href="/zanvarsity/logout.php">
-                                            <i class='bx bx-log-out me-2'></i>Logout
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </nav>
-                </div>
-            </div>
-        </div>
+        </nav>
 
         <!-- Page Content -->
         <div class="content-wrapper">

@@ -1195,31 +1195,10 @@ $page_title = 'Manage Events';
                     $('#editEventTitle').val(event.title);
                     $('#editEventDescription').val(event.description);
                     $('#editEventLocation').val(event.location || '');
+                    $('#editStartDate').val(event.start_date.replace(' ', 'T'));
                     
-                    // Format start date for datetime-local input
-                    if (event.start_date) {
-                        try {
-                            const startDate = new Date(event.start_date);
-                            if (!isNaN(startDate.getTime())) {  // Check if date is valid
-                                const formattedStartDate = startDate.toISOString().slice(0, 16);
-                                $('#editStartDate').val(formattedStartDate);
-                            }
-                        } catch (e) {
-                            console.error('Error formatting start date:', e);
-                        }
-                    }
-                    
-                    // Format end date for datetime-local input
                     if (event.end_date) {
-                        try {
-                            const endDate = new Date(event.end_date);
-                            if (!isNaN(endDate.getTime())) {  // Check if date is valid
-                                const formattedEndDate = endDate.toISOString().slice(0, 16);
-                                $('#editEndDate').val(formattedEndDate);
-                            }
-                        } catch (e) {
-                            console.error('Error formatting end date:', e);
-                        }
+                        $('#editEndDate').val(event.end_date.replace(' ', 'T'));
                     }
                     
                     $('#editEventStatus').val(event.status);
@@ -1448,7 +1427,6 @@ $page_title = 'Manage Events';
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
     
-    // Form validation
     // Form validation
     (function() {
         'use strict';

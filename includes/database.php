@@ -198,10 +198,7 @@ $sql = "
 SET SQL_MODE = 'NO_AUTO_VALUE_ON_ZERO';
 SET time_zone = '+00:00';
 
--- Drop events table if it exists with incorrect structure
-DROP TABLE IF EXISTS events;
-
--- Create events table with proper structure
+-- Create events table if it doesn't exist
 CREATE TABLE IF NOT EXISTS `events` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(255) NOT NULL,
@@ -215,12 +212,6 @@ CREATE TABLE IF NOT EXISTS `events` (
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- Insert sample event if table is empty
-INSERT INTO `events` (`title`, `description`, `start_date`, `end_date`, `location`, `status`) 
-SELECT 'Welcome Event', 'Welcome to our university!', NOW(), DATE_ADD(NOW(), INTERVAL 2 HOUR), 'Main Campus', 'upcoming'
-FROM dual
-WHERE NOT EXISTS (SELECT 1 FROM `events` LIMIT 1);
 ";
 
 // Split the SQL into individual queries

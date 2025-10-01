@@ -1,0 +1,6 @@
+[01-Oct-2025 12:43:41 Europe/Berlin] Executing query: SELECT * FROM events ORDER BY start_date DESC
+[01-Oct-2025 12:43:41 Europe/Berlin] Fetched 0 events from database
+[01-Oct-2025 12:43:48 Europe/Berlin] Executing query: SELECT * FROM events ORDER BY start_date DESC
+[01-Oct-2025 12:43:48 Europe/Berlin] Fetched 0 events from database
+[01-Oct-2025 12:43:56 Europe/Berlin] Executing query: SELECT * FROM events ORDER BY start_date DESC
+[01-Oct-2025 12:43:56 Europe/Berlin] Fetched 0 events from database
