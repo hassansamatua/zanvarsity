@@ -803,7 +803,11 @@ $page_title = 'Manage Events';
                         <div class="page-title">
                             <div class="d-flex justify-content-between align-items-center mb-4">
                                 <h2><i class='bx bx-calendar-event me-2'></i>Manage Events</h2>
-                                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addEventModal">
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#eventGalleryModal">
+                                        <i class='bx bx-images me-1'></i> Manage Gallery
+                                    </button>
+                                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addEventModal">
                                     <i class='bx bx-plus me-1'></i> Add New Event
                                 </button>
                             </div>
@@ -933,6 +937,14 @@ $page_title = 'Manage Events';
                                                             <i class='bx bx-edit-alt me-1'></i> Edit
                                                         </button>
                                                         <button type="button" 
+                                                                class="btn btn-sm btn-outline-success manage-gallery" 
+                                                                data-id="<?php echo $event['id']; ?>"
+                                                                data-title="<?php echo htmlspecialchars($event['title']); ?>"
+                                                                data-toggle="tooltip" 
+                                                                title="Manage Gallery">
+                                                            <i class='bx bx-image-add me-1'></i> Gallery
+                                                        </button>
+                                                        <button type="button" 
                                                                 class="btn btn-sm btn-outline-danger delete-event" 
                                                                 data-id="<?php echo $event['id']; ?>"
                                                                 data-toggle="tooltip" 
@@ -969,8 +981,58 @@ $page_title = 'Manage Events';
     </div>
 </div>
 
+<!-- Gallery Management Modal -->
+<div class="modal fade" id="galleryModal" tabindex="-1" role="dialog" aria-labelledby="galleryModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="galleryModalLabel">Manage Gallery: <span id="galleryEventTitle"></span></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="galleryForm" enctype="multipart/form-data">
+                    <input type="hidden" name="event_id" id="galleryEventId">
+                    <input type="hidden" name="action" value="upload_gallery_image">
+                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                    
+                    <div class="form-group">
+                        <label for="galleryImages">Upload Images</label>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="galleryImages" name="gallery_images[]" multiple accept="image/*">
+                            <label class="custom-file-label" for="galleryImages">Choose files</label>
+                        </div>
+                        <small class="form-text text-muted">You can select multiple images (JPEG, PNG, GIF). Max size: 5MB per image.</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div id="imagePreview" class="d-flex flex-wrap gap-2 mt-3"></div>
+                    </div>
+                    
+                    <div class="form-group mt-4">
+                        <h6>Gallery Images</h6>
+                        <div id="galleryImagesList" class="row g-2">
+                            <!-- Gallery images will be loaded here -->
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" id="uploadGalleryImages">
+                    <i class='bx bx-upload'></i> Upload Images
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Add Event Modal -->
 <?php include __DIR__ . '/includes/add_event_modal.php'; ?>
+
+<!-- Event Gallery Modal -->
+<?php include __DIR__ . '/includes/event_gallery_modal.php'; ?>
 
 <!-- Edit Event Modal -->
 <div class="modal fade" id="editEventModal" tabindex="-1" role="dialog" aria-labelledby="editEventModalLabel">
@@ -1291,7 +1353,7 @@ $page_title = 'Manage Events';
                     console.log('Sending delete request for event ID:', eventId);
                     
                     $.ajax({
-                        url: '/zanvarsity/html/admin/api/events.php',
+                        url: '/c/zanvarsity/html/admin/api/events.php',
                         type: 'POST',
                         data: {
                             action: 'delete_event',
@@ -1423,6 +1485,161 @@ $page_title = 'Manage Events';
                         
                         resetButton(button, originalText);
                     }
+                });
+            }
+        });
+    });
+    
+    // Handle gallery management
+    $(document).on('click', '.manage-gallery', function() {
+        const eventId = $(this).data('id');
+        const eventTitle = $(this).data('title');
+        
+        // Set event info in the modal
+        $('#galleryEventId').val(eventId);
+        $('#galleryEventTitle').text(eventTitle);
+        
+        // Clear previous previews and file input
+        $('#imagePreview').empty();
+        $('#galleryImages').val('');
+        
+        // Load existing gallery images
+        loadGalleryImages(eventId);
+        
+        // Show the modal
+        $('#galleryModal').modal('show');
+    });
+    
+    // Handle file input change
+    $('#galleryImages').on('change', function() {
+        const files = this.files;
+        const preview = $('#imagePreview');
+        preview.empty();
+        
+        if (files.length > 0) {
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                if (file.type.match('image.*')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        preview.append(`
+                            <div class="position-relative" style="width: 100px; height: 100px; overflow: hidden; border: 1px solid #ddd; border-radius: 4px;">
+                                <img src="${e.target.result}" class="img-fluid h-100 w-100" style="object-fit: cover;">
+                            </div>
+                        `);
+                    }
+                    reader.readAsDataURL(file);
+                }
+            }
+        }
+    });
+    
+    // Handle image upload
+    $('#uploadGalleryImages').on('click', function() {
+        const formData = new FormData($('#galleryForm')[0]);
+        const button = $(this);
+        const originalText = button.html();
+        
+        button.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Uploading...');
+        
+        $.ajax({
+            url: '/c/zanvarsity/html/admin/gallery_upload.php',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.success) {
+                    loadGalleryImages($('#galleryEventId').val());
+                    $('#galleryImages').val('');
+                    $('#imagePreview').empty();
+                    showSuccess('Images uploaded successfully!');
+                } else {
+                    showError(response.message || 'Failed to upload images');
+                }
+            },
+            error: function() {
+                showError('An error occurred while uploading images');
+            },
+            complete: function() {
+                button.html(originalText).prop('disabled', false);
+            }
+        });
+    });
+    
+    // Load gallery images
+    function loadGalleryImages(eventId) {
+        const galleryList = $('#galleryImagesList');
+        galleryList.html('<div class="col-12 text-center py-3"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+        
+        $.get('/c/zanvarsity/html/admin/get_gallery_images.php', { event_id: eventId }, function(response) {
+            if (response.success && response.images.length > 0) {
+                let html = '';
+                response.images.forEach(function(image) {
+                    html += `
+                        <div class="col-md-4 col-6 mb-3">
+                            <div class="card h-100">
+                                <img src="${image.image_url}" class="card-img-top" style="height: 150px; object-fit: cover;" alt="Gallery Image">
+                                <div class="card-body p-2">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">${new Date(image.created_at).toLocaleDateString()}</small>
+                                        <div class="btn-group btn-group-sm">
+                                            <button type="button" class="btn btn-sm btn-outline-danger delete-gallery-image" data-id="${image.id}">
+                                                <i class='bx bx-trash'></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                galleryList.html(html);
+            } else {
+                galleryList.html('<div class="col-12 text-center py-3 text-muted">No images found for this event.</div>');
+            }
+        }, 'json').fail(function() {
+            galleryList.html('<div class="col-12 text-center py-3 text-danger">Failed to load gallery images.</div>');
+        });
+    }
+    
+    // Handle gallery image deletion
+    $(document).on('click', '.delete-gallery-image', function() {
+        const imageId = $(this).data('id');
+        const button = $(this);
+        
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const originalText = button.html();
+                button.html('<span class="spinner-border spinner-border-sm" role="status"></span>');
+                
+                $.post('/c/zanvarsity/html/admin/delete_gallery_image.php', {
+                    id: imageId,
+                    csrf_token: '<?php echo $_SESSION['csrf_token']; ?>'
+                }, function(response) {
+                    if (response.success) {
+                        button.closest('.col-md-4').fadeOut(300, function() {
+                            $(this).remove();
+                            if ($('#galleryImagesList .col-md-4').length === 0) {
+                                $('#galleryImagesList').html('<div class="col-12 text-center py-3 text-muted">No images found for this event.</div>');
+                            }
+                        });
+                        showSuccess('Image deleted successfully!');
+                    } else {
+                        showError(response.message || 'Failed to delete image');
+                        button.html(originalText);
+                    }
+                }, 'json').fail(function() {
+                    showError('An error occurred while deleting the image');
+                    button.html(originalText);
                 });
             }
         });

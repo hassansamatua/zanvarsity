@@ -442,15 +442,19 @@
                                                     }
                                                     ?>
                                                     <article class="event-item <?php echo $status_class; ?>" 
-                                                             style="border-left: 3px solid <?php echo $is_ongoing ? '#28a745' : '#007bff'; ?>; 
-                                                                    padding: 10px 15px; 
+                                                             style="border-left: 4px solid #006400; 
+                                                                    padding: 12px 15px 12px 20px; 
                                                                     margin: 10px 0; 
-                                                                    border-radius: 4px;
-                                                                    background-color: <?php echo $is_ongoing ? '#e8f5e9' : '#f8f9fa'; ?>">
-                                                        <div class="event-date" style="color: #666; font-size: 0.9em; margin-bottom: 5px;">
+                                                                    border-radius: 0 6px 6px 0;
+                                                                    box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+                                                                    background-color: <?php echo $is_ongoing ? '#e8f5e9' : '#f8f9fa'; ?>;
+                                                                    max-width: 100%;
+                                                                    margin-left: 0;
+                                                                    overflow: hidden;">
+                                                        <div class="event-date" style="color: #006400; font-size: 0.9em; margin-bottom: 8px; font-weight: 500; display: flex; align-items: center; flex-wrap: wrap; gap: 10px;">
                                                             <i class="fa fa-calendar"></i> <?php echo htmlspecialchars($formatted_date); ?>
                                                             <?php if (!empty($formatted_time)): ?>
-                                                                <span style="margin-left: 10px;">
+                                                                <span style="display: inline-flex; align-items: center; gap: 5px;">
                                                                     <i class="fa fa-clock-o"></i> 
                                                                     <?php 
                                                                     echo htmlspecialchars($formatted_time);
@@ -461,21 +465,22 @@
                                                                 </span>
                                                             <?php endif; ?>
                                                             <?php if ($status_text): ?>
-                                                                <span class="status-badge" style="margin-left: 10px; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; background-color: <?php echo $is_ongoing ? '#28a745' : '#dc3545'; ?>; color: white;">
+                                                                <span class="status-badge" style="padding: 3px 10px; border-radius: 12px; font-size: 0.8em; background-color: #006400; color: white; font-weight: 500; white-space: nowrap;">
                                                                     <?php echo $status_text; ?>
                                                                 </span>
                                                             <?php endif; ?>
                                                         </div>
-                                                        <h3 class="event-title" style="color: #000; font-weight: bold; margin: 5px 0 10px 0;">
-                                                            <a href="event-detail.php?id=<?php echo $row['id']; ?>" style="color: <?php echo $is_ongoing ? '#28a745' : '#007bff'; ?>;">
+                                                        <h3 class="event-title" style="color: #004d00; font-weight: 600; margin: 8px 0 12px 0;">
+                                                            <a href="event-detail.php?id=<?php echo $row['id']; ?>" style="color: #006400; text-decoration: none; transition: color 0.3s ease;">
                                                                 <?php echo htmlspecialchars($row['title']); ?>
                                                             </a>
                                                         </h3>
                                                         <?php if (!empty($row['location'])): ?>
-                                                            <div class="event-location" style="color: #666; font-size: 0.9em; margin-bottom: 5px;">
+                                                            <div class="event-location" style="color: #006400; font-size: 0.9em; margin-bottom: 5px; font-weight: 500;">
                                                                 <i class="fa fa-map-marker"></i> <?php echo htmlspecialchars($row['location']); ?>
                                                             </div>
                                                         <?php endif; ?>
+                                                    </article>
                                                     <?php
                                                 }
                                             } else {
@@ -651,6 +656,101 @@
                     <!-- /.container -->
                 </div>
                 <!-- end News, Events, About -->
+
+		<section id="featured-courses">
+        <div class="block">
+            <div class="container">
+                <header><h2>Our Latest Events</h2></header>
+                <div class="row">
+                    <div class="events images featured">
+                        <div class="col-md-3 col-sm-6">
+                            <article class="event">
+                                <div class="event-thumbnail">
+                                    <figure class="event-image">
+                                        <div class="image-wrapper"><img src="assets/img/course-01.jpg"></div>
+                                    </figure>
+                                    <figure class="date">
+                                        <div class="month">jan</div>
+                                        <div class="day">18</div>
+                                    </figure>
+                                </div>
+                                <aside>
+                                    <header>
+                                        <a href="event-detail.html">February Half-Term Activities: Big Stars and Little Secrets </a>
+                                    </header>
+                                    <div class="additional-info"><span class="fa fa-map-marker"></span> Faculty of Music</div>
+                                    <a href="event-detail.html" class="btn btn-framed btn-color-grey btn-small">View Details</a>
+                                </aside>
+                            </article><!-- /.event -->
+                        </div><!-- /.col-md-3 -->
+                        <div class="col-md-3 col-sm-6">
+                            <article class="event">
+                                <div class="event-thumbnail">
+                                    <figure class="event-image">
+                                        <div class="image-wrapper"><img src="assets/img/course-03.jpg"></div>
+                                    </figure>
+                                    <figure class="date">
+                                        <div class="month">jan</div>
+                                        <div class="day">23</div>
+                                    </figure>
+                                </div>
+                                <aside>
+                                    <header>
+                                        <a href="event-detail.html">Conservatory Exhibit: The garden of india a country and culture revealed</a>
+                                    </header>
+                                    <div class="additional-info"><span class="fa fa-map-marker"></span> Matthaei Botanical Gardens</div>
+                                    <a href="event-detail.html" class="btn btn-framed btn-color-grey btn-small">View Details</a>
+                                </aside>
+                            </article><!-- /.event -->
+                        </div><!-- /.col-md-3 -->
+                        <div class="col-md-3 col-sm-6">
+                            <article class="event">
+                                <div class="event-thumbnail">
+                                    <figure class="event-image">
+                                        <div class="image-wrapper"><img src="assets/img/course-04.jpg"></div>
+                                    </figure>
+                                    <figure class="date">
+                                        <div class="month">feb</div>
+                                        <div class="day">07</div>
+                                    </figure>
+                                </div>
+                                <aside>
+                                    <header>
+                                        <a href="event-detail.html">Museums and the Construction of Identities</a>
+                                    </header>
+                                    <div class="additional-info"><span class="fa fa-map-marker"></span> Pitt Rivers and Natural History Museums</div>
+                                    <a href="event-detail.html" class="btn btn-framed btn-color-grey btn-small">View Details</a>
+                                </aside>
+                            </article><!-- /.event -->
+                        </div><!-- /.col-md-3 -->
+                        <div class="col-md-3 col-sm-6">
+                            <article class="event">
+                                <div class="event-thumbnail">
+                                    <figure class="event-image">
+                                        <div class="image-wrapper"><img src="assets/img/course-02.jpg"></div>
+                                    </figure>
+                                    <figure class="date">
+                                        <div class="month">mar</div>
+                                        <div class="day">12</div>
+                                    </figure>
+                                </div>
+                                <aside>
+                                    <header>
+                                        <a href="event-detail.html">The Orchestra of the Age of Enlightenment perform with Music</a>
+                                    </header>
+                                    <div class="additional-info"><span class="fa fa-map-marker"></span> Faculty of Music</div>
+                                    <a href="event-detail.html" class="btn btn-framed btn-color-grey btn-small">View Details</a>
+                                </aside>
+                            </article><!-- /.event -->
+                        </div><!-- /.col-md-3 -->
+                    </div><!-- /.events -->
+                </div><!-- /.row -->
+            </div><!-- /.container -->
+            <div class="background background-color-grey-background"></div>
+        </div><!-- /.block -->
+    </section>
+    <!-- /#featured-courses -->
+
 					<div class="row">
 
 							

@@ -13,3 +13,117 @@
 [01-Oct-2025 13:00:16 Europe/Berlin] Successfully fetched 1 events from database
 [01-Oct-2025 13:00:37 Europe/Berlin] Successfully fetched 2 events from database
 [01-Oct-2025 13:01:31 Europe/Berlin] Successfully fetched 3 events from database
+[01-Oct-2025 13:10:10 Europe/Berlin] Successfully fetched 3 events from database
+[01-Oct-2025 13:10:52 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 14:19:33 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 14:20:09 Europe/Berlin] POST data: Array
+(
+    [action] => add_gallery_images
+    [event_id] => 
+    [csrf_token] => 7ab569d692aef4dbf3fb0490caf3b0357ffda706f9f8743f0522fa24d4f92b1c
+)
+
+[01-Oct-2025 14:20:09 Europe/Berlin] FILES data: Array
+(
+    [gallery_images] => Array
+        (
+            [name] => Array
+                (
+                    [0] => UNESCO Certificate1.jpg
+                )
+
+            [type] => Array
+                (
+                    [0] => image/jpeg
+                )
+
+            [tmp_name] => Array
+                (
+                    [0] => C:\xampp\tmp\php2418.tmp
+                )
+
+            [error] => Array
+                (
+                    [0] => 0
+                )
+
+            [size] => Array
+                (
+                    [0] => 3609384
+                )
+
+        )
+
+)
+
+[01-Oct-2025 14:20:09 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 14:22:23 Europe/Berlin] POST data: Array
+(
+    [action] => add_gallery_images
+    [event_id] => 
+    [csrf_token] => 7ab569d692aef4dbf3fb0490caf3b0357ffda706f9f8743f0522fa24d4f92b1c
+)
+
+[01-Oct-2025 14:22:23 Europe/Berlin] FILES data: Array
+(
+    [gallery_images] => Array
+        (
+            [name] => Array
+                (
+                    [0] => UNESCO Certificate1.jpg
+                )
+
+            [type] => Array
+                (
+                    [0] => image/jpeg
+                )
+
+            [tmp_name] => Array
+                (
+                    [0] => C:\xampp\tmp\php30C2.tmp
+                )
+
+            [error] => Array
+                (
+                    [0] => 0
+                )
+
+            [size] => Array
+                (
+                    [0] => 3609384
+                )
+
+        )
+
+)
+
+[01-Oct-2025 14:22:23 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 14:22:30 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 14:24:56 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 14:26:20 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 14:26:49 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 14:28:16 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 14:28:33 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 14:28:58 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 14:29:23 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 14:29:24 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 14:29:24 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 14:29:25 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 14:30:40 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 14:32:47 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 14:33:52 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 14:33:53 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 14:34:44 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 14:34:45 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 14:35:59 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 14:37:17 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 14:37:18 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 14:37:19 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 14:39:03 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 14:40:42 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 14:47:44 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 14:52:29 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 14:52:30 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 14:52:36 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 14:52:39 Europe/Berlin] Successfully fetched 4 events from database
+[01-Oct-2025 14:53:06 Europe/Berlin] Successfully fetched 4 events from database
