@@ -347,19 +347,66 @@
 					<!-- /.container -->
 				</div>
 				<!-- end Slider -->
+
 				<!-- News, Events, About -->
-					<div class="block">
+				<div class="block">
 					<div class="container">
 						<div class="row">
-							<div class="col-md-4">
-								<?php include __DIR__ . '/includes/upcoming_events_section.php'; ?>
+							<div class="col-md-4 col-sm-6">
+								<section class="news-small" id="news-small">
+									<header>
+										<h2>Upcoming Events</h2>
+									</header>
+									<div class="section-content">
+										<article>
+											<figure class="date">
+												<i class="fa fa-file-o"></i>08-24-2014
+											</figure>
+											<header>
+												<a href="#"
+													>U-M School of Public Health, Detroit partners aim to
+													improve air quality in the city</a
+												>
+											</header>
+										</article>
+										<!-- /article -->
+										<article>
+											<figure class="date">
+												<i class="fa fa-file-o"></i>08-24-2014
+											</figure>
+											<header>
+												<a href="#"
+													>At 50, Center for the Education of Women celebrates a
+													wider mission</a
+												>
+											</header>
+										</article>
+										<!-- /article -->
+										<article>
+											<figure class="date">
+												<i class="fa fa-file-o"></i>08-24-2014
+											</figure>
+											<header>
+												<a href="#"
+													>Three U-Michigan scientists receive Sloan
+													fellowships</a
+												>
+											</header>
+										</article>
+										<!-- /article -->
+									</div>
+									<!-- /.section-content -->
+									<a href="" class="read-more stick-to-bottom">All News</a>
+								</section>
+								<!-- /.news-small -->
 							</div>
 							<!-- /.col-md-4 -->
-							<div class="col-md-4">
-								<?php include __DIR__ . '/includes/announcements_section.php'; ?>
-							</div>
-							<!-- /.col-md-4 -->
-							<div class="col-md-4 col-sm-12">
+							<?php include __DIR__ . '/includes/announcements_section.php'; ?>
+							<!-- /.col-md-9 -->
+							
+							<!-- /.col-md-3 -->
+						</div>
+						<div class="col-md-4 col-sm-12">
 								<?php
 								// Include database connection
 								require_once __DIR__ . '/../includes/database.php';
@@ -387,62 +434,73 @@
 									</header>
 									<div class="section-content" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
 										<?php if (!empty($vc_notice['vc_image'])): ?>
-											<div class="text-center mb-3">
-												<img 
-													src="<?php echo htmlspecialchars($vc_notice['vc_image']); ?>" 
-													alt="Vice Chancellor"
-													class="img-fluid rounded-circle"
-													style="width: 100px; height: 100px; object-fit: cover; border: 3px solid #28a745;"
-												/>
-											</div>
-										<?php else: ?>
-											<div class="text-center mb-3">
-												<img 
-													src="assets/img/avatar.png" 
-													alt="Vice Chancellor"
-													class="img-fluid rounded-circle"
-													style="width: 100px; height: 100px; object-fit: cover; border: 3px solid #28a745;"
-												/>
-											</div>
-										<?php endif; ?>
+                                            <div class="text-center mb-3">
+                                                <img 
+                                                    src="<?php echo htmlspecialchars($vc_notice['vc_image']); ?>" 
+                                                    alt="Vice Chancellor"
+                                                    class="img-fluid rounded-circle"
+                                                    style="width: 100px; height: 100px; object-fit: cover; border: 3px solid #28a745;"
+                                                />
+                                            <div class="row">
+                            <!-- Left Column: Events and Announcements (8 columns) -->
+                            <div class="col-md-8">
+                                <div class="row">
+                                    <!-- Events Section (6 columns) -->
+                                    <div class="col-md-6">
+                                        <section class="news-small" id="news-small">
+                                            <header>
+                                                <h2>Upcoming Events</h2>
+                                            </header>
+{{ ... }}
+                                                    <figure class="date">
+                                                        <i class="fa fa-file-o"></i>08-24-2014
+                                                    </figure>
+                                                    <header>
+                                                        <a href="#"
+                                                            >At 50, Center for the Education of Women celebrates                                        </section>
+                                                            fellowships</a
+                                                    </header>
+                                                </article>
+                                                <!-- /article -->
+                                            </div>
+                                            <!-- /.section-content -->
+                                        </section>
+                                        <!-- /.news-small -->
+                                    </div>
+                                    <!-- /.col-md-6 -->
 											
-										<h4 class="mb-3"><?php echo htmlspecialchars($vc_notice['title']); ?></h4>
-										<div style="text-align: justify; line-height: 1.6;">
-											<?php echo nl2br(htmlspecialchars($vc_notice['message'])); ?>
-										</div>
-										
-										<?php if (!empty($vc_notice['pdf_url'])): ?>
-											<a href="<?php echo htmlspecialchars($vc_notice['pdf_url']); ?>" 
-											   class="read-more stick-to-bottom mt-3 d-inline-block" 
-											   target="_blank">
-												Read Full Message (PDF)
-											</a>
-										<?php else: ?>
-											<a href="about.php" class="read-more stick-to-bottom mt-3 d-inline-block">
-												Read More
-											</a>
-										<?php endif; ?>
-										
-										<?php if (isset($_SESSION['role']) && in_array($_SESSION['role'], ['admin', 'super_admin'])): ?>
-											<div class="mt-3">
-												<a href="/zanvarsity/html/admin/manage_vc_notice.php" 
-												   class="btn btn-sm btn-outline-secondary">
-													<i class='bx bx-edit-alt'></i> Edit VC Notice
-												</a>
+											<h4 class="mb-3"><?php echo htmlspecialchars($vc_notice['title']); ?></h4>
+											<div style="text-align: justify; line-height: 1.6;">
+												<?php echo nl2br(htmlspecialchars($vc_notice['message'])); ?>
 											</div>
-										<?php endif; ?>
-								</div>
-								<!-- /.section-content -->
-							</section>
-							<!-- /.about -->
-						</div>
-						<!-- /.col-md-4 -->
-{{ ... }}
-							
-							<!-- /.col-md-3 -->
-						</div>
+											
+											<?php if (!empty($vc_notice['pdf_url'])): ?>
+												<a href="<?php echo htmlspecialchars($vc_notice['pdf_url']); ?>" 
+												   class="read-more stick-to-bottom mt-3 d-inline-block" 
+												   target="_blank">
+													Read Full Message (PDF)
+												</a>
+											<?php else: ?>
+												<a href="about.php" class="read-more stick-to-bottom mt-3 d-inline-block">
+													Read More
+												</a>
+											<?php endif; ?>
+											
+											<?php if (isset($_SESSION['role']) && in_array($_SESSION['role'], ['admin', 'super_admin'])): ?>
+												<div class="mt-3">
+													<a href="/zanvarsity/html/admin/manage_vc_notice.php" 
+													   class="btn btn-sm btn-outline-secondary">
+														<i class='bx bx-edit-alt'></i> Edit VC Notice
+													</a>
+												</div>
+											<?php endif; ?>
+									</div>
+									<!-- /.section-content -->
+								</section>
+								<!-- /.about -->
+							</div>
+							<!-- /.col-md-4 -->
 						<!-- /.row -->
-{{ ... }}
 					</div>
 					<!-- /.container -->
 				</div>
@@ -581,49 +639,18 @@
 			src="assets/js/jquery-migrate-1.2.1.min.js"
 		></script>
 		<script
-			type="text/javascript"
 			src="assets/bootstrap/js/bootstrap.min.js"
 		></script>
 		<script type="text/javascript" src="assets/js/selectize.min.js"></script>
 		<script type="text/javascript" src="assets/js/owl.carousel.min.js"></script>
-		<script
-			type="text/javascript"
-			src="assets/js/jquery.validate.min.js"
-		></script>
-		<script
-			type="text/javascript"
-			src="assets/js/jquery.placeholder.js"
-		></script>
-		<script
-			type="text/javascript"
-			src="assets/js/jQuery.equalHeights.js"
-		></script>
 		<script type="text/javascript" src="assets/js/icheck.min.js"></script>
-		<script
-			type="text/javascript"
-			src="assets/js/jquery.vanillabox-0.1.5.min.js"
-		></script>
+		<script type="text/javascript" src="assets/js/jquery.placeholder.js"></script>
+		<script type="text/javascript" src="assets/js/jQuery.equalHeights.js"></script>
+		<script type="text/javascript" src="assets/js/jquery.vanillabox-0.1.5.min.js"></script>
 		<script type="text/javascript" src="assets/js/retina-1.1.0.min.js"></script>
-
 		<script type="text/javascript" src="assets/js/custom.js"></script>
 	</body>
 </html>
-
-		<script type="text/javascript" src="assets/js/icheck.min.js"></script>
-		<script
-			type="text/javascript"
-			src="assets/js/jquery.vanillabox-0.1.5.min.js"
-		></script>
-		<script type="text/javascript" src="assets/js/retina-1.1.0.min.js"></script>
-
-		<script type="text/javascript" src="assets/js/custom.js"></script>
-	</body>
-</html>
-
-
-		</div>
-		<!-- end Wrapper -->
-
 		<script type="text/javascript" src="assets/js/jquery-2.1.0.min.js"></script>
 		<script
 			type="text/javascript"
