@@ -1,34 +1,31 @@
 <?php
 // Include database connection
-require_once __DIR__ . '/../../config.php';
+require_once __DIR__ . '/../../includes/database.php';
 
 // Function to get active carousel items
 function getCarouselItems($conn) {
-    $query = "SELECT * FROM carousel WHERE status = 'active' ORDER BY display_order ASC";
-    $result = $conn->query($query);
-    
-    $items = [];
-    if ($result && $result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            $items[] = $row;
+    try {
+        $query = "SELECT * FROM carousel WHERE status = 'active' ORDER BY display_order ASC";
+        $result = $conn->query($query);
+        
+        $items = [];
+        if ($result && $result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $items[] = $row;
+            }
         }
+        return $items;
+    } catch (Exception $e) {
+        error_log("Error in getCarouselItems: " . $e->getMessage());
+        return [];
     }
-    return $items;
 }
 
 // Get database connection
-$conn = new mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+$conn = getDbConnection();
 
 // Get carousel items
 $carouselItems = getCarouselItems($conn);
-
-// Close connection
-$conn->close();
 ?>
 
 <!-- Carousel Section -->

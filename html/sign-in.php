@@ -1,8 +1,19 @@
-<!DOCTYPE html>
+<?php
+// Start session and include necessary files at the very top
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
+// Include configuration and authentication functions
+require_once __DIR__ . '/../includes/auth_functions.php';
+
+// Redirect if already logged in
+redirect_if_logged_in();
+?>
+<!DOCTYPE html>
 <html lang="en-US">
 <head>
-    <meta charset="UTF-8"/>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="Theme Starz">
 
@@ -284,11 +295,7 @@
                                     <h2>Login to Your Account</h2>
                                     <p class="lead">Enter your credentials to access your dashboard</p>
                                 </header>
-                                <?php 
-                                // Start session and include necessary files
-                                session_start();
-                                require_once '../../includes/auth_functions.php';
-                                
+                                <?php
                                 // Display error messages if any
                                 $error = '';
                                 if (isset($_GET['error'])) {

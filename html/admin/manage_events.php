@@ -826,6 +826,9 @@ $page_title = 'Manage Events';
                             <div class="card-body">
                                 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 justify-content-center" id="eventsGrid">
                                     <?php 
+                                    // Initialize events array
+                                    $events = [];
+                                    
                                     // Debug: Check database connection
                                     if (!$conn) {
                                         echo '<div class="col-12"><div class="alert alert-danger">Database connection failed. Check database configuration.</div></div>';
@@ -835,33 +838,37 @@ $page_title = 'Manage Events';
                                         if (!$conn->ping()) {
                                             echo '<div class="col-12"><div class="alert alert-danger">Database server is not responding. Error: ' . $conn->error . '</div></div>';
                                             error_log('Database ping failed: ' . $conn->error);
-                                        }
-                                    }
-                                    
-                                    // Simple events query
-                                    $events = [];
-                                    try {
-                                        // Debug: Check if table exists
-                                        $table_check = $conn->query("SHOW TABLES LIKE 'events'");
-                                        if ($table_check->num_rows === 0) {
-                                            echo '<div class="col-12"><div class="alert alert-warning">The events table does not exist in the database.</div></div>';
-                                            error_log('Events table does not exist in database');
                                         } else {
-                                            // Direct query to get events
-                                            $query = "SELECT * FROM events ORDER BY start_date DESC";
-                                            error_log('Executing query: ' . $query);
-                                            $result = $conn->query($query);
-                                            
-                                            if ($result === false) {
-                                                echo '<div class="col-12"><div class="alert alert-danger">Query error: ' . $conn->error . '</div></div>';
-                                                error_log('Query error: ' . $conn->error);
-                                            } else {
-                                                $events = $result->fetch_all(MYSQLI_ASSOC);
-                                                error_log('Fetched ' . count($events) . ' events from database');
+                                            try {
+                                                // Check if events table exists
+                                                $table_check = $conn->query("SHOW TABLES LIKE 'events'");
+                                                if ($table_check === false) {
+                                                    error_log('Table check failed: ' . $conn->error);
+                                                    echo '<div class="col-12"><div class="alert alert-warning">Error checking database tables.</div></div>';
+                                                } elseif ($table_check->num_rows == 0) {
+                                                    error_log('Events table does not exist in database');
+                                                    echo '<div class="col-12"><div class="alert alert-warning">Events table does not exist in the database.</div></div>';
+                                                } else {
+                                                    // Get all events with proper error handling
+                                                    $query = "SELECT * FROM events ORDER BY start_date DESC";
+                                                    $result = $conn->query($query);
+                                                    
+                                                    if ($result === false) {
+                                                        error_log('Query failed: ' . $conn->error);
+                                                        echo '<div class="col-12"><div class="alert alert-warning">Error loading events from database.</div></div>';
+                                                    } else {
+                                                        $events = [];
+                                                        while ($row = $result->fetch_assoc()) {
+                                                            $events[] = $row;
+                                                        }
+                                                        error_log('Successfully fetched ' . count($events) . ' events from database');
+                                                    }
+                                                }
+                                            } catch (Exception $e) {
+                                                error_log('Error in events query: ' . $e->getMessage());
+                                                echo '<div class="col-12"><div class="alert alert-danger">An error occurred while loading events.</div></div>';
                                             }
                                         }
-                                    } catch (Exception $e) {
-                                        echo '<div class="col-12"><div class="alert alert-danger">Error: ' . htmlspecialchars($e->getMessage()) . '</div></div>';
                                     }
                                     
                                     // Debug output

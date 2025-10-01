@@ -4,3 +4,12 @@
 [01-Oct-2025 12:43:48 Europe/Berlin] Fetched 0 events from database
 [01-Oct-2025 12:43:56 Europe/Berlin] Executing query: SELECT * FROM events ORDER BY start_date DESC
 [01-Oct-2025 12:43:56 Europe/Berlin] Fetched 0 events from database
+[01-Oct-2025 12:52:19 Europe/Berlin] Executing query: SELECT * FROM events ORDER BY start_date DESC
+[01-Oct-2025 12:52:19 Europe/Berlin] Fetched 0 events from database
+[01-Oct-2025 12:57:43 Europe/Berlin] Successfully fetched 0 events from database
+[01-Oct-2025 12:57:46 Europe/Berlin] Successfully fetched 0 events from database
+[01-Oct-2025 12:58:46 Europe/Berlin] Successfully fetched 0 events from database
+[01-Oct-2025 12:59:14 Europe/Berlin] Successfully fetched 1 events from database
+[01-Oct-2025 13:00:16 Europe/Berlin] Successfully fetched 1 events from database
+[01-Oct-2025 13:00:37 Europe/Berlin] Successfully fetched 2 events from database
+[01-Oct-2025 13:01:31 Europe/Berlin] Successfully fetched 3 events from database

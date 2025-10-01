@@ -316,7 +316,7 @@ function require_login() {
 }
 
 // Function to redirect if already logged in
-function redirect_if_logged_in($location = '/zanvarsity/html/my-account.php') {
+function redirect_if_logged_in($location = '/c/zanvarsity/html/my-account.php') {
     if (is_logged_in()) {
         header("Location: $location");
         exit();

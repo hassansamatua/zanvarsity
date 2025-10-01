@@ -193,33 +193,39 @@ $sql = "CREATE TABLE IF NOT EXISTS departments (
 executeQuery($conn, $sql, "Error creating departments table");
 
 // Create courses table
-// Create events table if not exists
-$sql = "
-SET SQL_MODE = 'NO_AUTO_VALUE_ON_ZERO';
-SET time_zone = '+00:00';
+// Check if events table exists
+$table_check = $conn->query("SHOW TABLES LIKE 'events'");
 
--- Create events table if it doesn't exist
-CREATE TABLE IF NOT EXISTS `events` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `title` varchar(255) NOT NULL,
-  `description` text,
-  `start_date` datetime NOT NULL,
-  `end_date` datetime DEFAULT NULL,
-  `location` varchar(255) DEFAULT NULL,
-  `image_url` varchar(255) DEFAULT NULL,
-  `status` enum('upcoming','ongoing','completed','cancelled') NOT NULL DEFAULT 'upcoming',
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-";
+if ($table_check === false) {
+    error_log("Error checking if events table exists: " . $conn->error);
+} elseif ($table_check->num_rows == 0) {
+    // Only create the table if it doesn't exist
+    $sql = "
+    SET SQL_MODE = 'NO_AUTO_VALUE_ON_ZERO';
+    SET time_zone = '+00:00';
 
-// Split the SQL into individual queries
-$queries = array_filter(array_map('trim', explode(';', $sql)));
-foreach ($queries as $query) {
-    if (!empty($query)) {
-        if ($conn->query($query) === FALSE) {
-            error_log("Error executing query: " . $conn->error . "\nQuery: " . $query);
+    CREATE TABLE `events` (
+      `id` int(11) NOT NULL AUTO_INCREMENT,
+      `title` varchar(255) NOT NULL,
+      `description` text,
+      `start_date` datetime NOT NULL,
+      `end_date` datetime DEFAULT NULL,
+      `location` varchar(255) DEFAULT NULL,
+      `image_url` varchar(255) DEFAULT NULL,
+      `status` enum('upcoming','ongoing','completed','cancelled') NOT NULL DEFAULT 'upcoming',
+      `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    ";
+
+    // Split the SQL into individual queries
+    $queries = array_filter(array_map('trim', explode(';', $sql)));
+    foreach ($queries as $query) {
+        if (!empty($query)) {
+            if ($conn->query($query) === FALSE) {
+                error_log("Error executing query: " . $conn->error . "\nQuery: " . $query);
+            }
         }
     }
 }
