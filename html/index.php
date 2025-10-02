@@ -158,7 +158,51 @@
   <style>
     /* Navigation Bar */
     .navigation-wrapper {
-      background-color: #007848;
+      background-color: #004225; /* Same as footer bottom */
+    }
+    
+    /* Secondary Navigation Bar */
+    .secondary-navigation-wrapper {
+      background-color: #004225; /* Same as footer bottom */
+      color: white;
+    }
+    
+    .secondary-navigation a, 
+    .navigation-contact,
+    .search .form-control,
+    .search .btn,
+    .secondary-navigation li a {
+      color: white !important;
+    }
+    
+    .search .form-control {
+      background-color: #e8f5e9; /* Light green background */
+      border-color: #a5d6a7; /* Slightly darker green border */
+      color: #2e7d32 !important; /* Dark green text */
+      border-radius: 4px 0 0 4px; /* Rounded left corners */
+    }
+    
+    .search .form-control:focus {
+      border-color: #81c784; /* Brighter green border on focus */
+      box-shadow: 0 0 0 0.2rem rgba(76, 175, 80, 0.25); /* Green glow */
+    }
+    
+    .search .form-control::placeholder {
+      color: #689f38; /* Medium green placeholder */
+      opacity: 0.8;
+    }
+    
+    .search .btn {
+      background-color: #66bb6a; /* Light green button */
+      border-color: #4caf50; /* Slightly darker green border */
+      border-radius: 0 4px 4px 0; /* Rounded right corners */
+      color: white !important;
+      transition: all 0.3s ease;
+    }
+    
+    .search .btn:hover {
+      background-color: #4caf50; /* Darker green on hover */
+      border-color: #43a047;
     }
     
     /* Slideshow */
@@ -182,9 +226,32 @@
     }
     
     #footer-bottom {
-      background-color: #004225; /* Even darker shade for copyright section */
-      color: white;
+      background-color: #004225 !important; /* Dark green background */
+      color: white !important;
       padding: 15px 0;
+    }
+    
+    #footer-bottom .copyright {
+      color: white !important;
+    }
+    
+    #footer-bottom .container {
+      background-color: transparent !important;
+    }
+    
+    /* Slider content styling */
+    .slider-content {
+      background-color: #004225; /* Same as footer bottom */
+      color: white;
+      padding: 30px;
+      border-radius: 4px;
+      height: 100%;
+    }
+    
+    .slider-content h1 {
+      color: white;
+      margin-top: 0;
+      margin-bottom: 20px;
     }
     
     /* Announcement styles */
