@@ -98,7 +98,6 @@ $(document).ready(function($) {
     });
 
 //  Slider height on small screens
-
     if (document.documentElement.clientWidth < 991) {
         $('#landing-page-head-image').css('height', $(window).height());
         $('.flexslider').css('height', $(window).height());
@@ -108,15 +107,31 @@ $(document).ready(function($) {
 
     $(".image-carousel").owlCarousel({
         items: 1,
-        autoPlay: true,
-        stopOnHover: true,
-        navigation: true,
-        navigationText : false,
-        responsiveBaseWidth: ".image-carousel-slide"
-        //responsiveBaseWidth: ".author"
+        loop: true,
+        margin: 10,
+        nav: true,
+        dots: true,
+        autoplay: true,
+        autoplayTimeout: 5000,
+        autoplayHoverPause: true,
+        navText: [
+            '<i class="fa fa-angle-left" aria-hidden="true"></i>',
+            '<i class="fa fa-angle-right" aria-hidden="true"></i>'
+        ],
+        responsive: {
+            0: {
+                items: 1
+            },
+            600: {
+                items: 1
+            },
+            1000: {
+                items: 1
+            }
+        }
     });
 
-//  Smooth Scroll
+    //  Smooth Scroll
 
     $('.navigation-wrapper .nav a[href^="#"], a[href^="#"].roll').on('click',function (e) {
         e.preventDefault();

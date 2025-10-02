@@ -228,11 +228,22 @@
     #footer-bottom {
       background-color: #004225 !important; /* Dark green background */
       color: white !important;
-      padding: 15px 0;
+      padding: 8px 0; /* Reduced from 15px to 8px */
     }
     
     #footer-bottom .copyright {
       color: white !important;
+      text-align: center;
+      width: 100%;
+      padding: 8px 0; /* Reduced from 15px to 8px */
+      margin: 0;
+    }
+    
+    #footer-bottom .footer-inner {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
     }
     
     #footer-bottom .container {
@@ -261,6 +272,25 @@
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
+      padding: 15px;
+      margin: 5px 0;
+      border-radius: 4px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+      background-color: #f8f9fa;
+    }
+    
+    #announcements .event:hover {
+      background-color: #004225; /* Dark green on hover */
+      color: white;
+    }
+    
+    #announcements .event:hover a {
+      color: white !important;
+    }
+    
+    #announcements .event:hover .additional-info {
+      color: rgba(255,255,255,0.8) !important;
     }
     
     #announcements .event a {
@@ -283,20 +313,144 @@
       overflow: hidden;
     }
     
+    /* Carousel Styling */
+    .homepage-carousel-wrapper .col-md-6.col-sm-7 {
+      height: 300px;
+    }
+    
+    .image-carousel {
+      position: relative;
+      height: 100%;
+      overflow: hidden;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .image-carousel-slide {
+      position: relative;
+    }
+    
+    .carousel-image-container {
+      width: 100%;
+      height: 300px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+    }
+    
+    .carousel-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+    }
+    
+    @media (max-width: 767px) {
+      .carousel-image-container {
+        height: 300px;
+      }
+    }
+    
+    .carousel-caption {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+      color: white;
+      padding: 20px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+    
+    .carousel-caption h3 {
+      margin: 0 0 8px 0;
+      font-size: 22px;
+      font-weight: 600;
+      color: #fff;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    }
+    
+    .carousel-caption p {
+      margin: 0;
+      font-size: 15px;
+      opacity: 0.9;
+      text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+    }
+    
+    .carousel-caption p {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.5;
+      color: #f0f0f0;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    }
+    
+    /* Carousel Navigation */
+    .owl-nav {
+      position: absolute;
+      top: 50%;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+    
+    .owl-prev, .owl-next {
+      width: 40px;
+      height: 60px;
+      background: rgba(0, 66, 37, 0.7) !important;
+      color: white !important;
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px !important;
+      border-radius: 0;
+      pointer-events: auto;
+      transition: all 0.3s ease;
+    }
+    
+    .owl-prev {
+      border-top-right-radius: 4px;
+      border-bottom-right-radius: 4px;
+    }
+    
+    .owl-next {
+      border-top-left-radius: 4px;
+      border-bottom-left-radius: 4px;
+    }
+    
+    .owl-prev:hover, .owl-next:hover {
+      background: rgba(0, 86, 57, 0.9) !important;
+    }
+    
     /* Full width footer */
     #page-footer {
       width: 100%;
       max-width: 100%;
       margin: 0;
       padding: 0;
-      overflow: hidden;
     }
-    
     #page-footer .container {
       width: 100%;
       max-width: 100%;
       padding: 0;
       margin: 0;
+    }
+    #page-footer .footer-inner {
+      max-width: 100%;
+      margin: 0;
+    }
+    #page-footer .row {
+      margin-left: 0;
+      margin-right: 0;
+    }
+    #page-footer [class*="col-"] {
+      padding-left: 0;
+      padding-right: 0;
     }
     
     #footer-top,
@@ -561,16 +715,79 @@
           <div class="homepage-carousel-wrapper">
             <div class="row">
               <div class="col-md-6 col-sm-7">
-                <div class="image-carousel">
-                  <div class="image-carousel-slide">
-                    <img src="assets/img/slide-1.jpg" alt="" />
-                  </div>
-                  <div class="image-carousel-slide">
-                    <img src="assets/img/slide-2.jpg" alt="" />
-                  </div>
-                  <div class="image-carousel-slide">
-                    <img src="assets/img/slide-3.jpg" alt="" />
-                  </div>
+                <div class="image-carousel owl-carousel">
+                  <?php
+                  // Fetch active carousel items from database
+                  try {
+                      require_once __DIR__ . '/../includes/database.php';
+                      $sql = "SELECT * FROM carousel WHERE is_active = 1 ORDER BY sort_order ASC";
+                      $result = $conn->query($sql);
+                      
+                      if ($result && $result->num_rows > 0) {
+                          while ($slide = $result->fetch_assoc()) {
+                              echo '<div class="item">';
+                              echo '  <div class="carousel-image-container">';
+                              // Get and clean the image URL
+                              $image_url = trim($slide['image_url']);
+                              $image_url = str_replace('\\', '/', $image_url);
+                              $image_url = ltrim($image_url, '/');
+                              
+                              // Build the full path for checking
+                              $full_path = $_SERVER['DOCUMENT_ROOT'] . '/' . $image_url;
+                              
+                              // Output the image with error handling
+                              echo '<img src="/' . htmlspecialchars($image_url) . '" 
+                                    alt="' . htmlspecialchars($slide['title']) . '" 
+                                    class="carousel-image" 
+                                    onerror="this.onerror=null; this.style.display=\'none\'; 
+                                    var div=document.createElement(\'div\'); 
+                                    div.style.background=\'#f0f0f0\'; 
+                                    div.style.height=\'100%\'; 
+                                    div.style.display=\'flex\'; 
+                                    div.style.alignItems=\'center\'; 
+                                    div.style.justifyContent=\'center\'; 
+                                    div.style.padding=\'20px\'; 
+                                    div.style.textAlign=\'center\'; 
+                                    div.innerHTML=\'Image not found: ' . htmlspecialchars(addslashes($image_url)) . '\'; 
+                                    this.parentNode.appendChild(div);" />';
+                              echo '  </div>';
+                              echo '  <div class="carousel-caption">';
+                              echo '    <h3>' . htmlspecialchars($slide['title']) . '</h3>';
+                              if (!empty($slide['description'])) {
+                                  echo '<p class="mb-3">' . htmlspecialchars($slide['description']) . '</p>';
+                              }
+                              if (!empty($slide['button_text']) && !empty($slide['button_url'])) {
+                                  echo '<a href="' . htmlspecialchars($slide['button_url']) . '" class="btn btn-primary btn-sm">' . htmlspecialchars($slide['button_text']) . '</a>';
+                              }
+                              echo '  </div>';
+                              echo '</div>';
+                          }
+                      } else {
+                          // Default slides if no data in database
+                          echo '<div class="item">
+                                  <div class="carousel-image-container">
+                                    <img src="assets/img/slide-1.jpg" alt="Welcome to Zanvarsity" class="carousel-image" />
+                                  </div>
+                                  <div class="carousel-caption">
+                                    <h3>Welcome to Zanvarsity</h3>
+                                    <p>Join our community of modern thinking students</p>
+                                  </div>
+                                </div>';
+                      }
+                  } catch (Exception $e) {
+                      error_log("Error loading carousel: " . $e->getMessage());
+                      // Fallback to default slide
+                      echo '<div class="item">
+                              <div class="carousel-image-container">
+                                <img src="assets/img/slide-1.jpg" alt="Welcome to Zanvarsity" class="carousel-image" />
+                              </div>
+                              <div class="carousel-caption">
+                                <h3>Welcome to Zanvarsity</h3>
+                                <p>Join our community of modern thinking students</p>
+                              </div>
+                            </div>';
+                  }
+                  ?>
                 </div>
                 <!-- /.slider-image -->
               </div>
@@ -1112,7 +1329,7 @@
   <!-- Footer -->
   <footer id="page-footer">
     <section id="footer-top">
-      <div class="container">
+      <div class="container-fluid">
         <div class="footer-inner">
           <div class="footer-social">
             <figure>Follow us:</figure>
@@ -1244,8 +1461,27 @@
   <script type="text/javascript" src="assets/js/icheck.min.js"></script>
   <script type="text/javascript" src="assets/js/jquery.vanillabox-0.1.5.min.js"></script>
   <script type="text/javascript" src="assets/js/retina-1.1.0.min.js"></script>
-
   <script type="text/javascript" src="assets/js/custom.js"></script>
+  <script>
+    $(document).ready(function() {
+      if ($.fn.owlCarousel) {
+        $(".image-carousel").owlCarousel({
+          items: 1,
+          loop: true,
+          nav: true,
+          dots: true,
+          autoplay: true,
+          autoplayTimeout: 5000,
+          autoplayHoverPause: true,
+          smartSpeed: 800,
+          navText: [
+            '<i class="fa fa-angle-left" aria-hidden="true"></i>',
+            '<i class="fa fa-angle-right" aria-hidden="true"></i>'
+          ]
+        });
+      }
+    });
+  </script>
   <script>
     // Initialize infinite scroll for event cards
     document.addEventListener('DOMContentLoaded', function() {
