@@ -21,7 +21,7 @@ $conn = $GLOBALS['conn']; // Get the database connection from database.php
 
 try {
     // First, check if the carousel item exists
-    $sql = "SELECT * FROM carousel WHERE id = ?";
+    $sql = "SELECT *, status = 'active' as is_active FROM carousel WHERE id = ?";
     $stmt = $conn->prepare($sql);
     
     if ($stmt === false) {
@@ -48,12 +48,17 @@ try {
         'success' => true,
         'data' => [
             'id' => (int)$carouselItem['id'],
+            'status' => $carouselItem['status'] === 'active',  // For backward compatibility
+            'is_active' => $carouselItem['status'] === 'active',  // For backward compatibility
+            'sort_order' => (int)$carouselItem['display_order'],  // For backward compatibility
+            'display_order' => (int)$carouselItem['display_order'],
             'title' => $carouselItem['title'] ?? '',
             'description' => $carouselItem['description'] ?? '',
             'button_text' => $carouselItem['button_text'] ?? 'Learn More',
             'button_url' => $carouselItem['button_url'] ?? '#',
             'is_active' => (bool)($carouselItem['is_active'] ?? true),
-            'display_order' => (int)($carouselItem['display_order'] ?? 0)
+            'sort_order' => (int)($carouselItem['sort_order'] ?? 0),
+            'display_order' => (int)($carouselItem['sort_order'] ?? 0) // For backward compatibility
         ]
     ];
     

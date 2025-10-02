@@ -4,7 +4,7 @@ ob_start();
 
 // Start session and include database connection
 session_start();
-require_once __DIR__ . '/../includes/database.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/c/zanvarsity/html/includes/database.php';
 
 // Enable error reporting for debugging
 error_reporting(E_ALL);
@@ -41,23 +41,21 @@ if (!isset($_POST['csrf_token']) || !isset($_SESSION['csrf_token']) || $_POST['c
 }
 
 try {
-    // Validate required fields
     if (empty($_POST['id']) || !is_numeric($_POST['id'])) {
         sendJsonResponse(false, 'Invalid carousel item ID', null, 400);
     }
 
     // Get form data
-    $id = (int)$_POST['id'];
-    $title = trim($_POST['title'] ?? '');
+    $id = intval($_POST['id']);
+    $title = trim($_POST['title']);
     $description = trim($_POST['description'] ?? '');
-    $buttonText = trim($_POST['button_text'] ?? 'Learn More');
-    $buttonUrl = trim($_POST['button_url'] ?? '#');
-    $displayOrder = isset($_POST['sort_order']) ? (int)$_POST['sort_order'] : 0;
-    $isActive = isset($_POST['is_active']) ? 1 : 0;
+    $buttonText = trim($_POST['button_text'] ?? '');
+    $buttonUrl = trim($_POST['button_url'] ?? '');
+    $displayOrder = isset($_POST['display_order']) ? (int)$_POST['display_order'] : 0;
+    $isActive = isset($_POST['is_active']) && $_POST['is_active'] === '1';
 
     // Validate required fields
     if (empty($title)) {
-        sendJsonResponse(false, 'Title is required', null, 400);
     }
 
     // Handle file upload if provided
@@ -71,24 +69,48 @@ try {
             sendJsonResponse(false, 'Invalid file type. Only JPG, PNG, GIF, and WebP images are allowed.', null, 400);
         }
         
+        // Define the web-relative upload directory
+        $uploadDirWeb = '/c/zanvarsity/html/uploads/carousel/';
+        
+        // Get the full server path for the upload directory
+        $uploadDir = getServerPath($uploadDirWeb);
+        
         // Create uploads directory if it doesn't exist
-        $uploadDir = $_SERVER['DOCUMENT_ROOT'] . '/zanvarsity/html/uploads/carousel/';
         if (!file_exists($uploadDir)) {
             if (!mkdir($uploadDir, 0755, true)) {
+                $error = error_get_last();
+                error_log('Failed to create upload directory: ' . $uploadDir . ' - ' . ($error['message'] ?? 'Unknown error'));
                 throw new Exception('Failed to create upload directory');
             }
+            error_log('Created upload directory: ' . $uploadDir);
         }
         
-        // Generate unique filename
-        $extension = $allowedTypes[$mimeType];
-        $filename = 'carousel_' . time() . '_' . uniqid() . '.' . $extension;
-        $targetPath = $uploadDir . $filename;
+        // Ensure the upload directory is writable
+        if (!is_writable($uploadDir)) {
+            error_log('Upload directory is not writable: ' . $uploadDir);
+            throw new Exception('Upload directory is not writable');
+        }
         
+        // Generate unique filename with lowercase extension
+        $extension = strtolower($allowedTypes[$mimeType]);
+        $filename = 'carousel_' . uniqid() . '.' . $extension;
+        $targetPath = rtrim($uploadDir, '/') . '/' . $filename;
+        
+        // Log upload details for debugging
+        error_log('Attempting to move uploaded file:');
+        error_log('Source: ' . $_FILES['image']['tmp_name']);
+        error_log('Destination: ' . $targetPath);
+        
+        // Move the uploaded file
         if (!move_uploaded_file($_FILES['image']['tmp_name'], $targetPath)) {
-            throw new Exception('Failed to move uploaded file');
+            $error = error_get_last();
+            error_log('File move error: ' . print_r($error, true));
+            throw new Exception('Failed to move uploaded file: ' . ($error['message'] ?? 'Unknown error'));
         }
         
-        $imagePath = '/zanvarsity/html/uploads/carousel/' . $filename;
+        // Set the web-relative path for the database
+        $imagePath = rtrim($uploadDirWeb, '/') . '/' . $filename;
+        error_log('File uploaded successfully. Path stored in DB: ' . $imagePath);
     }
 
     // Start transaction
@@ -116,35 +138,67 @@ try {
             $stmt->close();
         }
         
-        // Update carousel item
+        // Update carousel item with proper parameter binding
         if (!empty($imagePath)) {
-            $stmt = $conn->prepare("UPDATE carousel SET title = ?, description = ?, button_text = ?, button_url = ?, image_path = ?, display_order = ?, is_active = ?, updated_at = NOW() WHERE id = ?");
+            // Prepare the update query with image
+            $sql = "UPDATE carousel SET title = ?, description = ?, button_text = ?, button_url = ?, image_path = ?, display_order = ?, status = ?, updated_at = NOW() WHERE id = ?";
+            $stmt = $conn->prepare($sql);
             if (!$stmt) {
                 throw new Exception('Database error: ' . $conn->error);
             }
-            $stmt->bind_param("sssssiii", $title, $description, $buttonText, $buttonUrl, $imagePath, $displayOrder, $isActive, $id);
+            
+            // Convert isActive to status string
+            $status = $isActive ? 'active' : 'inactive';
+            $stmt->bind_param('sssssisi', $title, $description, $buttonText, $buttonUrl, $imagePath, $displayOrder, $status, $id);
         } else {
-            $stmt = $conn->prepare("UPDATE carousel SET title = ?, description = ?, button_text = ?, button_url = ?, display_order = ?, is_active = ?, updated_at = NOW() WHERE id = ?");
+            // Prepare the update query without image
+            $sql = "UPDATE carousel SET title = ?, description = ?, button_text = ?, button_url = ?, display_order = ?, status = ?, updated_at = NOW() WHERE id = ?";
+            $stmt = $conn->prepare($sql);
             if (!$stmt) {
                 throw new Exception('Database error: ' . $conn->error);
             }
-            $stmt->bind_param("ssssiii", $title, $description, $buttonText, $buttonUrl, $displayOrder, $isActive, $id);
+            
+            // Convert isActive to status string
+            $status = $isActive ? 'active' : 'inactive';
+            $stmt->bind_param('ssssisi', $title, $description, $buttonText, $buttonUrl, $displayOrder, $status, $id);
         }
         
         if (!$stmt->execute()) {
-            throw new Exception('Failed to update carousel item: ' . $stmt->error);
+            throw new Exception('Failed to update carousel item: ' . $stmt->error . ' (SQL: ' . $sql . ')');
         }
         
-        // Delete old image if a new one was uploaded and old one exists
-        if (!empty($imagePath) && !empty($oldImagePath) && file_exists($_SERVER['DOCUMENT_ROOT'] . $oldImagePath)) {
-            @unlink($_SERVER['DOCUMENT_ROOT'] . $oldImagePath);
-        }
+        // If this was a new image and we have an old one, delete the old image
+        if (!empty($imagePath) && !empty($oldImagePath)) {
+            try {
+                // Get the full server path for the old image
+                $oldImageFullPath = getServerPath($oldImagePath);
+                
+                // Log the deletion attempt
+                error_log('Attempting to delete old image: ' . $oldImageFullPath);
+                
+                // Check if the file exists and is writable
+                if (file_exists($oldImageFullPath)) {
+                    if (is_writable($oldImageFullPath)) {
+                        if (@unlink($oldImageFullPath)) {
+                            error_log('Successfully deleted old image: ' . $oldImageFullPath);
+                        } else {
+                            $error = error_get_last();
+                            error_log('Failed to delete old image (unlink failed): ' . 
+                                     ($error['message'] ?? 'Unknown error'));
+                        }
+                    } else {
+                        error_log('Old image is not writable: ' . $oldImageFullPath);
+                    }
+                } else {
+                    error_log('Old image not found: ' . $oldImageFullPath);
+                }
+            } catch (Exception $e) {
+                // Log the error but don't fail the entire operation
+                error_log('Error deleting old image: ' . $e->getMessage());
+            }
         
         $conn->commit();
-        
-        sendJsonResponse(true, 'Carousel item updated successfully', [
-            'image_path' => $imagePath ?: $oldImagePath
-        ]);
+        sendJsonResponse(true, 'Carousel item updated successfully');
         
     } catch (Exception $e) {
         // Rollback transaction on error
@@ -152,20 +206,39 @@ try {
             $conn->rollback();
         }
         
+        // Log detailed error information
+        $errorDetails = [
+            'message' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => $e->getTraceAsString(),
+            'post_data' => $_POST,
+            'files_data' => !empty($_FILES) ? array_keys($_FILES) : 'No files uploaded'
+        ];
+        
+        error_log('Error in update_carousel (inner catch): ' . print_r($errorDetails, true));
+        
         // Delete the uploaded file if there was an error
-        if (!empty($imagePath) && file_exists($_SERVER['DOCUMENT_ROOT'] . $imagePath)) {
-            @unlink($_SERVER['DOCUMENT_ROOT'] . $imagePath);
+        if (!empty($imagePath)) {
+            $imagePath = str_replace('//', '/', $_SERVER['DOCUMENT_ROOT'] . '/' . ltrim($imagePath, '/'));
+            if (file_exists($imagePath)) {
+                if (!@unlink($imagePath)) {
+                    $error = error_get_last();
+                    error_log('Failed to delete uploaded file after error: ' . ($error['message'] ?? 'Unknown error'));
+                } else {
+                    error_log('Successfully deleted uploaded file after error: ' . $imagePath);
+                }
+            }
         }
         
+        // Re-throw the exception to be caught by the outer catch block
         throw $e;
     }
-    
 } catch (Exception $e) {
     // Log the error for debugging
     error_log('Error in update_carousel.php: ' . $e->getMessage());
     
     // Return error response
-    sendJsonResponse(false, 'An error occurred while updating the carousel item: ' . $e->getMessage(), null, 500);
 } finally {
     // Close the database connection
     if (isset($stmt)) $stmt->close();

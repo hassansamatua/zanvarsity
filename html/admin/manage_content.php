@@ -378,7 +378,7 @@ $page_title = 'Content Management Dashboard';
                                         <p class="card-text">Manage homepage slider/carousel images.</p>
                                     </div>
                                     <div class="card-footer text-center">
-                                        <a href="manage_courasel.php" class="btn btn-success btn-sm">
+                                        <a href="/c/zanvarsity/html/admin/manage_carousel.php" class="btn btn-success btn-sm">
                                             <i class='bx bx-edit me-1'></i> Manage Carousel
                                         </a>
                                     </div>

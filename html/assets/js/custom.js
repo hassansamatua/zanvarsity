@@ -1,10 +1,12 @@
+// Global variables
 var _days = 'Days';
 var _hours = 'Hours';
 var _minutes = 'Minutes';
 var _seconds = 'Seconds';
 var _messageAfterCount = 'The course has Started!';
+var _date = '2025-10-01 00:00:00';
 
-var $ = jQuery.noConflict();
+// Document ready function
 $(document).ready(function($) {
     "use strict";
 
@@ -260,25 +262,25 @@ $(document).ready(function($) {
 
 
 // Remove button function for "join to course" button after count down is over
-
 function disableJoin() {
     // Find "join to course" button
     var buttonToBeRemoved = document.getElementById("btn-course-join");
     // Find "join to course" button on bottom of course detail
     var buttonToBeRemovedBottom = document.getElementById("btn-course-join-bottom");
-    // Remove button
-    buttonToBeRemoved.remove();
-    // Remove button on the bottom
-    buttonToBeRemovedBottom.remove();
-    // Give the ".course-count-down" element new class to hide date
-    document.getElementById("course-count-down").className += " disable-join";
-    document.getElementById("course-start").className += " disable-join";
+    // Remove button if it exists
+    if (buttonToBeRemoved) buttonToBeRemoved.remove();
+    // Remove button on the bottom if it exists
+    if (buttonToBeRemovedBottom) buttonToBeRemovedBottom.remove();
+    // Update classes for countdown elements
+    var courseCountDown = document.getElementById("course-count-down");
+    var courseStart = document.getElementById("course-start");
+    if (courseCountDown) courseCountDown.classList.add("disable-join");
+    if (courseStart) courseStart.classList.add("disable-join");
 }
 
-//  Count Down - Course Detail
-
-if (typeof _date != 'undefined') { // run function only if _date is defined
-    var Countdown = new Countdown({
+// Count Down - Course Detail
+if (typeof _date != 'undefined' && typeof Countdown !== 'undefined') {
+    var countdown = new Countdown({
         dateEnd: new Date(_date),
         msgAfter: _messageAfterCount,
         onEnd: function() {
@@ -286,3 +288,4 @@ if (typeof _date != 'undefined') { // run function only if _date is defined
         }
     });
 }
+});
