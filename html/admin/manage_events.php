@@ -120,7 +120,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Check file type using finfo
                 $finfo = finfo_open(FILEINFO_MIME_TYPE);
                 $mime_type = finfo_file($finfo, $_FILES['event_image']['tmp_name']);
-                finfo_close($finfo);
                 
                 if (!in_array($mime_type, $allowed_types)) {
                     $errors['event_image'] = 'Only JPG, PNG, and GIF files are allowed';
@@ -128,7 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $errors['event_image'] = 'File size must be less than 5MB';
                 } else {
                     // Create uploads directory if it doesn't exist
-                    $upload_dir = ROOT_PATH . '/uploads/events/';
+                    $upload_dir = ROOT_PATH . '/html/admin/uploads/events/';
                     if (!is_dir($upload_dir)) {
                         if (!mkdir($upload_dir, 0755, true)) {
                             $errors['event_image'] = 'Failed to create upload directory';
@@ -137,12 +136,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     if (!isset($errors['event_image'])) {
                         // Generate unique filename
-                        $file_extension = pathinfo($_FILES['event_image']['name'], PATHINFO_EXTENSION);
+                        $file_extension = strtolower(pathinfo($_FILES['event_image']['name'], PATHINFO_EXTENSION));
                         $filename = uniqid('event_') . '.' . $file_extension;
                         $destination = $upload_dir . $filename;
                         
                         if (move_uploaded_file($_FILES['event_image']['tmp_name'], $destination)) {
-                            $image_path = '/zanvarsity/uploads/events/' . $filename;
+                            // Store relative path from document root
+                            $image_path = 'admin/uploads/events/' . $filename;
                         } else {
                             $errors['event_image'] = 'Failed to upload file';
                         }
@@ -943,34 +943,52 @@ $page_title = 'Manage Events';
                                                 
                                                 // Process image URL
                                                 $imageUrl = '';
+                                                $debugInfo = [];
+                                                
                                                 if (!empty($event['image_url'])) {
                                                     $imgPath = $event['image_url'];
+                                                    $debugInfo[] = "Original path: " . $imgPath;
                                                     
-                                                    // Handle different path formats
-                                                    if (strpos($imgPath, 'http') === 0) {
-                                                        // Already a full URL
-                                                        $imageUrl = $imgPath;
-                                                    } else {
-                                                        // Handle different relative path formats
-                                                        if (strpos($imgPath, '/') === 0) {
-                                                            // Absolute path from root
-                                                            $imageUrl = '//' . $_SERVER['HTTP_HOST'] . $imgPath;
-                                                            $fullPath = $_SERVER['DOCUMENT_ROOT'] . $imgPath;
+                                                    // List of possible locations to check
+                                                    $possiblePaths = [
+                                                        // Relative to admin directory
+                                                        '../' . $imgPath,
+                                                        // From web root
+                                                        '/' . $imgPath,
+                                                        // Just the filename in events directory
+                                                        '../uploads/events/' . basename($imgPath),
+                                                        // Full path from document root
+                                                        '/c/zanvarsity/html/admin/uploads/events/' . basename($imgPath),
+                                                        // Just the filename
+                                                        basename($imgPath)
+                                                    ];
+                                                    
+                                                    $debugInfo[] = "Checking paths: " . implode(", ", $possiblePaths);
+                                                    
+                                                    // Check each possible path
+                                                    foreach ($possiblePaths as $path) {
+                                                        $fullPath = realpath(ROOT_PATH . '/html/' . ltrim($path, '/'));
+                                                        if ($fullPath && file_exists($fullPath)) {
+                                                            $imageUrl = '//' . $_SERVER['HTTP_HOST'] . '/c/zanvarsity/html/' . ltrim($path, '/');
+                                                            $debugInfo[] = "Found image at: " . $fullPath;
+                                                            $debugInfo[] = "Serving from URL: " . $imageUrl;
+                                                            break;
                                                         } else {
-                                                            // Relative path
-                                                            $imageUrl = '//' . $_SERVER['HTTP_HOST'] . '/zanvarsity/' . ltrim($imgPath, '/');
-                                                            $fullPath = ROOT_PATH . '/' . ltrim($imgPath, '/');
-                                                        }
-                                                        
-                                                        // Verify the file exists
-                                                        if (!file_exists($fullPath)) {
-                                                            error_log("Image not found: " . $fullPath);
-                                                            $imageUrl = $fallbackImagePath;
+                                                            $debugInfo[] = "Not found: " . $path . " (Full path: " . $fullPath . ")";
                                                         }
                                                     }
+                                                    
+                                                    if (empty($imageUrl)) {
+                                                        $debugInfo[] = "No valid image found, using fallback";
+                                                        $imageUrl = $fallbackImagePath;
+                                                    }
                                                 } else {
+                                                    $debugInfo[] = "No image URL provided, using fallback";
                                                     $imageUrl = $fallbackImagePath;
                                                 }
+                                                
+                                                // Log debug info
+                                                error_log("Event ID {$event['id']} - " . implode(" | ", $debugInfo));
                                                 ?>
                                                 <div class="card-img-top" style="height: 200px; overflow: hidden; background: #f8f9fa; display: flex; align-items: center; justify-content: center;">
                                                     <img src="<?php echo htmlspecialchars($imageUrl); ?>" 
