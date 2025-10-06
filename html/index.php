@@ -315,15 +315,96 @@
     
     /* Carousel Styling */
     .homepage-carousel-wrapper .col-md-6.col-sm-7 {
-      height: 300px;
+      height: 400px;
+      position: relative;
     }
     
     .image-carousel {
       position: relative;
       height: 100%;
+      width: 100%;
       overflow: hidden;
       border-radius: 8px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    /* Owl Carousel Styling */
+    .owl-carousel {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+    
+    .owl-stage-outer, 
+    .owl-stage, 
+    .owl-item {
+      height: 100%;
+    }
+    
+    .owl-item .item {
+      height: 400px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .owl-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+    
+    /* Navigation Arrows */
+    .owl-nav {
+      position: absolute;
+      top: 50%;
+      width: 100%;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+    
+    .owl-prev,
+    .owl-next {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      background: rgba(0,0,0,0.5) !important;
+      color: white !important;
+      border-radius: 50% !important;
+      text-align: center;
+      line-height: 40px !important;
+      font-size: 20px !important;
+      pointer-events: auto;
+      margin: 0 !important;
+    }
+    
+    .owl-prev {
+      left: 15px;
+    }
+    
+    .owl-next {
+      right: 15px;
+    }
+    
+    /* Dots Navigation */
+    .owl-dots {
+      position: absolute;
+      bottom: 15px;
+      width: 100%;
+      text-align: center;
+    }
+    
+    .owl-dot {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      margin: 0 5px;
+      background: rgba(255,255,255,0.5) !important;
+      border-radius: 50%;
+    }
+    
+    .owl-dot.active {
+      background: #fff !important;
     }
     
     .image-carousel-slide {
@@ -554,6 +635,11 @@
     }
   </style>
   <link rel="stylesheet" href="assets/css/publications.css">
+  <!-- Owl Carousel CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css">
+  <!-- Custom Carousel CSS -->
+  <link rel="stylesheet" href="assets/css/carousel.css">
   <title>Zanvarsity - Educational, Course and University Template</title>
 </head>
 
@@ -2052,59 +2138,52 @@
   <!-- end Wrapper -->
 
   <!-- jQuery and other JS files -->
-  <script type="text/javascript" src="assets/js/jquery-2.1.0.min.js"></script>
-  <script type="text/javascript" src="assets/js/jquery-migrate-1.2.1.min.js"></script>
-  <script type="text/javascript" src="assets/bootstrap/js/bootstrap.min.js"></script>
-  <script type="text/javascript" src="assets/js/selectize.min.js"></script>
-  <script type="text/javascript" src="assets/js/owl.carousel.min.js"></script>
-  <script type="text/javascript" src="assets/js/jquery.validate.min.js"></script>
-  <script type="text/javascript" src="assets/js/jquery.placeholder.js"></script>
-  <script type="text/javascript" src="assets/js/jQuery.equalHeights.js"></script>
-  <script type="text/javascript" src="assets/js/icheck.min.js"></script>
-  <script type="text/javascript" src="assets/js/jquery.vanillabox-0.1.5.min.js"></script>
-  <script type="text/javascript" src="assets/js/retina-1.1.0.min.js"></script>
-  <script type="text/javascript" src="assets/js/custom.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="assets/js/jquery-migrate-1.2.1.min.js"></script>
+  <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+  <!-- Load Owl Carousel -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+  <!-- Other scripts -->
+  <script src="assets/js/selectize.min.js"></script>
+  <script src="assets/js/jquery.validate.min.js"></script>
+  <script src="assets/js/jquery.placeholder.js"></script>
+  <script src="assets/js/jQuery.equalHeights.js"></script>
+  <script src="assets/js/icheck.min.js"></script>
+  <script src="assets/js/jquery.vanillabox-0.1.5.min.js"></script>
+  <script src="assets/js/retina-1.1.0.min.js"></script>
+  <!-- Custom scripts -->
+  <script src="assets/js/custom.js"></script>
+  <script src="assets/js/carousel.js"></script>
   
+  <script type="text/javascript">
+  // Initialize infinite scroll for event cards if the container exists
+  document.addEventListener('DOMContentLoaded', function() {
+    var eventsContainer = document.querySelector('.events.images.featured');
+    if (eventsContainer) {
+      var events = eventsContainer.querySelectorAll('.event');
+      
+      // Only proceed if there are events
+      if (events.length > 0) {
+        console.log('Initializing infinite scroll for events...');
+      }
+    }
+  });
+  </script>
+  
+  <!-- Add error handling for missing images -->
   <script>
-    // Wait for both DOM and jQuery to be ready
-    (function($) {
-      $(document).ready(function() {
-        // Initialize Owl Carousel if it exists
-        if (typeof $.fn.owlCarousel === 'function') {
-          $(".image-carousel").owlCarousel({
-            items: 1,
-            loop: true,
-            nav: true,
-            dots: true,
-            autoplay: true,
-            autoplayTimeout: 5000,
-            autoplayHoverPause: true,
-            smartSpeed: 800,
-            navText: [
-              '<i class="fa fa-angle-left" aria-hidden="true"></i>',
-              '<i class="fa fa-angle-right" aria-hidden="true"></i>'
-            ]
-          });
+    // Handle missing images
+    document.addEventListener('error', function(e) {
+      var img = e.target;
+      if (img.tagName.toLowerCase() === 'img') {
+        // Replace with a placeholder image or hide the element
+        if (img.src.includes('default-publication.jpg')) {
+          img.style.display = 'none'; // or set a placeholder: img.src = 'path/to/placeholder.jpg';
+          console.warn('Image not found:', img.src);
         }
-
-        // Initialize infinite scroll for event cards
-        const eventsContainer = document.querySelector('.events.images.featured');
-        if (eventsContainer) {
-          const events = eventsContainer.querySelectorAll('.event');
-          
-          // Only proceed if there are events
-          if (events.length > 0) {
-            // Create wrapper for scrolling
-            const wrapper = document.createElement('div');
-            wrapper.className = 'scrolling-wrapper';
-            
-            // Clone events for seamless looping
-            const fragment1 = document.createDocumentFragment();
-            const fragment2 = document.createDocumentFragment();
-            
-            events.forEach(event => {
-              fragment1.appendChild(event.cloneNode(true));
-              fragment2.appendChild(event.cloneNode(true));
+      }
+    }, true);
+  </script>
               event.remove();
             });
             

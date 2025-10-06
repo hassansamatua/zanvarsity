@@ -106,30 +106,56 @@ $(document).ready(function($) {
     }
 
 //  Homepage Carousel
-
-    $(".image-carousel").owlCarousel({
-        items: 1,
-        loop: true,
-        margin: 10,
-        nav: true,
-        dots: true,
-        autoplay: true,
-        autoplayTimeout: 5000,
-        autoplayHoverPause: true,
-        navText: [
-            '<i class="fa fa-angle-left" aria-hidden="true"></i>',
-            '<i class="fa fa-angle-right" aria-hidden="true"></i>'
-        ],
-        responsive: {
-            0: {
-                items: 1
-            },
-            600: {
-                items: 1
-            },
-            1000: {
-                items: 1
-            }
+    $(document).ready(function() {
+        var $carousel = $(".image-carousel.owl-carousel");
+        
+        if ($carousel.length) {
+            console.log('Initializing carousel...');
+            
+            // Ensure all carousel items have the correct class
+            $carousel.find('.item').addClass('owl-item');
+            
+            // Initialize Owl Carousel
+            $carousel.owlCarousel({
+                items: 1,
+                loop: true,
+                margin: 10,
+                nav: true,
+                dots: true,
+                autoplay: true,
+                autoplayTimeout: 5000,
+                autoplayHoverPause: true,
+                smartSpeed: 800,
+                navText: [
+                    '<i class="fa fa-angle-left" aria-hidden="true"></i>',
+                    '<i class="fa fa-angle-right" aria-hidden="true"></i>'
+                ],
+                responsive: {
+                    0: { items: 1 },
+                    600: { items: 1 },
+                    1000: { items: 1 }
+                },
+                onInitialized: function() {
+                    console.log('Carousel initialized successfully');
+                    $carousel.trigger('refresh.owl.carousel');
+                    
+                    // Add custom navigation classes
+                    $carousel.find('.owl-nav').removeClass('disabled');
+                    $carousel.find('.owl-dots').removeClass('disabled');
+                },
+                onTranslated: function() {
+                    console.log('Slide changed');
+                }
+            });
+            
+            // Force refresh after a short delay
+            setTimeout(function() {
+                $carousel.trigger('refresh.owl.carousel');
+            }, 1000);
+        } else {
+            console.warn('Carousel element not found. Selector used: ".image-carousel.owl-carousel"');
+            console.log('Available elements with class "image-carousel":', $('.image-carousel').length);
+            console.log('Available elements with class "owl-carousel":', $('.owl-carousel').length);
         }
     });
 
@@ -282,5 +308,3 @@ if (typeof _date != 'undefined' && typeof Countdown !== 'undefined') {
             disableJoin(); // Run this function after count down is over
         }
     });
-}
-});
