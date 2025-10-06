@@ -1,0 +1,240 @@
+/* Publications Section Styling */
+#featured-courses .block {
+    padding: 15px 0 5px; /* Reduced top and bottom padding */
+    background-color: #f9f9f9;
+    overflow: hidden;
+    position: relative;
+}
+
+.publications-container {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    padding: 5px 0 0;
+    min-height: auto;
+    max-height: none;
+    margin-bottom: 0;
+    height: auto;
+}
+
+.publications-track {
+    display: flex;
+    width: max-content;
+    animation: scroll 40s linear infinite;
+    padding: 10px 0; /* Reduced vertical padding */
+    will-change: transform;
+    backface-visibility: hidden;
+}
+
+@keyframes scroll {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+.publications-track:hover {
+    animation-play-state: paused;
+}
+
+.publication-col {
+    flex: 0 0 auto;
+    width: auto;
+    padding: 0 10px;
+    box-sizing: border-box;
+}
+
+#featured-courses header h2 {
+    text-align: center;
+    font-size: 28px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 25px;
+    text-transform: uppercase;
+    position: relative;
+    padding-bottom: 10px;
+}
+
+#featured-courses header h2:after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 3px;
+    background: #006400;
+    margin: 10px auto 0;
+}
+
+/* Publication Card Styling */
+.publication-card {
+    background: #fff;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    height: 280px; /* Further reduced height */
+    width: 240px; /* Slightly reduced width */
+    display: flex;
+    flex-direction: column;
+    margin: 0 6px 10px; /* Reduced margins */
+    flex-shrink: 0;
+}
+
+.publication-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.publication-image {
+    position: relative;
+    overflow: hidden;
+    height: 120px; /* Further reduced image height */
+    width: 100%;
+}
+
+.publication-image img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.publication-card:hover .publication-image img {
+    transform: scale(1.05);
+}
+
+.publication-content {
+    padding: 8px 10px 6px; /* Further reduced padding */
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 120px); /* Adjusted for new image height */
+}
+
+.publication-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    line-height: 1.2;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: 50.4px; /* 1.2 line-height * 3 lines * 14px font-size */
+    max-height: 50.4px;
+    margin: 0 0 4px;
+}
+
+.publication-title a {
+    color: #333;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+
+
+.publication-meta {
+    font-size: 11px;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.publication-date {
+    color: #888;
+    font-size: 13px;
+    margin-bottom: 10px;
+}
+
+
+.publication-footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid #eee;
+    font-size: 12px;
+
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
+    transition: color 0.3s ease;
+}
+
+.document-link i {
+    margin-right: 5px;
+    font-size: 16px;
+}
+
+.document-link:hover {
+    color: #004d00;
+    text-decoration: underline;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 991px) {
+    .publication-card {
+        margin-bottom: 25px;
+    }
+    
+    #featured-courses header h2 {
+        font-size: 28px;
+        margin-bottom: 30px;
+    }
+}
+
+@media (max-width: 767px) {
+    #featured-courses .block {
+        padding: 40px 0;
+    }
+    
+    #featured-courses header h2 {
+        font-size: 24px;
+        margin-bottom: 25px;
+    }
+    
+    .publication-content {
+        padding: 15px;
+    }
+    
+    .publication-title {
+        font-size: 16px;
+    }
+    
+    .publication-excerpt {
+        font-size: 13px;
+    }
+}
+
+/* View All Button */
+.view-all-btn {
+    display: inline-block;
+    margin-top: 30px;
+    padding: 10px 25px;
+    background-color: #006400;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: 500;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    border: 2px solid #006400;
+    text-transform: uppercase;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+}
+
+.view-all-btn:hover {
+    background-color: #004d00;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 100, 0, 0.2);
+}
+
+.view-all-btn:active {
+    transform: translateY(0);
+}

@@ -118,8 +118,30 @@ if ($result) {
                                             <tr>
                                                 <td><?= $index + 1; ?></td>
                                                 <td>
-                                                    <?php if (!empty($item['image_path'])): ?>
-                                                        <img src="/<?= ltrim($item['image_path'], '/'); ?>" alt="<?= htmlspecialchars($item['title']); ?>" class="img-thumbnail carousel-img">
+                                                    <?php 
+                                                    if (!empty($item['image_path'])): 
+                                                        // Normalize the path to lowercase for the filesystem check
+                                                        $fsPath = strtolower($item['image_path']);
+                                                        $fsPath = str_replace('//', '/', $fsPath);
+                                                        
+                                                        // Check if the file exists in the filesystem (case-insensitive)
+                                                        $fullPath = $_SERVER['DOCUMENT_ROOT'] . '/' . ltrim($fsPath, '/');
+                                                        $fileExists = file_exists($fullPath);
+                                                        
+                                                        // Use the original path for display (case-sensitive for URL)
+                                                        $displayPath = $item['image_path'];
+                                                        $displayPath = ltrim($displayPath, '/');
+                                                        
+                                                        // Log for debugging
+                                                        error_log("Checking image: " . $fullPath . " (exists: " . ($fileExists ? 'yes' : 'no') . ")");
+                                                    ?>
+                                                        <img src="/<?= $displayPath; ?>" 
+                                                             alt="<?= htmlspecialchars($item['title']); ?>" 
+                                                             class="img-thumbnail carousel-img" 
+                                                             onerror="this.onerror=null; this.src='/c/zanvarsity/html/assets/img/placeholder.jpg';">
+                                                        <?php if (!$fileExists): ?>
+                                                            <div class="small text-danger">File not found: <?= htmlspecialchars(basename($displayPath)); ?></div>
+                                                        <?php endif; ?>
                                                     <?php else: ?>
                                                         <span class="text-muted">No image</span>
                                                     <?php endif; ?>

@@ -94,7 +94,54 @@ try {
 
         $action = $_POST['action'] ?? '';
         
-        if ($action === 'update_user') {
+        if ($action === 'add_user') {
+            // Validate required fields
+            $required = ['first_name', 'email', 'password', 'role', 'status'];
+            foreach ($required as $field) {
+                if (empty($_POST[$field])) {
+                    throw new Exception("Missing required field: " . $field);
+                }
+            }
+            
+            // Validate email format
+            if (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
+                throw new Exception('Invalid email format');
+            }
+            
+            // Check if email already exists
+            $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
+            $stmt->bind_param('s', $_POST['email']);
+            $stmt->execute();
+            if ($stmt->get_result()->num_rows > 0) {
+                throw new Exception('Email already exists');
+            }
+            $stmt->close();
+            
+            // Hash password (assuming it's already hashed on the client side with SHA-256)
+            $password_hash = password_hash($_POST['password'], PASSWORD_DEFAULT);
+            
+            // Insert new user
+            $stmt = $conn->prepare("INSERT INTO users (first_name, last_name, email, password, role, status, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())");
+            $stmt->bind_param(
+                'ssssss',
+                $_POST['first_name'],
+                $_POST['last_name'] ?? '',
+                $_POST['email'],
+                $password_hash,
+                $_POST['role'],
+                $_POST['status']
+            );
+            
+            if (!$stmt->execute()) {
+                throw new Exception('Failed to create user: ' . $stmt->error);
+            }
+            
+            $response['success'] = true;
+            $response['message'] = 'User created successfully';
+            $response['data']['user_id'] = $stmt->insert_id;
+            $stmt->close();
+        }
+        elseif ($action === 'update_user') {
             // Validate required fields
             $required = ['user_id', 'first_name', 'email', 'role', 'status'];
             foreach ($required as $field) {

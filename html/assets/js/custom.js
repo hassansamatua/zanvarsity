@@ -252,19 +252,14 @@ $(document).ready(function($) {
         });
     }
 
-//  Event title shorting
-
     $('.fc-view-month .fc-event-title').each(function(){
         $(this).text($(this).text().substring(0,25));
     });
 
-});
-
-
 // Remove button function for "join to course" button after count down is over
 function disableJoin() {
     // Find "join to course" button
-    var buttonToBeRemoved = document.getElementById("btn-course-join");
+{{ ... }}
     // Find "join to course" button on bottom of course detail
     var buttonToBeRemovedBottom = document.getElementById("btn-course-join-bottom");
     // Remove button if it exists

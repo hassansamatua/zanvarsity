@@ -553,7 +553,8 @@
       animation-play-state: paused;
     }
   </style>
-  <title>Universo - Educational, Course and University Template</title>
+  <link rel="stylesheet" href="assets/css/publications.css">
+  <title>Zanvarsity - Educational, Course and University Template</title>
 </head>
 
 <body class="page-homepage-carousel">
@@ -564,7 +565,7 @@
       <div class="secondary-navigation-wrapper">
         <div class="container">
           <div class="navigation-contact pull-left">
-            Call Us: <span class="opacity-70">000-123-456-789</span>
+            Call Us: <span class="opacity-70">+255 772 601 303</span>
           </div>
           <div class="search">
             <div class="input-group">
@@ -603,22 +604,13 @@
             <nav class="collapse navbar-collapse bs-navbar-collapse navbar-right" role="navigation">
               <ul class="nav navbar-nav">
                 <li class="active">
-                  <a href="#" class="has-child no-link">Home</a>
-                  <ul class="list-unstyled child-navigation">
-                    <li><a href="index.html">Homepage Education</a></li>
-                    <li>
-                      <a href="homepage-courses.html">Homepage Courses</a>
-                    </li>
-                    <li>
-                      <a href="homepage-events.html">Homepage Events</a>
-                    </li>
-                  </ul>
+                  <a href="index.php">Home</a>
                 </li>
                 <li>
                   <a href="#" class="has-child no-link">About</a>
                   <ul class="list-unstyled child-navigation">
                     <li>
-                      <a href="course-landing-page.html">Course Landing Page</a>
+                      <a href="Background_info.php" style="color: #ffffff">Background Information</a>
                     </li>
                     <li><a href="course-listing.html">Course Listing</a></li>
                     <li>
@@ -629,7 +621,7 @@
                     </li>
                     <li>
                       <a href="course-detail-v2.html">Course Detail v2</a>
-                    </li>
+                    </li> 
                     <li>
                       <a href="course-detail-v3.html">Course Detail v3</a>
                     </li>
@@ -1318,8 +1310,617 @@
         </div><!-- /.block -->
       </section>
       <!-- /#featured-courses -->
+<!-- Academic Life, Campus Life, Newsletter -->
+				<div class="block">
+					<div class="container">
+						<div class="row">
+							<div class="col-md-4 col-sm-4">
+								<section id="academic-life">
+									<header>
+										<h2>Academic Life & Research</h2>
+									</header>
+									<div class="section-content">
+										<ul class="list-links">
+											<li><a href="#">Programs and Areas</a></li>
+											<li><a href="#">Research</a></li>
+											<li><a href="#">Graduate & Postdoctoral Programs</a></li>
+											<li><a href="#">Continuing Studies</a></li>
+											<li><a href="#">International Activities</a></li>
+											<li><a href="#">Course Calendars & Listings</a></li>
+										</ul>
+									</div>
+									<!-- /.section-content -->
+								</section>
+								<!-- /.academic-life -->
+							</div>
+							<!-- /.col-md-4 -->
 
+							<div class="col-md-4 col-sm-4">
+								<section id="campus-life">
+									<header>
+										<h2>Campus Life</h2>
+									</header>
+									<div class="section-content">
+										<ul class="list-links">
+											<li><a href="#">Athletics & Recreation</a></li>
+											<li>
+												<a href="#">Clubs & Extra-curricular Activities</a>
+											</li>
+											<li><a href="#">Health & Wellness</a></li>
+											<li><a href="#">Housing & Residence</a></li>
+											<li><a href="#">Arts & Culture</a></li>
+											<li><a href="#">Student IT Services</a></li>
+										</ul>
+									</div>
+									<!-- /.section-content -->
+								</section>
+								<!-- /.campus-life -->
+							</div>
+							<!-- /.col-md-4 -->
+
+							<div class="col-md-4 col-sm-4">
+								<section id="newsletter">
+									<header>
+										<h2>Newsletter</h2>
+										<div class="section-content">
+											<div class="newsletter">
+												<div class="input-group">
+													<input
+														type="text"
+														class="form-control"
+														placeholder="Your e-mail"
+													/>
+													<span class="input-group-btn">
+														<button type="submit" class="btn">
+															<i class="fa fa-angle-right"></i>
+														</button>
+													</span>
+												</div>
+												<!-- /input-group -->
+											</div>
+											<!-- /.newsletter -->
+											<p class="opacity-50">
+												Ut tincidunt, quam in tincidunt vestibulum, turpis ipsum
+												porttitor nisi, et fermentum augue lit eu neque. In at
+												tempor dolor, sit amet dictum lacus. Praesent porta orci
+												eget laoreet ultrices.
+											</p>
+										</div>
+										<!-- /.section-content -->
+									</header>
+								</section>
+								<!-- /.newsletter -->
+							</div>
+							<!-- /.col-md-4 -->
+						</div>
+						<!-- /.row -->
+					</div>
+					<!-- /.container -->
+				</div>
+				<!-- end Academic Life, Campus Life, Newsletter -->
+   <section id="featured-courses"style="height:550px;">
+        <div class="block">
+            <div class="container" >
+                <header><h2>Research And Publications</h2></header>
+                <div class="publications-container">
+                    <div class="publications-track" id="publicationsTrack">
+                    <?php
+                    // Include database connection
+                    require_once __DIR__ . '/../includes/db_connect.php';
+                    
+                    // Fetch all featured publications
+                    $query = "SELECT * FROM publications WHERE is_featured = 1 ORDER BY publication_date DESC";
+                    $result = $conn->query($query);
+                    $publications = [];
+                    
+                    if ($result && $result->num_rows > 0) {
+                        // Store all publications in an array
+                        while ($publication = $result->fetch_assoc()) {
+                            $publications[] = $publication;
+                        }
+                        
+                        // If there are more than 4 publications, we'll create a seamless loop
+                        $publicationsToShow = $publications;
+                        if (count($publications) > 4) {
+                            $publicationsToShow = array_merge($publicationsToShow, $publications);
+                        }
+                        
+                        foreach ($publicationsToShow as $publication) {
+                            // Format publication date as relative time
+                            $pub_date = $publication['publication_date'];
+                            $pub_timestamp = strtotime($pub_date);
+                            $current_time = time();
+                            $time_diff = $current_time - $pub_timestamp;
+                            
+                            // Format date as relative time (e.g., "2 days ago")
+                            if ($time_diff < 60) {
+                                $time_ago = 'Just now';
+                            } elseif ($time_diff < 3600) {
+                                $minutes = floor($time_diff / 60);
+                                $time_ago = $minutes . ' min' . ($minutes > 1 ? 's' : '') . ' ago';
+                            } elseif ($time_diff < 86400) {
+                                $hours = floor($time_diff / 3600);
+                                $time_ago = $hours . ' hr' . ($hours > 1 ? 's' : '') . ' ago';
+                            } elseif ($time_diff < 604800) {
+                                $days = floor($time_diff / 86400);
+                                $time_ago = $days . ' day' . ($days > 1 ? 's' : '') . ' ago';
+                            } else {
+                                $time_ago = date('M j, Y', $pub_timestamp);
+                            }
+                            // Get the first 150 characters of the description for the excerpt
+                            $excerpt = strlen($publication['description']) > 150 ? 
+                                substr($publication['description'], 0, 147) . '...' : 
+                                $publication['description'];
+                            
+                            // Set default image if none provided
+                            $image_url = !empty($publication['image_url']) ? 
+                                $publication['image_url'] : 
+                                '/c/zanvarsity/html/assets/img/default-publication.jpg';
+                            
+                            // Set document icon class based on file type
+                            $doc_icon = 'fa-file-pdf';
+                            if (!empty($publication['document_url'])) {
+                                $ext = strtolower(pathinfo($publication['document_url'], PATHINFO_EXTENSION));
+                                if (in_array($ext, ['doc', 'docx'])) {
+                                    $doc_icon = 'fa-file-word';
+                                } elseif (in_array($ext, ['xls', 'xlsx'])) {
+                                    $doc_icon = 'fa-file-excel';
+                                } elseif (in_array($ext, ['ppt', 'pptx'])) {
+                                    $doc_icon = 'fa-file-powerpoint';
+                                }
+                            }
+                            ?>
+                            <div class="publication-col">
+                                <div class="publication-card">
+                                    <div class="publication-image">
+                                        <a href="<?php echo !empty($publication['document_url']) ? $publication['document_url'] : '#'; ?>" target="_blank">
+                                            <img src="<?php echo $image_url; ?>" alt="<?php echo htmlspecialchars($publication['title']); ?>">
+                                        </a>
+                                    </div>
+                                    <div class="publication-content">
+                                        <h3 class="publication-title">
+                                            <a href="<?php echo !empty($publication['document_url']) ? $publication['document_url'] : '#'; ?>" target="_blank">
+                                                <?php echo htmlspecialchars($publication['title']); ?>
+                                            </a>
+                                        </h3>
+                                        <div class="publication-meta">
+                                            <span class="publication-author">
+                                                <i class="fa fa-user"></i> <?php echo htmlspecialchars($publication['author']); ?>
+                                            </span>
+                                            <span class="publication-date">
+                                                <i class="fa fa-calendar"></i> <?php echo $time_ago; ?>
+                                            </span>
+                                        </div>
+                                        <?php if (!empty($publication['document_url'])): ?>
+                                        <div class="publication-footer" style="margin-top: 15px;">
+                                            <a href="<?php echo $publication['document_url']; ?>" class="document-link" target="_blank">
+                                                <i class="fa <?php echo $doc_icon; ?>"></i> View Document
+                                            </a>
+                                        </div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php
+                        }
+                    } else {
+                        echo '<div class="col-12"><p class="text-center">No featured publications found.</p></div>';
+                    }
+                    ?>
+                    </div><!-- /.publications-track -->
+                </div><!-- /.publications-container -->
+                <?php if (count($publications) > 4): ?>
+                <div class="text-center" style="margin-top: 0px;">
+                    <a href="publications.php" class="view-all-btn">View All Publications</a>
+                </div>
+                <?php else: ?>
+                <div class="text-center" style="margin-top: 20px;">
+                    <a href="publications.php" class="view-all-btn">View All Publications</a>
+                </div>
+                <?php endif; ?>
+            </div><!-- /.container -->
+            <div class="background background-color-grey-background"></div>
+        </div><!-- /.block -->
+        
+        <!-- Publication Details Modal -->
+        <div class="modal fade" id="publicationModal" tabindex="-1" role="dialog" aria-labelledby="publicationModalLabel">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title" id="publicationModalLabel">Publication Details</h4>
+                    </div>
+                    <div class="modal-body" id="publicationDetails">
+                        <div class="text-center"><i class="fa fa-spinner fa-spin fa-3x"></i> Loading...</div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <a href="#" id="downloadBtn" class="btn btn-primary" target="_blank">
+                            <i class="fa fa-download"></i> Download
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <script>
+    $(document).ready(function() {
+        // Handle view details button click
+        $(document).on('click', '.view-publication', function(e) {
+            e.preventDefault();
+            var publicationId = $(this).data('id');
+            
+            // Show loading spinner
+            $('#publicationDetails').html('<div class="text-center"><i class="fa fa-spinner fa-spin fa-3x"></i> Loading...</div>');
+            
+            // Show the modal immediately
+            $('#publicationModal').modal('show');
+            
+            // Load publication details via AJAX
+            $.ajax({
+                url: 'admin/ajax/get_publication.php',
+                type: 'GET',
+                data: { id: publicationId },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        var pub = response.data;
+                        // Format the publication date as relative time
+                        function formatRelativeTime(dateString) {
+                            const pubDate = new Date(dateString);
+                            const now = new Date();
+                            const diffInSeconds = Math.floor((now - pubDate) / 1000);
+                            
+                            const intervals = {
+                                year: 31536000,
+                                month: 2592000,
+                                week: 604800,
+                                day: 86400,
+                                hour: 3600,
+                                minute: 60
+                            };
+                            
+                            for (const [unit, seconds] of Object.entries(intervals)) {
+                                const interval = Math.floor(diffInSeconds / seconds);
+                                if (interval >= 1) {
+                                    return interval + ' ' + unit + (interval === 1 ? '' : 's') + ' ago';
+                                }
+                            }
+                            return 'just now';
+                        }
+                        
+                        // Get both formatted date and relative time
+                        var pubDate = new Date(pub.publication_date);
+                        var formattedDate = pubDate.toLocaleDateString('en-US', { 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric' 
+                        });
+                        var relativeTime = formatRelativeTime(pub.publication_date);
+                        
+                        // Create HTML content
+                        var html = '<div class="publication-details">';
+                        
+                        // Add image if available
+                        if (pub.image_url) {
+                            html += '<div class="publication-image text-center" style="margin-bottom: 20px;">';
+                            html += '<img src="' + pub.image_url + '" alt="' + pub.title + '" class="img-responsive" style="max-height: 300px; margin: 0 auto;">';
+                            html += '</div>';
+                        }
+                        
+                        // Add publication details
+                        html += '<h2>' + pub.title + '</h2>';
+                        html += '<div class="meta" style="margin-bottom: 20px; color: #666; font-size: 14px;">';
+                        html += '<span><i class="fa fa-user"></i> ' + pub.author + '</span> | ';
+                        html += '<span title="' + formattedDate + '"><i class="fa fa-calendar"></i> ' + relativeTime + '</span>';
+                        html += '</div>';
+                        
+                        // Add description with proper formatting
+                        html += '<div class="publication-content" style="line-height: 1.6;">';
+                        // Convert newlines to <br> tags and make URLs clickable
+                        var description = pub.description.replace(/\n/g, '<br>');
+                        description = description.replace(/(https?:\/\/[^\s]+)/g, function(url) {
+                            return '<a href="' + url + '" target="_blank">' + url + '</a>';
+                        });
+                        html += description;
+                        html += '</div>';
+                        
+                        // Add document link if available
+                        if (pub.document_url) {
+                            html += '<div class="document-link" style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee;">';
+                            html += '<a href="' + pub.document_url + '" class="btn btn-primary" target="_blank">';
+                            html += '<i class="fa fa-download"></i> Download Full Document';
+                            html += '</a>';
+                            html += '</div>';
+                        }
+                        
+                        html += '</div>'; // Close publication-details
+                        
+                        $('#publicationDetails').html(html);
+                        
+                        // Update download button
+                        if (pub.document_url) {
+                            $('#downloadBtn').attr('href', pub.document_url).show();
+                        } else {
+                            $('#downloadBtn').hide();
+                        }
+                    } else {
+                        $('#publicationDetails').html('<div class="alert alert-danger">Error loading publication details. Please try again later.</div>');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error loading publication:', error);
+                    $('#publicationDetails').html('<div class="alert alert-danger">Error loading publication details. Please try again later.</div>');
+                }
+            });
+        });
+    });
+    </script>
+    <style>
+    .featured-course {
+        height: 400px; /* Fixed height for all cards */
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 30px;
+        border: 1px solid #eee;
+        border-radius: 4px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    .featured-course:hover {
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transform: translateY(-5px);
+    }
+    .featured-course .image-wrapper {
+        height: 160px;
+        overflow: hidden;
+        margin: 0;
+        padding: 0;
+    }
+    .featured-course img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+    .featured-course:hover img {
+        transform: scale(1.05);
+    }
+    .featured-course .description {
+        padding: 15px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+    .featured-course h3 {
+        font-size: 16px;
+        margin: 0 0 8px 0;
+        line-height: 1.4;
+    }
+    .featured-course .author {
+        color: #666;
+        font-size: 13px;
+        margin-bottom: 10px;
+    }
+    .featured-course .excerpt {
+        color: #666;
+        font-size: 13px;
+        margin: 10px 0;
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+    }
+    .featured-course .course-meta {
+        font-size: 12px;
+        color: #888;
+        margin: 10px 0;
+        padding: 0;
+    }
+    .featured-course .stick-to-bottom {
+        margin-top: auto;
+    }
+    .btn-color-grey {
+        background-color: #f5f5f5;
+        color: #333;
+        border: 1px solid #ddd;
+    }
+    .btn-color-grey:hover {
+        background-color: #e0e0e0;
+        color: #000;
+    }
+    .modal-body img {
+        max-width: 100%;
+        height: auto;
+    }
+    </style>
+    <!-- /#featured-courses -->
     </div>
+    <!-- Divisions, Connect -->
+    <div class="block">
+					<div class="container">
+						<div class="block-dark-background">
+							<div class="row">
+								<div class="col-md-3 col-sm-4">
+									<section id="division" class="has-dark-background">
+										<header>
+											<h2>Divisions</h2>
+										</header>
+										<div class="section-content">
+											<ul class="list-links">
+												<li><a href="#">Accounting & Finance</a></li>
+												<li><a href="#">Advertising & Marketing</a></li>
+												<li><a href="#">Architecture & Interior</a></li>
+												<li><a href="#">Arts & Design</a></li>
+												<li><a href="#">Broadcasting & Journalism</a></li>
+												<li><a href="#">Business & Management</a></li>
+												<li><a href="#">Computing & IT</a></li>
+											</ul>
+										</div>
+										<!-- /.section-content -->
+									</section>
+									<!-- #.divisions -->
+								</div>
+								<div class="col-md-9 col-sm-8">
+									<section id="connect" class="has-dark-background">
+										<header>
+											<h2>Connect</h2>
+										</header>
+										<div class="connect-block">
+											<div class="row">
+												<div class="col-md-3">
+													<ul class="nav nav-pills nav-stacked">
+														<li class="active">
+															<a href="#tab-twitter" data-toggle="pill"
+																><i class="fa fa-twitter"></i>Twitter</a
+															>
+														</li>
+														<li>
+															<a href="#tab-facebook" data-toggle="pill"
+																><i class="fa fa-facebook"></i>Facebook</a
+															>
+														</li>
+													</ul>
+												</div>
+												<div class="tab-content">
+													<div class="tab-pane fade in active" id="tab-twitter">
+														<div class="col-md-3">
+															<article class="social-post twitter-post">
+																<header>15 minutes ago</header>
+																<figure><a href="#">@universo</a></figure>
+																<p>
+																	Lorem ipsum dolor sit amet, consectetur
+																	adipiscing elit. Nullam odio augue, accumsan
+																	ut massa ut, faucibus gravida turpis.
+																	<a href="http://bit.ly/1bMyz64"
+																		>http://bit.ly/1bMyz64</a
+																	>
+																</p>
+															</article>
+															<!-- /.twitter-post -->
+														</div>
+														<div class="col-md-3">
+															<article class="social-post twitter-post">
+																<header>2 hours ago</header>
+																<figure><a href="#">@universo</a></figure>
+																<p>
+																	Nullam odio augue, accumsan ut massa ut,
+																	faucibus gravida turpis. Nulla eleifend libero
+																	mi, at consequat tellus.
+																	<a href="http://bit.ly/1bMyz64"
+																		>http://bit.ly/1bMyz64</a
+																	>
+																</p>
+															</article>
+															<!-- /.twitter-post -->
+														</div>
+														<div class="col-md-3">
+															<article class="social-post twitter-post">
+																<header>February 02, 2014</header>
+																<figure><a href="#">@universo</a></figure>
+																<p>
+																	Ut at arcu sed justo laoreet iaculis ut nec
+																	leo. Aliquam laoreet orci eu egestas
+																	fermentum.
+																	<a href="http://bit.ly/1bMyz64"
+																		>http://bit.ly/1bMyz64</a
+																	>
+																</p>
+															</article>
+															<!-- /.twitter-post -->
+														</div>
+													</div>
+													<!-- /.tab-twitter -->
+													<div class="tab-pane fade" id="tab-facebook">
+														<div class="col-md-3">
+															<article class="social-post facebook-post">
+																<header>30 minutes ago</header>
+																<figure><a href="#">@universo</a></figure>
+																<p>
+																	Ut at arcu sed justo laoreet iaculis ut nec
+																	leo. Aliquam laoreet orci eu egestas
+																	fermentum.
+																	<a href="http://bit.ly/1bMyz64"
+																		>http://bit.ly/1bMyz64</a
+																	>
+																</p>
+															</article>
+															<!-- /.twitter-post -->
+														</div>
+														<div class="col-md-3">
+															<article class="social-post facebook-post">
+																<header>4 days ago</header>
+																<figure><a href="#">@universo</a></figure>
+																<p>
+																	Lorem ipsum dolor sit amet, consectetur
+																	adipiscing elit. Nullam odio augue, accumsan
+																	ut massa ut, faucibus gravida turpis.
+																	<a href="http://bit.ly/1bMyz64"
+																		>http://bit.ly/1bMyz64</a
+																	>
+																</p>
+															</article>
+															<!-- /.twitter-post -->
+														</div>
+														<div class="col-md-3">
+															<article class="social-post facebook-post">
+																<header>One week ago</header>
+																<figure><a href="#">@universo</a></figure>
+																<p>
+																	Nullam odio augue, accumsan ut massa ut,
+																	faucibus gravida turpis. Nulla eleifend libero
+																	mi, at consequat tellus.
+																	<a href="http://bit.ly/1bMyz64"
+																		>http://bit.ly/1bMyz64</a
+																	>
+																</p>
+															</article>
+															<!-- /.twitter-post -->
+														</div>
+													</div>
+													<!-- /.tab-twitter -->
+												</div>
+												<!-- /.tab-content -->
+											</div>
+											<!-- /.row -->
+										</div>
+										<!-- /.section-content -->
+									</section>
+									<!-- #.divisions -->
+								</div>
+								<!-- /.col-md-9 -->
+							</div>
+							<!-- /.row -->
+						</div>
+						<!-- /.block-dark-background -->
+					</div>
+					<!-- /.container -->
+				</div>
+				<!-- end Divisions, Connect -->
+
+    <div class="block">
+					<div class="container">
+						<div class="row">
+							<div class="col-md-4 col-sm-4">
+              <section id="our-doctors">
+    <header>
+        <h2>Our Doctors</h2>
+    </header>
+    <div class="section-content">
+        <div class="doctors">
+            <?php include 'includes/professors_section.php'; ?>
+        </div>
+    </div>
+</section>
+								<!-- /.our-professors -->
+							</div>
+							<!-- /.col-md-4 -->
     <!-- /.container -->
   </div>
   <!-- end Partners, Make a Donation -->
@@ -1450,6 +2051,7 @@
   </div>
   <!-- end Wrapper -->
 
+  <!-- jQuery and other JS files -->
   <script type="text/javascript" src="assets/js/jquery-2.1.0.min.js"></script>
   <script type="text/javascript" src="assets/js/jquery-migrate-1.2.1.min.js"></script>
   <script type="text/javascript" src="assets/bootstrap/js/bootstrap.min.js"></script>
@@ -1462,95 +2064,60 @@
   <script type="text/javascript" src="assets/js/jquery.vanillabox-0.1.5.min.js"></script>
   <script type="text/javascript" src="assets/js/retina-1.1.0.min.js"></script>
   <script type="text/javascript" src="assets/js/custom.js"></script>
+  
   <script>
-    $(document).ready(function() {
-      if ($.fn.owlCarousel) {
-        $(".image-carousel").owlCarousel({
-          items: 1,
-          loop: true,
-          nav: true,
-          dots: true,
-          autoplay: true,
-          autoplayTimeout: 5000,
-          autoplayHoverPause: true,
-          smartSpeed: 800,
-          navText: [
-            '<i class="fa fa-angle-left" aria-hidden="true"></i>',
-            '<i class="fa fa-angle-right" aria-hidden="true"></i>'
-          ]
-        });
-      }
-    });
+    // Wait for both DOM and jQuery to be ready
+    (function($) {
+      $(document).ready(function() {
+        // Initialize Owl Carousel if it exists
+        if (typeof $.fn.owlCarousel === 'function') {
+          $(".image-carousel").owlCarousel({
+            items: 1,
+            loop: true,
+            nav: true,
+            dots: true,
+            autoplay: true,
+            autoplayTimeout: 5000,
+            autoplayHoverPause: true,
+            smartSpeed: 800,
+            navText: [
+              '<i class="fa fa-angle-left" aria-hidden="true"></i>',
+              '<i class="fa fa-angle-right" aria-hidden="true"></i>'
+            ]
+          });
+        }
+
+        // Initialize infinite scroll for event cards
+        const eventsContainer = document.querySelector('.events.images.featured');
+        if (eventsContainer) {
+          const events = eventsContainer.querySelectorAll('.event');
+          
+          // Only proceed if there are events
+          if (events.length > 0) {
+            // Create wrapper for scrolling
+            const wrapper = document.createElement('div');
+            wrapper.className = 'scrolling-wrapper';
+            
+            // Clone events for seamless looping
+            const fragment1 = document.createDocumentFragment();
+            const fragment2 = document.createDocumentFragment();
+            
+            events.forEach(event => {
+              fragment1.appendChild(event.cloneNode(true));
+              fragment2.appendChild(event.cloneNode(true));
+              event.remove();
+            });
+            
+            // Append both sets to the wrapper
+            wrapper.appendChild(fragment1);
+            wrapper.appendChild(fragment2);
+            
+            // Add the wrapper to the container
+            eventsContainer.appendChild(wrapper);
+          }
+        }
+      });
+    })(jQuery);
   </script>
-  <script>
-    // Initialize infinite scroll for event cards
-    document.addEventListener('DOMContentLoaded', function() {
-      const eventsContainer = document.querySelector('.events.images.featured');
-      if (eventsContainer) {
-        const events = eventsContainer.querySelectorAll('.event');
-        
-        // Create wrapper for scrolling
-        const wrapper = document.createElement('div');
-        wrapper.className = 'scrolling-wrapper';
-        
-        // Clone events for seamless looping
-        const fragment1 = document.createDocumentFragment();
-        const fragment2 = document.createDocumentFragment();
-        
-        events.forEach(event => {
-          fragment1.appendChild(event.cloneNode(true));
-          fragment2.appendChild(event.cloneNode(true));
-          event.remove();
-        });
-        
-        // Append both sets to the wrapper
-        wrapper.appendChild(fragment1);
-        wrapper.appendChild(fragment2);
-        
-        // Add the wrapper to the container
-        eventsContainer.appendChild(wrapper);
-      }
-    });
-  </script>
 </body>
-
-</html>
-
-<script type="text/javascript" src="assets/js/icheck.min.js"></script>
-<script type="text/javascript" src="assets/js/jquery.vanillabox-0.1.5.min.js"></script>
-<script type="text/javascript" src="assets/js/retina-1.1.0.min.js"></script>
-
-<script type="text/javascript" src="assets/js/custom.js"></script>
-</body>
-
-</html>
-
-
-</div>
-<!-- end Wrapper -->
-
-<script type="text/javascript" src="assets/js/jquery-2.1.0.min.js"></script>
-<script type="text/javascript" src="assets/js/jquery-migrate-1.2.1.min.js"></script>
-<script type="text/javascript" src="assets/bootstrap/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="assets/js/selectize.min.js"></script>
-<script type="text/javascript" src="assets/js/owl.carousel.min.js"></script>
-<script type="text/javascript" src="assets/js/jquery.validate.min.js"></script>
-<script type="text/javascript" src="assets/js/jquery.placeholder.js"></script>
-<script type="text/javascript" src="assets/js/jQuery.equalHeights.js"></script>
-<script type="text/javascript" src="assets/js/icheck.min.js"></script>
-<script type="text/javascript" src="assets/js/jquery.vanillabox-0.1.5.min.js"></script>
-<script type="text/javascript" src="assets/js/retina-1.1.0.min.js"></script>
-
-<script type="text/javascript" src="assets/js/custom.js"></script>
-</body>
-
-</html>
-
-<script type="text/javascript" src="assets/js/icheck.min.js"></script>
-<script type="text/javascript" src="assets/js/jquery.vanillabox-0.1.5.min.js"></script>
-<script type="text/javascript" src="assets/js/retina-1.1.0.min.js"></script>
-
-<script type="text/javascript" src="assets/js/custom.js"></script>
-</body>
-
 </html>

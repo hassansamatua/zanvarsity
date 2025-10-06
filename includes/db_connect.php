@@ -1,9 +1,9 @@
 <?php
 // Database configuration
-define('DB_HOST', 'localhost');
-define('DB_USER', 'root');      // Default XAMPP username
-define('DB_PASSWORD', '');     // Default XAMPP password is empty
-define('DB_NAME', 'zanvarsity');
+if (!defined('DB_HOST')) define('DB_HOST', 'localhost');
+if (!defined('DB_USER')) define('DB_USER', 'root');      // Default XAMPP username
+if (!defined('DB_PASSWORD')) define('DB_PASSWORD', '');   // Default XAMPP password is empty
+if (!defined('DB_NAME')) define('DB_NAME', 'zanvarsity_db');
 
 // Create connection
 $conn = new mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);

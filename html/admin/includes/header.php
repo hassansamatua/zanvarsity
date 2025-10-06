@@ -20,16 +20,19 @@ if (!isset($page_title)) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo htmlspecialchars($page_title); ?> - Zanvarsity Admin</title>
+    <title><?php echo htmlspecialchars($page_title); ?> - ZANVarsity Admin</title>
     
     <!-- Favicon -->
     <link rel="shortcut icon" href="/zanvarsity/favicon.ico" type="image/x-icon">
+    
+    <!-- Google Fonts -->
+    <link href='https://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <!-- Boxicons -->
-    <link href="https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     
     <!-- DataTables CSS -->
     <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
@@ -37,6 +40,11 @@ if (!isset($page_title)) {
     
     <!-- Custom CSS -->
     <link href="/zanvarsity/html/assets/css/admin.css" rel="stylesheet">
+    <link href="/zanvarsity/html/assets/css/font-awesome.css" rel="stylesheet">
+    <link href="/zanvarsity/html/assets/css/selectize.css" rel="stylesheet">
+    <link href="/zanvarsity/html/assets/css/owl.carousel.css" rel="stylesheet">
+    <link href="/zanvarsity/html/assets/css/vanillabox/vanillabox.css" rel="stylesheet">
+    <link href="/zanvarsity/html/assets/css/style.css" rel="stylesheet">
     
     <!-- Custom styles for this template -->
     <style>
@@ -326,11 +334,136 @@ if (!isset($page_title)) {
         .form-switch .form-check-input:checked {
             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
         }
+        /* Navigation Wrapper */
+        .navigation-wrapper {
+            position: relative;
+            z-index: 1000;
+        }
+        
+        /* Secondary Navigation */
+        .secondary-navigation-wrapper {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            padding: 5px 0;
+        }
+        
+        .navigation-contact {
+            display: inline-block;
+            color: #6c757d;
+            margin-right: 15px;
+        }
+        
+        .secondary-navigation {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            float: right;
+        }
+        
+        .secondary-navigation li {
+            display: inline-block;
+            margin-left: 15px;
+        }
+        
+        .secondary-navigation a {
+            color: #6c757d;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .secondary-navigation a:hover {
+            color: #0d6efd;
+        }
+        
+        /* Primary Navigation */
+        .primary-navigation-wrapper {
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-brand img {
+            max-height: 40px;
+        }
+        
+        /* Background Image */
+        .background {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: -1;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+        
+        .background img {
+            width: 100%;
+            height: auto;
+        }
     </style>
 </head>
-<body>
-    <!-- Sidebar -->
-    <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+<body class="page-sub-page">
+<!-- Wrapper -->
+<div class="wrapper">
+    <!-- Header -->
+    <div class="navigation-wrapper">
+        <div class="secondary-navigation-wrapper">
+            <div class="container">
+                <div class="navigation-contact">Call Us: <span class="opacity-70">+255 123 456 789</span></div>
+                <ul class="secondary-navigation list-unstyled">
+                    <li><a href="/zanvarsity/html/my-account.php"><i class="fa fa-user"></i> My Profile</a></li>
+                    <li><a href="/zanvarsity/html/my-courses.php">My Courses</a></li>
+                    <li><a href="/zanvarsity/html/settings.php">Settings</a></li>
+                    <li><a href="/zanvarsity/logout.php" onclick="return confirm('Are you sure you want to log out?')">Log Out</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="primary-navigation-wrapper">
+            <header class="navbar navbar-expand-lg" id="top" role="banner">
+                <div class="container">
+                    <a class="navbar-brand" href="/zanvarsity/html/index.php">
+                        <img src="/zanvarsity/html/assets/img/logo.png" alt="ZANVarsity">
+                    </a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <nav class="collapse navbar-collapse" id="mainNav">
+                        <ul class="navbar-nav ms-auto">
+                            <li class="nav-item">
+                                <a class="nav-link" href="/zanvarsity/html/index.php">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/zanvarsity/html/courses.php">Courses</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/zanvarsity/html/events.php">Events</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/zanvarsity/html/about.php">About Us</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/zanvarsity/html/blog.php">Blog</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/zanvarsity/html/contact.php">Contact</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </header>
+        </div>
+        
+        <div class="background">
+            <img src="/zanvarsity/html/assets/img/background-city.png" alt="background">
+        </div>
+    </div>
+    <!-- end Header -->
+    
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar collapse">
         <div class="position-sticky pt-3">
             <div class="text-center mb-4">
                 <h4 class="text-white">Zanvarsity</h4>

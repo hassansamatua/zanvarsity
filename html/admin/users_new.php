@@ -4,6 +4,25 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Set security headers
+header('Content-Type: text/html; charset=utf-8');
+header('X-Content-Type-Options: nosniff');
+header('X-Frame-Options: DENY');
+header('X-XSS-Protection: 0');
+header('Referrer-Policy: strict-origin-when-cross-origin');
+header("Content-Security-Policy: default-src 'self'; " .
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' cdn.jsdelivr.net code.jquery.com cdn.datatables.net cdnjs.cloudflare.com; " .
+    "style-src 'self' 'unsafe-inline' cdn.jsdelivr.net cdn.datatables.net cdnjs.cloudflare.com fonts.googleapis.com; " .
+    "img-src 'self' data: https:; " .
+    "font-src 'self' data: fonts.gstatic.com; " .
+    "connect-src 'self' https:; " .
+    "frame-ancestors 'none';"
+);
+header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Pragma: no-cache');
+header('Expires: 0');
+
 // Include necessary files
 require_once __DIR__ . '/../../includes/database.php';
 require_once __DIR__ . '/../../includes/auth_functions.php';
@@ -14,30 +33,22 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     die('Access Denied');
 }
 
-// Set page title
-$page_title = 'User Management';
+// Regenerate session ID to prevent session fixation
+if (!isset($_SESSION['last_regeneration']) || (time() - $_SESSION['last_regeneration'] > 1800)) {
+    session_regenerate_id(true);
+    $_SESSION['last_regeneration'] = time();
+}
 
-// Include header
-require_once __DIR__ . '/includes/header.php';
+// Generate CSRF token if not exists
+if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 
 // Initialize database connection
 $conn = $GLOBALS['conn'] ?? null;
 if (!$conn || !($conn instanceof mysqli)) {
     die('Database connection error');
 }
-
-// Get users for the table
-$users = [];
-$result = $conn->query("SELECT id, first_name, last_name, email, role, status, created_at, last_login FROM users ORDER BY created_at DESC");
-if ($result) {
-    while ($row = $result->fetch_assoc()) {
-        $users[] = $row;
-    }
-    $result->free();
-}
-
-// Close database connection
-$conn->close();
 
 // Handle form submissions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -145,6 +156,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     throw new Exception('You cannot delete your own account');
                 }
                 
+                // Optional: Check if user has any related data before deletion
+                // $stmt = $conn->prepare("SELECT COUNT(*) as count FROM some_related_table WHERE user_id = ?");
+                // $stmt->bind_param('i', $userId);
+                // $stmt->execute();
+                // $result = $stmt->get_result()->fetch_assoc();
+                // $stmt->close();
+                // 
+                // if ($result['count'] > 0) {
+                //     throw new Exception('Cannot delete user with associated records');
+                // }
+                
                 $stmt = $conn->prepare("DELETE FROM users WHERE id = ?");
                 $stmt->bind_param('i', $userId);
                 
@@ -196,7 +218,7 @@ $roles = [
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - ZANVarsity</title>
+    <title>User Management - Admin Panel</title>
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -207,7 +229,6 @@ $roles = [
     <!-- BoxIcons -->
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     
-    <!-- Custom CSS -->
     <style>
         .action-btn {
             padding: 0.25rem 0.5rem;
@@ -226,108 +247,91 @@ $roles = [
         .table-responsive {
             min-height: 400px;
         }
-        .sidebar {
-            min-height: calc(100vh - 56px);
-            background-color: #f8f9fa;
-            border-right: 1px solid #dee2e6;
-        }
-        .main-content {
-            padding: 20px;
-        }
-        .sidebar .nav-link {
-            color: #333;
-            border-radius: 0.25rem;
-            margin: 0.25rem 0;
-        }
-        .sidebar .nav-link:hover, .sidebar .nav-link.active {
-            background-color: #e9ecef;
-            color: #0d6efd;
-        }
     </style>
 </head>
-<body>
-    <div class="wrapper">
-        <?php include __DIR__ . '/includes/sidebar.php'; ?>
-        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
-                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2">User Management</h1>
+<body class="bg-light">
+    <div class="container-fluid py-4">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2>User Management</h2>
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
                         <i class='bx bx-plus'></i> Add New User
                     </button>
                 </div>
+            </div>
+        </div>
 
-                <!-- Users Table -->
-                <div class="card shadow-sm">
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle" id="usersTable">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Name</th>
-                                        <th>Email</th>
-                                        <th>Role</th>
-                                        <th>Status</th>
-                                        <th>Joined</th>
-                                        <th class="text-end pe-4">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($users as $user): 
-                                        $displayName = trim(htmlspecialchars($user['first_name'] . ' ' . $user['last_name']));
-                                        if (empty($displayName)) $displayName = 'User';
-                                    ?>
-                                    <tr>
-                                        <td><?= htmlspecialchars($user['id']) ?></td>
-                                        <td><?= $displayName ?></td>
-                                        <td><?= htmlspecialchars($user['email']) ?></td>
-                                        <td>
-                                            <span class="badge bg-<?= 
-                                                match($user['role']) {
-                                                    'admin' => 'primary',
-                                                    'instructor' => 'info',
-                                                    'student' => 'success',
-                                                    default => 'secondary'
-                                                }
-                                            ?>">
-                                                <?= ucfirst(htmlspecialchars($user['role'])) ?>
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-<?= $user['status'] ? 'success' : 'danger' ?>-light">
-                                                <?= $user['status'] ? 'Active' : 'Inactive' ?>
-                                            </span>
-                                        </td>
-                                        <td><?= date('M d, Y', strtotime($user['created_at'])) ?></td>
-                                        <td class="text-end pe-4">
-                                            <div class="action-buttons">
-                                                <a href="#" class="action-btn edit-user" 
-                                                   data-id="<?= $user['id'] ?>"
-                                                   data-first-name="<?= htmlspecialchars($user['first_name']) ?>"
-                                                   data-last-name="<?= htmlspecialchars($user['last_name']) ?>"
-                                                   data-email="<?= htmlspecialchars($user['email']) ?>"
-                                                   data-role="<?= htmlspecialchars($user['role']) ?>"
-                                                   data-status="<?= $user['status'] ?>"
-                                                   data-bs-toggle="tooltip" 
-                                                   title="Edit User">
-                                                    <i class='bx bxs-edit-alt'></i>
-                                                </a>
-                                                <a href="#" class="action-btn delete-user text-danger" 
-                                                   data-id="<?= $user['id'] ?>"
-                                                   data-bs-toggle="tooltip" 
-                                                   title="Delete User">
-                                                    <i class='bx bxs-trash-alt'></i>
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle" id="usersTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Joined</th>
+                                <th class="text-end pe-4">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($users as $user): 
+                                $displayName = trim(htmlspecialchars($user['first_name'] . ' ' . $user['last_name']));
+                                if (empty($displayName)) $displayName = 'User';
+                            ?>
+                            <tr>
+                                <td><?= htmlspecialchars($user['id']) ?></td>
+                                <td><?= $displayName ?></td>
+                                <td><?= htmlspecialchars($user['email']) ?></td>
+                                <td>
+                                    <span class="badge bg-<?= 
+                                        match($user['role']) {
+                                            'admin' => 'primary',
+                                            'instructor' => 'info',
+                                            'student' => 'success',
+                                            default => 'secondary'
+                                        }
+                                    ?>">
+                                        <?= ucfirst(htmlspecialchars($user['role'])) ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-<?= $user['status'] ? 'success' : 'danger' ?>-light">
+                                        <?= $user['status'] ? 'Active' : 'Inactive' ?>
+                                    </span>
+                                </td>
+                                <td><?= date('M d, Y', strtotime($user['created_at'])) ?></td>
+                                <td class="text-end pe-4">
+                                    <div class="action-buttons">
+                                        <a href="#" class="action-btn edit-user" 
+                                           data-id="<?= $user['id'] ?>"
+                                           data-first-name="<?= htmlspecialchars($user['first_name']) ?>"
+                                           data-last-name="<?= htmlspecialchars($user['last_name']) ?>"
+                                           data-email="<?= htmlspecialchars($user['email']) ?>"
+                                           data-role="<?= htmlspecialchars($user['role']) ?>"
+                                           data-status="<?= $user['status'] ?>"
+                                           data-bs-toggle="tooltip" 
+                                           title="Edit User">
+                                            <i class='bx bxs-edit-alt'></i>
+                                        </a>
+                                        <a href="#" class="action-btn delete-user text-danger" 
+                                           data-id="<?= $user['id'] ?>"
+                                           data-bs-toggle="tooltip" 
+                                           title="Delete User">
+                                            <i class='bx bxs-trash-alt'></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
                 </div>
-        </main>
+            </div>
+        </div>
     </div>
 
     <!-- Add User Modal -->
@@ -460,10 +464,11 @@ $roles = [
         </div>
     </div>
 
-    <!-- Include footer -->
-    <?php include __DIR__ . '/includes/footer.php'; ?>
-    
-    <!-- Page-specific scripts -->
+    <!-- Required JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     
     <script>
@@ -709,4 +714,3 @@ $roles = [
     </script>
 </body>
 </html>
-<?php include __DIR__ . '/includes/footer.php'; ?>
