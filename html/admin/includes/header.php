@@ -23,13 +23,16 @@ if (!isset($page_title)) {
     <title><?php echo htmlspecialchars($page_title); ?> - ZANVarsity Admin</title>
     
     <!-- Favicon -->
-    <link rel="shortcut icon" href="/zanvarsity/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="/c/zanvarsity/favicon.ico" type="image/x-icon">
     
     <!-- Google Fonts -->
     <link href='https://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
     
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <!-- Boxicons -->
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
@@ -38,13 +41,29 @@ if (!isset($page_title)) {
     <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap5.min.css" rel="stylesheet">
     
+    <!-- jQuery UI CSS (for tooltip support) - Load before Summernote -->
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
+    
+    <!-- Summernote CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
+    
     <!-- Custom CSS -->
-    <link href="/zanvarsity/html/assets/css/admin.css" rel="stylesheet">
-    <link href="/zanvarsity/html/assets/css/font-awesome.css" rel="stylesheet">
-    <link href="/zanvarsity/html/assets/css/selectize.css" rel="stylesheet">
-    <link href="/zanvarsity/html/assets/css/owl.carousel.css" rel="stylesheet">
-    <link href="/zanvarsity/html/assets/css/vanillabox/vanillabox.css" rel="stylesheet">
-    <link href="/zanvarsity/html/assets/css/style.css" rel="stylesheet">
+    <link href="/c/zanvarsity/html/assets/css/admin.css" rel="stylesheet">
+    <link href="/c/zanvarsity/html/assets/css/selectize.css" rel="stylesheet">
+    <link href="/c/zanvarsity/html/assets/css/owl.carousel.min.css" rel="stylesheet">
+    <link href="/c/zanvarsity/html/assets/css/vanillabox/vanillabox.css" rel="stylesheet">
+    <link href="/c/zanvarsity/html/assets/css/style.css" rel="stylesheet">
+    
+    <!-- Admin Style Overrides -->
+    <style>
+        /* Fix for Summernote tooltips */
+        .note-toolbar {
+            z-index: 1 !important;
+        }
+        .note-editable {
+            min-height: 300px;
+        }
+    </style>
     
     <!-- Custom styles for this template -->
     <style>

@@ -3,30 +3,29 @@
 $page_title = "Background Information";
 $page_description = "Learn about the history and background of Zanvarsity";
 
-// Include the about header
 include_once 'includes/about_header.php';
 ?>
 
 <!-- Page Content -->
-<div id="page-content">
-    <div class="container">
+<div id="page-content" style="background: #fff; padding: 20px;">
+        <div class="container">
         <!-- Breadcrumb -->
         <ol class="breadcrumb">
             <li><a href="index.php">Home</a></li>
             <li class="active">Background Information</li>
         </ol>
-        
+
         <div class="row">
             <!-- Main Content -->
             <div class="col-md-8">
                 <section class="block" style="margin-bottom: 40px;">
                     <div class="section-content">
                         <!-- Background Information -->
-                        <article class="block" style="margin-bottom: 40px;">
-                            <h2 class="block-title" style="color: #004225; font-size: 24px; margin-bottom: 20px; border-bottom: 2px solid #eaeaea; padding-bottom: 10px;">
+                        <article class="block" style="margin-bottom: 25px;">
+                            <h2 class="block-title" style="color: #004225; font-size: 22px; margin-bottom: 15px; border-bottom: 1px solid #eaeaea; padding-bottom: 8px;">
                                 <span>Background Information</span>
                             </h2>
-                            <div class="box" style="background: #fff; padding: 25px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                            <div class="box" style="background: #fff; padding: 15px 20px; border-radius: 4px; box-shadow: 0 1px 5px rgba(0,0,0,0.03);">
                                 <p style="line-height: 1.8; color: #555;">
                                     The Zanzibar University, the first University on the Isles, is a private institution sponsored by Darul Iman Charitable Association (DICA). The main campus is situated at Tunguu area, in the Central District, some 19 kilometers from Zanzibar Town. 
                                 </p>
@@ -37,11 +36,11 @@ include_once 'includes/about_header.php';
                         </article>
 
                         <!-- Ownership And Accreditation -->
-                        <article class="block" style="margin-bottom: 40px;">
-                            <h2 class="block-title" style="color: #004225; font-size: 24px; margin-bottom: 20px; border-bottom: 2px solid #eaeaea; padding-bottom: 10px;">
+                        <article class="block" style="margin-bottom: 25px;">
+                            <h2 class="block-title" style="color: #004225; font-size: 22px; margin-bottom: 15px; border-bottom: 1px solid #eaeaea; padding-bottom: 8px;">
                                 <span>Ownership And Accreditation</span>
                             </h2>
-                            <div class="box" style="background: #fff; padding: 25px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                            <div class="box" style="background: #fff; padding: 15px 20px; border-radius: 4px; box-shadow: 0 1px 5px rgba(0,0,0,0.03);">
                                 <p style="line-height: 1.8; color: #555;">
                                     The Zanzibar University was founded and is owned and governed by Darul-Iman Charitable Association. It was established on the basis of the following:
                                 </p>
@@ -57,57 +56,57 @@ include_once 'includes/about_header.php';
                         </article>
 
                         <!-- Establishment of Academic Faculties -->
-                        <article class="block" style="margin-bottom: 40px;">
-                            <h2 class="block-title" style="color: #004225; font-size: 24px; margin-bottom: 20px; border-bottom: 2px solid #eaeaea; padding-bottom: 10px;">
+                        <article class="block" style="margin-bottom: 25px;">
+                            <h2 class="block-title" style="color: #004225; font-size: 22px; margin-bottom: 15px; border-bottom: 1px solid #eaeaea; padding-bottom: 8px;">
                                 <span>Establishment of Academic Faculties</span>
                             </h2>
-                            <div class="box" style="background: #fff; padding: 25px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                            <div class="box" style="background: #fff; padding: 15px 20px; border-radius: 4px; box-shadow: 0 1px 5px rgba(0,0,0,0.03);">
                                 <div class="timeline">
-                                    <div class="timeline-item" style="margin-bottom: 25px; padding-bottom: 25px; border-bottom: 1px dashed #e0e0e0;">
-                                        <div class="timeline-year" style="font-weight: 600; color: #004225; margin-bottom: 10px;">1998</div>
-                                        <div class="timeline-content" style="color: #555; line-height: 1.7;">
+                                    <div class="timeline-item" style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dashed #e0e0e0;">
+                                        <div class="timeline-year" style="font-weight: 600; color: #004225; margin-bottom: 5px; font-size: 15px;">1998</div>
+                                        <div class="timeline-content" style="color: #555; line-height: 1.6; font-size: 14px;">
                                             The proliferation of business enterprises, Hotels, Beach resorts, and the gradual expansion of the tourism industry in the country, had convinced the development partners to begin first with a Faculty of Business Administration, with the view to satisfy the immediate needs of the business community. Five more faculties have been established as per the market demand for other professions.
                                         </div>
                                     </div>
                                     
-                                    <div class="timeline-item" style="margin-bottom: 25px; padding-bottom: 25px; border-bottom: 1px dashed #e0e0e0;">
-                                        <div class="timeline-year" style="font-weight: 600; color: #004225; margin-bottom: 10px;">1999</div>
-                                        <div class="timeline-content" style="color: #555; line-height: 1.7;">
+                                    <div class="timeline-item" style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dashed #e0e0e0;">
+                                        <div class="timeline-year" style="font-weight: 600; color: #004225; margin-bottom: 5px; font-size: 15px;">1999</div>
+                                        <div class="timeline-content" style="color: #555; line-height: 1.6; font-size: 14px;">
                                             The Faculty of Law and Shariah was established.
                                         </div>
                                     </div>
                                     
-                                    <div class="timeline-item" style="margin-bottom: 25px; padding-bottom: 25px; border-bottom: 1px dashed #e0e0e0;">
-                                        <div class="timeline-year" style="font-weight: 600; color: #004225; margin-bottom: 10px;">2002</div>
-                                        <div class="timeline-content" style="color: #555; line-height: 1.7;">
+                                    <div class="timeline-item" style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dashed #e0e0e0;">
+                                        <div class="timeline-year" style="font-weight: 600; color: #004225; margin-bottom: 5px; font-size: 15px;">2002</div>
+                                        <div class="timeline-content" style="color: #555; line-height: 1.6; font-size: 14px;">
                                             The Faculty of Arts and Social Sciences was established. Within seven or so years that followed however more but quite modern structures with larger classrooms were erected to accommodate bigger student's intakes.
                                         </div>
                                     </div>
                                     
-                                    <div class="timeline-item" style="margin-bottom: 25px; padding-bottom: 25px; border-bottom: 1px dashed #e0e0e0;">
-                                        <div class="timeline-year" style="font-weight: 600; color: #004225; margin-bottom: 10px;">2008/2009</div>
-                                        <div class="timeline-content" style="color: #555; line-height: 1.7;">
+                                    <div class="timeline-item" style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dashed #e0e0e0;">
+                                        <div class="timeline-year" style="font-weight: 600; color: #004225; margin-bottom: 5px; font-size: 15px;">2008/2009</div>
+                                        <div class="timeline-content" style="color: #555; line-height: 1.6; font-size: 14px;">
                                             The Institute of Continuing Education and the Institute of Postgraduate Studies and Research were established.
                                         </div>
                                     </div>
                                     
-                                    <div class="timeline-item" style="margin-bottom: 25px; padding-bottom: 25px; border-bottom: 1px dashed #e0e0e0;">
-                                        <div class="timeline-year" style="font-weight: 600; color: #004225; margin-bottom: 10px;">2012/2013</div>
-                                        <div class="timeline-content" style="color: #555; line-height: 1.7;">
+                                    <div class="timeline-item" style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dashed #e0e0e0;">
+                                        <div class="timeline-year" style="font-weight: 600; color: #004225; margin-bottom: 5px; font-size: 15px;">2012/2013</div>
+                                        <div class="timeline-content" style="color: #555; line-height: 1.6; font-size: 14px;">
                                             The Faculty of Engineering was established.
                                         </div>
                                     </div>
                                     
-                                    <div class="timeline-item" style="margin-bottom: 25px; padding-bottom: 25px; border-bottom: 1px dashed #e0e0e0;">
-                                        <div class="timeline-year" style="font-weight: 600; color: #004225; margin-bottom: 10px;">2013/2014</div>
-                                        <div class="timeline-content" style="color: #555; line-height: 1.7;">
+                                    <div class="timeline-item" style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dashed #e0e0e0;">
+                                        <div class="timeline-year" style="font-weight: 600; color: #004225; margin-bottom: 5px; font-size: 15px;">2013/2014</div>
+                                        <div class="timeline-content" style="color: #555; line-height: 1.6; font-size: 14px;">
                                             The Faculty of Health and Allied Sciences was established on the University campus.
                                         </div>
                                     </div>
                                     
                                     <div class="timeline-item" style="margin-bottom: 25px;">
-                                        <div class="timeline-year" style="font-weight: 600; color: #004225; margin-bottom: 10px;">2015/2016</div>
-                                        <div class="timeline-content" style="color: #555; line-height: 1.7;">
+                                        <div class="timeline-year" style="font-weight: 600; color: #004225; margin-bottom: 5px; font-size: 15px;">2015/2016</div>
+                                        <div class="timeline-content" style="color: #555; line-height: 1.6; font-size: 14px;">
                                             The Faculty of Science was established.
                                         </div>
                                     </div>
@@ -120,6 +119,29 @@ include_once 'includes/about_header.php';
             
             <!-- Sidebar -->
             <div class="col-md-4">
+                <!-- Quick Links -->
+                <aside class="sidebar" style="margin-bottom: 30px;">
+                    <div class="box" style="background: #fff; padding: 25px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 30px;">
+                        <h3 class="sidebar-title" style="color: #004225; font-size: 20px; margin-top: 0; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #eaeaea;">
+                            <span>Quick Links</span>
+                        </h3>
+                        <ul class="list-links" style="padding-left: 20px; color: #555; line-height: 2.2;">
+                            <li><a href="Background_info.php" style="color: #004225; text-decoration: none; display: block; padding: 5px 0; transition: all 0.3s ease;">
+                                <i class="fa fa-chevron-right" style="color: #004225; margin-right: 8px;"></i> Background Information
+                            </a></li>
+                            <li><a href="vision_mission.php" style="color: #555; text-decoration: none; display: block; padding: 5px 0; transition: all 0.3s ease;">
+                                <i class="fa fa-chevron-right" style="color: #004225; margin-right: 8px;"></i> Vision & Mission
+                            </a></li>
+                            <li><a href="#" style="color: #555; text-decoration: none; display: block; padding: 5px 0; transition: all 0.3s ease;">
+                                <i class="fa fa-chevron-right" style="color: #004225; margin-right: 8px;"></i> Leadership
+                            </a></li>
+                            <li><a href="#" style="color: #555; text-decoration: none; display: block; padding: 5px 0; transition: all 0.3s ease;">
+                                <i class="fa fa-chevron-right" style="color: #004225; margin-right: 8px;"></i> History
+                            </a></li>
+                        </ul>
+                    </div>
+                </aside>
+
                 <!-- Membership -->
                 <aside class="sidebar" style="margin-bottom: 30px;">
                     <div class="box" style="background: #fff; padding: 25px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 30px;">
@@ -163,13 +185,14 @@ include_once 'includes/about_header.php';
             </div>
         </div>
     </div>
-</div>
-<!-- end Page Content -->
-
-<?php
+    <?php
 // Include the about footer
 include_once 'includes/about_footer.php';
 ?>
+</div>
+<!-- end Page Content -->
+
+
 
 <!-- JavaScript Files -->
 <script type="text/javascript" src="assets/js/jquery-2.1.0.min.js"></script>

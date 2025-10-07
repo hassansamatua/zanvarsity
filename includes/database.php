@@ -26,27 +26,38 @@ function getDbConnection() {
         $pass = defined('DB_PASS') ? DB_PASS : '';
         $dbname = defined('DB_NAME') ? DB_NAME : 'zanvarsity_db';
         
-        // Create connection without selecting database first
-        $conn = new mysqli($host, $user, $pass);
+                // First, try to connect with the database directly
+        $conn = new mysqli($host, $user, $pass, $dbname);
         
+        // If connection failed, try to create the database
         if ($conn->connect_error) {
-            error_log("Database connection failed: " . $conn->connect_error);
-            die("Database connection failed. Please try again later.");
+            // Try to connect without database first
+            $temp_conn = new mysqli($host, $user, $pass);
+            if ($temp_conn->connect_error) {
+                error_log("Database connection failed: " . $temp_conn->connect_error);
+                die("Database connection failed. Please check your database configuration.");
+            }
+            
+            // Create database if it doesn't exist
+            $sql = "CREATE DATABASE IF NOT EXISTS `$dbname` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci";
+            if ($temp_conn->query($sql)) {
+                // Close the temporary connection
+                $temp_conn->close();
+                
+                // Try to connect again with the database
+                $conn = new mysqli($host, $user, $pass, $dbname);
+                if ($conn->connect_error) {
+                    error_log("Database connection failed after creation: " . $conn->connect_error);
+                    die("Database connection failed. Please try again later.");
+                }
+            } else {
+                error_log("Error creating database: " . $temp_conn->error);
+                die("Error creating database. Please contact the administrator.");
+            }
         }
         
         // Set charset to ensure proper encoding
         $conn->set_charset("utf8mb4");
-        
-        // Create database if not exists
-        $sql = "CREATE DATABASE IF NOT EXISTS `$dbname` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci";
-        if (!$conn->query($sql)) {
-            die("Error creating database: " . $conn->error);
-        }
-        
-        // Select the database
-        if (!$conn->select_db($dbname)) {
-            die("Error selecting database: " . $conn->error);
-        }
     }
     
     return $conn;

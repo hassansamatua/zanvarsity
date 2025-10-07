@@ -23,7 +23,7 @@ if (php_sapi_name() !== 'cli') {
     }
 } else {
     // For CLI usage
-    define('BASE_URL', 'http://localhost/zanvarsity/');
+    define('BASE_URL', 'http://localhost/c/zanvarsity/');
 }
 
 // Set include path

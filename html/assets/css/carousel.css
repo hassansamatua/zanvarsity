@@ -24,33 +24,40 @@
 .image-carousel.owl-carousel {
     display: block !important;
     opacity: 1 !important;
+    height: 400px;
 }
 
 /* Carousel item styles */
 .image-carousel .item {
     position: relative;
-    width: 100%;
-    height: 100%;
+    width: 555px;
+    height: 320px;
+    margin: 0 auto;
 }
 
 /* Image container */
 .carousel-image-container {
     position: relative;
     width: 100%;
-    height: 0;
-    padding-bottom: 40%; /* Adjust this for aspect ratio (e.g., 40% = 5:2 aspect ratio) */
+    height: 100%;
     overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Image styles */
 .carousel-image-container img {
-    position: absolute;
-    top: 0;
-    left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: center;
     transition: transform 0.5s ease;
+    position: absolute;
+    top: 0;
+    left: 0;
+    min-width: 100%;
+    min-height: 100%;
 }
 
 /* Caption styles */
@@ -59,10 +66,11 @@
     bottom: 0;
     left: 0;
     right: 0;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(56, 54, 54, 0.227); /* Semi-transparent black background */
     color: #fff;
-    padding: 20px;
+    padding: 15px 20px;
     text-align: center;
+    backdrop-filter: blur(2px); /* Optional: Adds a slight blur to the background */
 }
 
 .carousel-caption h3 {
@@ -92,12 +100,12 @@
     width: 40px;
     height: 60px;
     background: rgba(0, 0, 0, 0.5) !important;
-    color: #fff !important;
+
     display: flex !important;
     align-items: center;
     justify-content: center;
     font-size: 24px !important;
-    border-radius: 0 4px 4px 0;
+    border-radius: 0 0px 0px 0;
     margin: 0 !important;
 }
 
@@ -119,14 +127,14 @@
 .owl-dot {
     width: 12px;
     height: 12px;
-    background: rgba(255, 255, 255, 0.5) !important;
+    background: #004d1180 !important;
     margin: 0 5px;
     border-radius: 50%;
     transition: all 0.3s ease;
 }
 
 .owl-dot.active {
-    background: #fff !important;
+    background: rgba(0, 128, 0, 0.367) !important;
     transform: scale(1.2);
 }
 
@@ -137,7 +145,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(255, 255, 255, 0.8);
+    background: #006d006f;
     display: flex;
     align-items: center;
     justify-content: center;

@@ -1,0 +1,99 @@
+/* Events Carousel Styling */
+.events-container {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+}
+
+.events-track {
+    display: flex;
+    width: max-content;
+    animation: scroll 60s linear infinite;
+    will-change: transform;
+    backface-visibility: hidden;
+    padding: 0;
+    margin: 0;
+}
+
+/* Create a seamless loop by duplicating content */
+.events-track::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+/* Animation for the track */
+@keyframes scroll {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+/* Pause animation on hover */
+.events-track:hover {
+    animation-play-state: paused;
+}
+
+/* Individual event column */
+.event-col {
+    flex: 0 0 auto;
+    width: 300px;
+    padding: 0 15px;
+    box-sizing: border-box;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+    position: relative;
+    margin: 0 5px;
+}
+
+/* Add hover effect */
+.event-col:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    z-index: 1;
+}
+
+/* Adjust for different screen sizes */
+@media (max-width: 992px) {
+    .event-col {
+        width: 280px;
+        padding: 0 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .events-track {
+        animation-duration: 80s;
+    }
+    
+    .event-col {
+        width: 260px;
+        padding: 0 8px;
+    }
+}
+
+/* Hide scrollbar */
+.events-container::-webkit-scrollbar {
+    display: none;
+}
+
+.events-container {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Ensure smooth rendering */
+.events-track {
+    -webkit-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+}

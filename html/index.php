@@ -635,12 +635,13 @@
     }
   </style>
   <link rel="stylesheet" href="assets/css/publications.css">
+  <link rel="stylesheet" href="assets/css/events-carousel.css">
   <!-- Owl Carousel CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css">
   <!-- Custom Carousel CSS -->
   <link rel="stylesheet" href="assets/css/carousel.css">
-  <title>Zanvarsity - Educational, Course and University Template</title>
+  <title>Zanzibar University</title>
 </head>
 
 <body class="page-homepage-carousel">
@@ -662,9 +663,9 @@
             <!-- /.input-group -->
           </div>
           <ul class="secondary-navigation list-unstyled">
-            <li><a href="#">Zumis Portal</a></li>
-            <li><a href="#">Prospectus</a></li>
-            <li><a href="#">Almanac</a></li>
+            <li><a href="https://zumis.ac.tz/">Zumis Portal</a></li>
+            <li><a href="./uploads/doc/prospectus.pdf">Prospectus</a></li>
+            <li><a href="./uploads/doc/ALMANAC-2023.pdf">Almanac</a></li>
             <li><a href="#">Fee Structure</a></li>
 
             <li><a href="#">Alumni</a></li>
@@ -684,7 +685,7 @@
                 <span class="icon-bar"></span>
               </button>
               <div class="navbar-brand nav" id="brand">
-                <a href="index.html"><img src="assets/img/logo.png" alt="brand" /></a>
+                <a href="index.php"><img src="assets/img/logo11.png" alt="brand" /></a>
               </div>
             </div>
             <nav class="collapse navbar-collapse bs-navbar-collapse navbar-right" role="navigation">
@@ -698,14 +699,18 @@
                     <li>
                       <a href="Background_info.php" style="color: #ffffff">Background Information</a>
                     </li>
-                    <li><a href="course-listing.html">Course Listing</a></li>
-                    <li>
-                      <a href="course-listing-images.html">Course Listing with Images</a>
-                    </li>
+                    <li><a href="vision_mission.php" style="color: #ffffff">Vision & Mission</a></li>
+                    <li><a href="board_of_trustees.php" style="color: #ffffff">Board of Trustees</a></li>
+                    <li><a href="principal_officers.php" style="color: #ffffff">Principal Officers</a></li>
+                    <li><a href="council_board.php" style="color: #ffffff">Council Board</a></li>
+                    <li><a href="darul_iman.php" style="color: #ffffff">Darul Iman (DICA)</a></li>
+                    <li><a href="about-us.html" style="color: #ffffff">About University</a></li>
+                    <li><a href="#" style="color: #ffffff">Leadership</a></li>
+                    <li><a href="#" style="color: #ffffff">History</a></li>
+                    <li><a href="course-listing-images.html">Course Listing with Images</a></li>
                     <li>
                       <a href="course-detail-v1.html">Course Detail v1</a>
                     </li>
-                    <li>
                       <a href="course-detail-v2.html">Course Detail v2</a>
                     </li> 
                     <li>
@@ -779,8 +784,8 @@
         <!-- /.navbar -->
       </div>
       <!-- /.primary-navigation -->
-      <div class="background">
-        <img src="assets/img/background-city.png" alt="background" />
+      <div class="background" >
+        <img src="assets/img/images.jpg" alt="background" />
       </div>
     </div>
     <!-- end Header -->
@@ -965,7 +970,8 @@
           <div class="slider-inner"></div>
         </div>
         <!-- /.container -->
-      </div>
+      
+    </div>
       <!-- end Slider -->
       <!-- News, Events, About -->
       <div class="block">
@@ -1232,8 +1238,8 @@
             <header>
               <h2>Our Latest Events</h2>
             </header>
-            <div class="row">
-              <div class="events images featured">
+            <div class="events-container">
+              <div class="events-track" id="eventsTrack">
                 <?php
                         try {
                             // Include database connection
@@ -1242,17 +1248,25 @@
                             // Get current date for comparison
                             $current_date = date('Y-m-d H:i:s');
                             
-                            // Query to get all events, ordered by start date (newest first), limit to 4
+                            // Query to get all events, ordered by start date (newest first)
                             $query = "SELECT * FROM events 
                                      ORDER BY start_date DESC 
-                                     LIMIT 4";
+                                     LIMIT 12";
                             
                             $stmt = $conn->prepare($query);
                             $stmt->execute();
                             $result = $stmt->get_result();
                             
-                            // Log the number of events found for debugging
-                            error_log('Number of events found: ' . $result->num_rows);
+                            // Store events in an array
+                            $events = [];
+                            if ($result && $result->num_rows > 0) {
+                                while ($event = $result->fetch_assoc()) {
+                                    $events[] = $event;
+                                }
+                            }
+                            
+                            // Duplicate the events array to create a seamless loop
+                            $events = array_merge($events, $events);
                             
                             // Fallback image path
                             $fallbackImage = 'assets/img/no-image-available.jpg';
@@ -1260,12 +1274,14 @@
                                 'assets/img/course-01.jpg',
                                 'assets/img/course-02.jpg',
                                 'assets/img/course-03.jpg',
-                                'assets/img/course-04.jpg'
+                                'assets/img/course-04.jpg',
+                                'assets/img/course-05.jpg',
+                                'assets/img/course-06.jpg'
                             ];
                             $placeholderIndex = 0;
                             
-                            if ($result && $result->num_rows > 0) {
-                                while ($event = $result->fetch_assoc()) {
+                            if (!empty($events)) {
+                                foreach ($events as $event) {
                                     // Format dates
                                     $start_date = new DateTime($event['start_date']);
                                     $day = $start_date->format('d');
@@ -1330,7 +1346,7 @@
                                     // Get location or use default
                                     $location = !empty($event['location']) ? htmlspecialchars($event['location']) : 'Location TBD';
                                     ?>
-                <div class="col-md-3 col-sm-6">
+                <div class="event-col">
                   <article class="event">
                     <div class="event-thumbnail">
                       <figure class="event-image">
@@ -1389,8 +1405,14 @@
                             </div>';
                         }
                         ?>
-              </div><!-- /.events -->
-            </div><!-- /.row -->
+              </div><!-- /.events-track -->
+            </div><!-- /.events-container -->
+            
+            <!-- View All Events Button -->
+            <div class="text-center" style="margin-top: 15px;">
+                <a href="events.php" class="btn btn-primary">View All Events</a>
+            </div>
+            
           </div><!-- /.container -->
           <div class="background background-color-grey-background"></div>
         </div><!-- /.block -->
@@ -2183,20 +2205,6 @@
         }
       }
     }, true);
-  </script>
-              event.remove();
-            });
-            
-            // Append both sets to the wrapper
-            wrapper.appendChild(fragment1);
-            wrapper.appendChild(fragment2);
-            
-            // Add the wrapper to the container
-            eventsContainer.appendChild(wrapper);
-          }
-        }
-      });
-    })(jQuery);
   </script>
 </body>
 </html>

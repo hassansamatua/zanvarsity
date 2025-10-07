@@ -115,13 +115,13 @@ $(document).ready(function($) {
             // Ensure all carousel items have the correct class
             $carousel.find('.item').addClass('owl-item');
             
-            // Initialize Owl Carousel
+            // Initialize Owl Carousel with single item display
             $carousel.owlCarousel({
                 items: 1,
                 loop: true,
-                margin: 10,
+                margin: 0,
                 nav: true,
-                dots: true,
+                dots: false, // Hide dots as per previous request
                 autoplay: true,
                 autoplayTimeout: 5000,
                 autoplayHoverPause: true,
@@ -285,7 +285,7 @@ $(document).ready(function($) {
 // Remove button function for "join to course" button after count down is over
 function disableJoin() {
     // Find "join to course" button
-{{ ... }}
+    var buttonToBeRemoved = document.getElementById("btn-course-join");
     // Find "join to course" button on bottom of course detail
     var buttonToBeRemovedBottom = document.getElementById("btn-course-join-bottom");
     // Remove button if it exists
