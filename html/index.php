@@ -694,20 +694,16 @@
                   <a href="index.php">Home</a>
                 </li>
                 <li>
-                  <a href="#" class="has-child no-link">About</a>
-                  <ul class="list-unstyled child-navigation">
-                    <li>
-                      <a href="Background_info.php" style="color: #ffffff">Background Information</a>
-                    </li>
-                    <li><a href="vision_mission.php" style="color: #ffffff">Vision & Mission</a></li>
-                    <li><a href="board_of_trustees.php" style="color: #ffffff">Board of Trustees</a></li>
-                    <li><a href="principal_officers.php" style="color: #ffffff">Principal Officers</a></li>
-                    <li><a href="council_board.php" style="color: #ffffff">Council Board</a></li>
-                    <li><a href="darul_iman.php" style="color: #ffffff">Darul Iman (DICA)</a></li>
-                    <li><a href="about-us.html" style="color: #ffffff">About University</a></li>
-                    <li><a href="#" style="color: #ffffff">Leadership</a></li>
-                    <li><a href="#" style="color: #ffffff">History</a></li>
-                    <li><a href="course-listing-images.html">Course Listing with Images</a></li>
+                  <a href="#" class="has-child no-link" style="color: #fff; transition: color 0.3s ease; padding: 15px 20px; display: block;">About</a>
+                  <ul class="list-unstyled child-navigation" style="background-color: #004225; border: 1px solid #003319; min-width: 200px;">
+                    <li><a href="Background_info.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">Background Information</a></li>
+                    <li><a href="vision_mission.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">Vision & Mission</a></li>
+                    <li><a href="board_of_trustees.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">Board of Trustees</a></li>
+                    <li><a href="darul_iman.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">Darul Iman (DICA)</a></li>
+                    <li><a href="council_board.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">Council Board</a></li>
+                    <li><a href="principal_officers.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">Principal Officers</a></li>
+                    <li><a href="senate_board.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">Senate Board</a></li>
+                    <!-- <li><a href="course-listing-images.html">Course Listing with Images</a></li>
                     <li>
                       <a href="course-detail-v1.html">Course Detail v1</a>
                     </li>
@@ -715,12 +711,12 @@
                     </li> 
                     <li>
                       <a href="course-detail-v3.html">Course Detail v3</a>
-                    </li>
+                    </li> -->
                   </ul>
                 </li>
                 <li>
                   <a href="#" class="has-child no-link">Admission</a>
-                  <ul class="list-unstyled child-navigation">
+                  <ul class="list-unstyled child-navigation" style="background-color: #004225;">
                     <li>
                       <a href="event-listing-images.html">Events Listing with images</a>
                     </li>
@@ -735,14 +731,14 @@
 									</li> -->
                 <li>
                   <a href="#" class="has-child no-link">Academics</a>
-                  <ul class="list-unstyled child-navigation">
+                  <ul class="list-unstyled child-navigation" style="background-color: #004225;">
                     <li><a href="blog-listing.html">Blog listing</a></li>
                     <li><a href="blog-detail.html">Blog Detail</a></li>
                   </ul>
                 </li>
                 <li>
                   <a href="#" class="has-child no-link">Directorates</a>
-                  <ul class="list-unstyled child-navigation">
+                  <ul class="list-unstyled child-navigation" style="background-color: #004225;">
                     <li><a href="full-width.html">Fullwidth</a></li>
                     <li><a href="left-sidebar.html">Left Sidebar</a></li>
                     <li><a href="right-sidebar.html">Right Sidebar</a></li>
@@ -758,7 +754,7 @@
                 </li>
                 <li>
                   <a href="#" class="has-child no-link">Facilities</a>
-                  <ul class="list-unstyled child-navigation">
+                  <ul class="list-unstyled child-navigation" style="background-color: #004225;">
                     <li><a href="full-width.html">Fullwidth</a></li>
                     <li><a href="left-sidebar.html">Left Sidebar</a></li>
                     <li><a href="right-sidebar.html">Right Sidebar</a></li>
@@ -2026,141 +2022,26 @@
         </div>
     </div>
 </section>
+
 								<!-- /.our-professors -->
 							</div>
+              
 							<!-- /.col-md-4 -->
     <!-- /.container -->
   </div>
+  
   <!-- end Partners, Make a Donation -->
   </div>
   <!-- end Page Content -->
 
-  <!-- Footer -->
-  <footer id="page-footer">
-    <section id="footer-top">
-      <div class="container-fluid">
-        <div class="footer-inner">
-          <div class="footer-social">
-            <figure>Follow us:</figure>
-            <div class="icons">
-              <a href=""><i class="fa fa-twitter"></i></a>
-              <a href=""><i class="fa fa-facebook"></i></a>
-              <a href=""><i class="fa fa-pinterest"></i></a>
-              <a href=""><i class="fa fa-youtube-play"></i></a>
-            </div>
-            <!-- /.icons -->
-          </div>
-          <!-- /.social -->
-          <div class="search pull-right">
-            <div class="input-group">
-              <input type="text" class="form-control" placeholder="Search" />
-              <span class="input-group-btn">
-                <button type="submit" class="btn">
-                  <i class="fa fa-search"></i>
-                </button>
-              </span>
-            </div>
-            <!-- /input-group -->
-          </div>
-          <!-- /.pull-right -->
-        </div>
-        <!-- /.footer-inner -->
-      </div>
-      <!-- /.container -->
-    </section>
-    <!-- /#footer-top -->
 
-    <section id="footer-content">
-      <div class="container">
-        <div class="row">
-          <div class="col-md-3 col-sm-12">
-            <aside class="logo">
-              <img src="assets/img/logo-white.png" class="vertical-center" />
-            </aside>
-          </div>
-          <!-- /.col-md-3 -->
-          <div class="col-md-3 col-sm-4">
-            <aside>
-              <header>
-                <h4>Contact Us</h4>
-              </header>
-              <address>
-                <strong>University of Universo</strong>
-                <br />
-                <span>4877 Spruce Drive</span>
-                <br /><br />
-                <span>West Newton, PA 15089</span>
-                <br />
-                <abbr title="Telephone">Telephone:</abbr> +1 (734) 123-4567
-                <br />
-                <abbr title="Email">Email:</abbr>
-                <a href="#">questions@youruniversity.com</a>
-              </address>
-            </aside>
-          </div>
-          <!-- /.col-md-3 -->
-          <div class="col-md-3 col-sm-4">
-            <aside>
-              <header>
-                <h4>Important Links</h4>
-              </header>
-              <ul class="list-links">
-                <li><a href="#">Future Students</a></li>
-                <li><a href="#">Alumni</a></li>
-                <li><a href="#">Give a Donation</a></li>
-                <li><a href="#">Professors</a></li>
-                <li><a href="#">Libary & Health</a></li>
-                <li><a href="#">Research</a></li>
-              </ul>
-            </aside>
-          </div>
-          <!-- /.col-md-3 -->
-          <div class="col-md-3 col-sm-4">
-            <aside>
-              <header>
-                <h4>About Universo</h4>
-              </header>
-              <p>
-                Aliquam feugiat turpis quis felis adipiscing, non pulvinar
-                odio lacinia. Aliquam elementum pharetra fringilla. Duis
-                blandit, sapien in semper vehicula, tellus elit gravida
-                odio, ac tincidunt nisl mi at ante. Vivamus tincidunt nunc
-                nibh.
-              </p>
-              <div>
-                <a href="" class="read-more">All News</a>
-              </div>
-            </aside>
-          </div>
-          <!-- /.col-md-3 -->
-        </div>
-        <!-- /.row -->
-      </div>
-      <!-- /.container -->
-      <div class="background">
-        <img src="assets/img/background-city.png" class="" alt="" />
-      </div>
-    </section>
-    <!-- /#footer-content -->
-
-    <section id="footer-bottom">
-      <div class="container">
-        <div class="footer-inner">
-          <div class="copyright">© Theme Starz, All rights reserved</div>
-          <!-- /.copyright -->
-        </div>
-        <!-- /.footer-inner -->
-      </div>
-      <!-- /.container -->
-    </section>
-    <!-- /#footer-bottom -->
-  </footer>
+  <?php include_once 'includes/about_footer.php'; ?>
+ 
   <!-- end Footer -->
   </div>
   <!-- end Wrapper -->
 
   <!-- jQuery and other JS files -->
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="assets/js/jquery-migrate-1.2.1.min.js"></script>
   <script src="assets/bootstrap/js/bootstrap.min.js"></script>
   <!-- Load Owl Carousel -->

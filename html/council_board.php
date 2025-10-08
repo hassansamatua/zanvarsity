@@ -55,11 +55,11 @@ include_once 'includes/about_header.php';
 
                             <div class="row">
                                 <!-- Chairman -->
-                                <div class="col-md-6" style="margin-bottom: 30px;">
-                                    <div class="council-member" style="background: #f9f9f9; padding: 20px; border-radius: 6px; height: 100%; border-top: 3px solid #004225; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                                <div class="col-md-6" style="margin-bottom: 30px; padding: 0 15px; display: flex;">
+                                    <div class="council-member" style="background: #f9f9f9; padding: 20px; border-radius: 6px; width: 100%; border-top: 3px solid #004225; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
                                         <div style="display: flex; align-items: center; margin-bottom: 15px;">
                                             <div style="width: 80px; height: 80px; border-radius: 50%; background: #e0e0e0; margin-right: 15px; overflow: hidden;">
-                                                <img src="assets/img/prof-abdulwahab.jpg" alt="Prof. Abdulwahab Nourwali" style="width: 100%; height: 100%; object-fit: cover;">
+                                                <img src="assets/img/drabdul.png" alt="Prof. Abdulwahab Nourwali" style="width: 100%; height: 100%; object-fit: cover;">
                                             </div>
                                             <div>
                                                 <h3 style="color: #004225; margin: 0 0 5px 0; font-size: 18px;">Prof. Abdulwahab Abdelrahman Nourwali</h3>
@@ -71,11 +71,11 @@ include_once 'includes/about_header.php';
                                 </div>
 
                                 <!-- Deputy Chairman -->
-                                <div class="col-md-6" style="margin-bottom: 30px;">
-                                    <div class="council-member" style="background: #f9f9f9; padding: 20px; border-radius: 6px; height: 100%; border-top: 3px solid #004225; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                                <div class="col-md-6" style="margin-bottom: 30px; padding: 0 15px; display: flex;">
+                                    <div class="council-member" style="background: #f9f9f9; padding: 20px; border-radius: 6px; width: 100%; border-top: 3px solid #004225; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
                                         <div style="display: flex; align-items: center; margin-bottom: 15px;">
                                             <div style="width: 80px; height: 80px; border-radius: 50%; background: #e0e0e0; margin-right: 15px; overflow: hidden;">
-                                                <img src="assets/img/dr-maryam.jpg" alt="Dr. Maryam Jaffar" style="width: 100%; height: 100%; object-fit: cover;">
+                                                <img src="assets/img/drmaryam.jpg" alt="Dr. Maryam Jaffar" style="width: 100%; height: 100%; object-fit: cover;">
                                             </div>
                                             <div>
                                                 <h3 style="color: #004225; margin: 0 0 5px 0; font-size: 18px;">Dr. Maryam Jaffar Ismail</h3>
@@ -89,128 +89,226 @@ include_once 'includes/about_header.php';
 
                             <div class="row">
                                 <!-- Member 1 -->
-                                <div class="col-md-6" style="margin-bottom: 30px;">
-                                    <div class="council-member" style="background: #f9f9f9; padding: 20px; border-radius: 6px; height: 100%; border-top: 3px solid #004225; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-                                        <h3 style="color: #004225; margin: 0 0 10px 0; font-size: 18px;">Eng. Abdulqader Abdelhafez Othman</h3>
-                                        <p style="color: #e67e22; font-weight: 600; margin: 0 0 5px 0; font-size: 14px;">Member</p>
-                                        <p style="color: #666; margin: 0; font-size: 13px;">Board of Trustees</p>
+                                <div class="col-md-6" style="margin-bottom: 30px; padding: 0 15px; display: flex;">
+                                    <div class="council-member" style="background: #f9f9f9; padding: 20px; border-radius: 6px; width: 100%; border-top: 3px solid #004225; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                                        <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                            <div style="width: 80px; height: 80px; border-radius: 50%; background: #e0e0e0; margin-right: 15px; overflow: hidden;">
+                                                <img src="assets/img/chancellor.png" alt="Eng. Abdulqader Abdelhafez Othman" style="width: 100%; height: 100%; object-fit: cover;">
+                                            </div>
+                                            <div>
+                                                <h3 style="color: #004225; margin: 0 0 5px 0; font-size: 18px;">Eng. Abdulqader Abdelhafez Othman</h3>
+                                                <p style="color: #e67e22; font-weight: 600; margin: 0 0 5px 0; font-size: 14px;">Member</p>
+                                                <p style="color: #666; margin: 0; font-size: 13px;">Board of Trustees</p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <!-- Member 2 -->
-                                <div class="col-md-6" style="margin-bottom: 30px;">
-                                    <div class="council-member" style="background: #f9f9f9; padding: 20px; border-radius: 6px; height: 100%; border-top: 3px solid #004225; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-                                        <h3 style="color: #004225; margin: 0 0 10px 0; font-size: 18px;">Mr. Haytham Suleiman Bin Nasir Basahel</h3>
-                                        <p style="color: #e67e22; font-weight: 600; margin: 0 0 5px 0; font-size: 14px;">Member</p>
-                                        <p style="color: #666; margin: 0; font-size: 13px;">Board of Trustees</p>
+                                <div class="col-md-6" style="margin-bottom: 30px; padding: 0 15px; display: flex;">
+                                    <div class="council-member" style="background: #f9f9f9; padding: 20px; border-radius: 6px; width: 100%; border-top: 3px solid #004225; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                                        <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                            <div style="width: 80px; height: 80px; border-radius: 50%; background: #e0e0e0; margin-right: 15px; overflow: hidden;">
+                                                <img src="assets/img/haytham.jpg" alt="Mr. Haytham Suleiman Bin Nasir Basahel" style="width: 100%; height: 100%; object-fit: cover;">
+                                            </div>
+                                            <div>
+                                                <h3 style="color: #004225; margin: 0 0 5px 0; font-size: 18px;">Mr. Haytham Suleiman Bin Nasir Basahel</h3>
+                                                <p style="color: #e67e22; font-weight: 600; margin: 0 0 5px 0; font-size: 14px;">Member</p>
+                                                <p style="color: #666; margin: 0; font-size: 13px;">Board of Trustees</p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <!-- Member 3 -->
-                                <div class="col-md-6" style="margin-bottom: 30px;">
-                                    <div class="council-member" style="background: #f9f9f9; padding: 20px; border-radius: 6px; height: 100%; border-top: 3px solid #004225; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-                                        <h3 style="color: #004225; margin: 0 0 10px 0; font-size: 18px;">Prof. Mohamed Awadelkarim Elhussein</h3>
-                                        <p style="color: #e67e22; font-weight: 600; margin: 0 0 5px 0; font-size: 14px;">Member</p>
-                                        <p style="color: #666; margin: 0; font-size: 13px;">Vice Chancellor</p>
+                                <div class="col-md-6" style="margin-bottom: 30px; padding: 0 15px; display: flex;">
+                                    <div class="council-member" style="background: #f9f9f9; padding: 20px; border-radius: 6px; width: 100%; border-top: 3px solid #004225; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                                        <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                            <div style="width: 80px; height: 80px; border-radius: 50%; background: #e0e0e0; margin-right: 15px; overflow: hidden;">
+                                                <img src="assets/img/vc.jpg" alt="Prof. Mohamed Awadelkarim Elhussein" style="width: 100%; height: 100%; object-fit: cover;">
+                                            </div>
+                                            <div>
+                                                <h3 style="color: #004225; margin: 0 0 5px 0; font-size: 18px;">Prof. Mohamed Awadelkarim Elhussein</h3>
+                                                <p style="color: #e67e22; font-weight: 600; margin: 0 0 5px 0; font-size: 14px;">Member</p>
+                                                <p style="color: #666; margin: 0; font-size: 13px;">Vice Chancellor</p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <!-- Member 4 -->
-                                <div class="col-md-6" style="margin-bottom: 30px;">
-                                    <div class="council-member" style="background: #f9f9f9; padding: 20px; border-radius: 6px; height: 100%; border-top: 3px solid #004225; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-                                        <h3 style="color: #004225; margin: 0 0 10px 0; font-size: 18px;">Dr. Mammudu Daffay</h3>
-                                        <p style="color: #e67e22; font-weight: 600; margin: 0 0 5px 0; font-size: 14px;">Member</p>
-                                        <p style="color: #666; margin: 0; font-size: 13px;">DVC Academic</p>
+                                <div class="col-md-6" style="margin-bottom: 30px; padding: 0 15px; display: flex;">
+                                    <div class="council-member" style="background: #f9f9f9; padding: 20px; border-radius: 6px; width: 100%; border-top: 3px solid #004225; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                                        <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                            <div style="width: 80px; height: 80px; border-radius: 50%; background: #e0e0e0; margin-right: 15px; overflow: hidden;">
+                                                <img src="assets/img/daffay.jpeg" alt="Dr. Mammudu Daffay" style="width: 100%; height: 100%; object-fit: cover;">
+                                            </div>
+                                            <div>
+                                                <h3 style="color: #004225; margin: 0 0 5px 0; font-size: 18px;">Dr. Mammudu Daffay</h3>
+                                                <p style="color: #e67e22; font-weight: 600; margin: 0 0 5px 0; font-size: 14px;">Member</p>
+                                                <p style="color: #666; margin: 0; font-size: 13px;">DVC Academic</p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <!-- Member 5 -->
-                                <div class="col-md-6" style="margin-bottom: 30px;">
-                                    <div class="council-member" style="background: #f9f9f9; padding: 20px; border-radius: 6px; height: 100%; border-top: 3px solid #004225; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-                                        <h3 style="color: #004225; margin: 0 0 10px 0; font-size: 18px;">Dr. Rashid Juma Rashid</h3>
-                                        <p style="color: #e67e22; font-weight: 600; margin: 0 0 5px 0; font-size: 14px;">Member</p>
-                                        <p style="color: #666; margin: 0; font-size: 13px;">DVC Administration</p>
+                                <div class="col-md-6" style="margin-bottom: 30px; padding: 0 15px; display: flex;">
+                                    <div class="council-member" style="background: #f9f9f9; padding: 20px; border-radius: 6px; width: 100%; border-top: 3px solid #004225; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                                        <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                            <div style="width: 80px; height: 80px; border-radius: 50%; background: #e0e0e0; margin-right: 15px; overflow: hidden;">
+                                                <img src="assets/img/rashid.jpeg" alt="Dr. Rashid Juma Rashid" style="width: 100%; height: 100%; object-fit: cover;">
+                                            </div>
+                                            <div>
+                                                <h3 style="color: #004225; margin: 0 0 5px 0; font-size: 18px;">Dr. Rashid Juma Rashid</h3>
+                                                <p style="color: #e67e22; font-weight: 600; margin: 0 0 5px 0; font-size: 14px;">Member</p>
+                                                <p style="color: #666; margin: 0; font-size: 13px;">DVC Administration</p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <!-- Member 6 -->
-                                <div class="col-md-6" style="margin-bottom: 30px;">
-                                    <div class="council-member" style="background: #f9f9f9; padding: 20px; border-radius: 6px; height: 100%; border-top: 3px solid #004225; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-                                        <h3 style="color: #004225; margin: 0 0 10px 0; font-size: 18px;">Mr. Khamis Said</h3>
-                                        <p style="color: #e67e22; font-weight: 600; margin: 0 0 5px 0; font-size: 14px;">Member</p>
-                                        <p style="color: #666; margin: 0; font-size: 13px;">P/S Ministry of Education and Vocational Training</p>
+                                <div class="col-md-6" style="margin-bottom: 30px; padding: 0 15px; display: flex;">
+                                    <div class="council-member" style="background: #f9f9f9; padding: 20px; border-radius: 6px; width: 100%; border-top: 3px solid #004225; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                                        <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                            <div style="width: 80px; height: 80px; border-radius: 50%; background: #e0e0e0; margin-right: 15px; overflow: hidden;">
+                                                <img src="assets/img/haytham.jpg" alt="Mr. Khamis Said" style="width: 100%; height: 100%; object-fit: cover;">
+                                            </div>
+                                            <div>
+                                                <h3 style="color: #004225; margin: 0 0 5px 0; font-size: 18px;">Mr. Khamis Said</h3>
+                                                <p style="color: #e67e22; font-weight: 600; margin: 0 0 5px 0; font-size: 14px;">Member</p>
+                                                <p style="color: #666; margin: 0; font-size: 13px;">P/S Ministry of Education and Vocational Training</p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <!-- Member 7 -->
-                                <div class="col-md-6" style="margin-bottom: 30px;">
-                                    <div class="council-member" style="background: #f9f9f9; padding: 20px; border-radius: 6px; height: 100%; border-top: 3px solid #004225; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-                                        <h3 style="color: #004225; margin: 0 0 10px 0; font-size: 18px;">Dr. Yahya Khamis Hamad</h3>
-                                        <p style="color: #e67e22; font-weight: 600; margin: 0 0 5px 0; font-size: 14px;">Invitee</p>
-                                        <p style="color: #666; margin: 0; font-size: 13px;">Legal Advisor – ZU</p>
+                                <div class="col-md-6" style="margin-bottom: 30px; padding: 0 15px; display: flex;">
+                                    <div class="council-member" style="background: #f9f9f9; padding: 20px; border-radius: 6px; width: 100%; border-top: 3px solid #004225; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                                        <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                            <div style="width: 80px; height: 80px; border-radius: 50%; background: #e0e0e0; margin-right: 15px; overflow: hidden;">
+                                                <img src="assets/img/dryahya.png" alt="Dr. Yahya Khamis Hamad" style="width: 100%; height: 100%; object-fit: cover;">
+                                            </div>
+                                            <div>
+                                                <h3 style="color: #004225; margin: 0 0 5px 0; font-size: 18px;">Dr. Yahya Khamis Hamad</h3>
+                                                <p style="color: #e67e22; font-weight: 600; margin: 0 0 5px 0; font-size: 14px;">Invitee</p>
+                                                <p style="color: #666; margin: 0; font-size: 13px;">Legal Advisor – ZU</p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <!-- Member 8 -->
-                                <div class="col-md-6" style="margin-bottom: 30px;">
-                                    <div class="council-member" style="background: #f9f9f9; padding: 20px; border-radius: 6px; height: 100%; border-top: 3px solid #004225; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-                                        <h3 style="color: #004225; margin: 0 0 10px 0; font-size: 18px;">Dr. Khalfan Amour Khalfan</h3>
-                                        <p style="color: #e67e22; font-weight: 600; margin: 0 0 5px 0; font-size: 14px;">Member</p>
-                                        <p style="color: #666; margin: 0; font-size: 13px;">Commission for Science & Technology (COSTECH)</p>
+                                <div class="col-md-6" style="margin-bottom: 30px; padding: 0 15px; display: flex;">
+                                    <div class="council-member" style="background: #f9f9f9; padding: 20px; border-radius: 6px; width: 100%; border-top: 3px solid #004225; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                                        <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                            <div style="width: 80px; height: 80px; border-radius: 50%; background: #e0e0e0; margin-right: 15px; overflow: hidden;">
+                                                <img src="assets/img/haytham.jpg" alt="Dr. Khalfan Amour Khalfan" style="width: 100%; height: 100%; object-fit: cover;">
+                                            </div>
+                                            <div>
+                                                <h3 style="color: #004225; margin: 0 0 5px 0; font-size: 18px;">Dr. Khalfan Amour Khalfan</h3>
+                                                <p style="color: #e67e22; font-weight: 600; margin: 0 0 5px 0; font-size: 14px;">Member</p>
+                                                <p style="color: #666; margin: 0; font-size: 13px;">Commission for Science & Technology (COSTECH)</p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <!-- Member 9 -->
-                                <div class="col-md-6" style="margin-bottom: 30px;">
-                                    <div class="council-member" style="background: #f9f9f9; padding: 20px; border-radius: 6px; height: 100%; border-top: 3px solid #004225; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-                                        <h3 style="color: #004225; margin: 0 0 10px 0; font-size: 18px;">Dr. Afua Mohammed</h3>
-                                        <p style="color: #e67e22; font-weight: 600; margin: 0 0 5px 0; font-size: 14px;">Member</p>
-                                        <p style="color: #666; margin: 0; font-size: 13px;">Academician</p>
+                                <div class="col-md-6" style="margin-bottom: 30px; padding: 0 15px; display: flex;">
+                                    <div class="council-member" style="background: #f9f9f9; padding: 20px; border-radius: 6px; width: 100%; border-top: 3px solid #004225; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                                        <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                            <div style="width: 80px; height: 80px; border-radius: 50%; background: #e0e0e0; margin-right: 15px; overflow: hidden;">
+                                                <img src="assets/img/drafua.png" alt="Dr. Afua Mohammed" style="width: 100%; height: 100%; object-fit: cover;">
+                                            </div>
+                                            <div>
+                                                <h3 style="color: #004225; margin: 0 0 5px 0; font-size: 18px;">Dr. Afua Mohammed</h3>
+                                                <p style="color: #e67e22; font-weight: 600; margin: 0 0 5px 0; font-size: 14px;">Member</p>
+                                                <p style="color: #666; margin: 0; font-size: 13px;">Academician</p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <!-- Member 10 -->
-                                <div class="col-md-6" style="margin-bottom: 30px;">
-                                    <div class="council-member" style="background: #f9f9f9; padding: 20px; border-radius: 6px; height: 100%; border-top: 3px solid #004225; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-                                        <h3 style="color: #004225; margin: 0 0 10px 0; font-size: 18px;">Dr. Fatma Kassim</h3>
-                                        <p style="color: #e67e22; font-weight: 600; margin: 0 0 5px 0; font-size: 14px;">Member</p>
-                                        <p style="color: #666; margin: 0; font-size: 13px;">Academician</p>
+                                <div class="col-md-6" style="margin-bottom: 30px; padding: 0 15px; display: flex;">
+                                    <div class="council-member" style="background: #f9f9f9; padding: 20px; border-radius: 6px; width: 100%; border-top: 3px solid #004225; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                                        <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                            <div style="width: 80px; height: 80px; border-radius: 50%; background: #e0e0e0; margin-right: 15px; overflow: hidden;">
+                                                <img src="assets/img/drfatma.png" alt="Dr. Fatma Kassim" style="width: 100%; height: 100%; object-fit: cover;">
+                                            </div>
+                                            <div>
+                                                <h3 style="color: #004225; margin: 0 0 5px 0; font-size: 18px;">Dr. Fatma Kassim</h3>
+                                                <p style="color: #e67e22; font-weight: 600; margin: 0 0 5px 0; font-size: 14px;">Member</p>
+                                                <p style="color: #666; margin: 0; font-size: 13px;">Academician</p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <!-- Member 11 -->
-                                <div class="col-md-6" style="margin-bottom: 30px;">
-                                    <div class="council-member" style="background: #f9f9f9; padding: 20px; border-radius: 6px; height: 100%; border-top: 3px solid #004225; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-                                        <h3 style="color: #004225; margin: 0 0 10px 0; font-size: 18px;">Mr. Juma Burhan</h3>
-                                        <p style="color: #e67e22; font-weight: 600; margin: 0 0 5px 0; font-size: 14px;">Member</p>
-                                        <p style="color: #666; margin: 0; font-size: 13px;">Business Community</p>
+                                <div class="col-md-6" style="margin-bottom: 30px; padding: 0 15px; display: flex;">
+                                    <div class="council-member" style="background: #f9f9f9; padding: 20px; border-radius: 6px; width: 100%; border-top: 3px solid #004225; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                                        <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                            <div style="width: 80px; height: 80px; border-radius: 50%; background: #e0e0e0; margin-right: 15px; overflow: hidden;">
+                                                <img src="assets/img/jburhan.jpg" alt="Mr. Juma Burhan" style="width: 100%; height: 100%; object-fit: cover;">
+                                            </div>
+                                            <div>
+                                                <h3 style="color: #004225; margin: 0 0 5px 0; font-size: 18px;">Mr. Juma Burhan</h3>
+                                                <p style="color: #e67e22; font-weight: 600; margin: 0 0 5px 0; font-size: 14px;">Member</p>
+                                                <p style="color: #666; margin: 0; font-size: 13px;">Business Community</p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <!-- Member 12 -->
-                                <div class="col-md-6" style="margin-bottom: 30px;">
-                                    <div class="council-member" style="background: #f9f9f9; padding: 20px; border-radius: 6px; height: 100%; border-top: 3px solid #004225; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-                                        <h3 style="color: #004225; margin: 0 0 10px 0; font-size: 18px;">Zanuso President</h3>
-                                        <p style="color: #e67e22; font-weight: 600; margin: 0 0 5px 0; font-size: 14px;">Student's Representative</p>
-                                        <p style="color: #666; margin: 0; font-size: 13px;">Zanzibar University Student's Organization</p>
+                                <div class="col-md-6" style="margin-bottom: 30px; padding: 0 15px; display: flex;">
+                                    <div class="council-member" style="background: #f9f9f9; padding: 20px; border-radius: 6px; width: 100%; border-top: 3px solid #004225; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                                        <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                            <div style="width: 80px; height: 80px; border-radius: 50%; background: #e0e0e0; margin-right: 15px; overflow: hidden;">
+                                                <img src="assets/img/haytham.jpg" alt="Zanuso President" style="width: 100%; height: 100%; object-fit: cover;">
+                                            </div>
+                                            <div>
+                                                <h3 style="color: #004225; margin: 0 0 5px 0; font-size: 18px;">Zanuso President</h3>
+                                                <p style="color: #e67e22; font-weight: 600; margin: 0 0 5px 0; font-size: 14px;">Student's Representative</p>
+                                                <p style="color: #666; margin: 0; font-size: 13px;">Zanzibar University Student's Organization</p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <!-- Member 13 -->
-                                <div class="col-md-6" style="margin-bottom: 30px;">
-                                    <div class="council-member" style="background: #f9f9f9; padding: 20px; border-radius: 6px; height: 100%; border-top: 3px solid #004225; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-                                        <h3 style="color: #004225; margin: 0 0 10px 0; font-size: 18px;">Dr. Abdallah Gharib</h3>
-                                        <p style="color: #e67e22; font-weight: 600; margin: 0 0 5px 0; font-size: 14px;">Member</p>
-                                        <p style="color: #666; margin: 0; font-size: 13px;">Quality Assurance Coordinator</p>
+                                <div class="col-md-6" style="margin-bottom: 30px; padding: 0 15px; display: flex;">
+                                    <div class="council-member" style="background: #f9f9f9; padding: 20px; border-radius: 6px; width: 100%; border-top: 3px solid #004225; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                                        <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                            <div style="width: 80px; height: 80px; border-radius: 50%; background: #e0e0e0; margin-right: 15px; overflow: hidden;">
+                                                <img src="assets/img/dragharib.jpeg" alt="Dr. Abdallah Gharib" style="width: 100%; height: 100%; object-fit: cover;">
+                                            </div>
+                                            <div>
+                                                <h3 style="color: #004225; margin: 0 0 5px 0; font-size: 18px;">Dr. Abdallah Gharib</h3>
+                                                <p style="color: #e67e22; font-weight: 600; margin: 0 0 5px 0; font-size: 14px;">Member</p>
+                                                <p style="color: #666; margin: 0; font-size: 13px;">Quality Assurance Coordinator</p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <!-- Member 14 -->
-                                <div class="col-md-6" style="margin-bottom: 30px;">
-                                    <div class="council-member" style="background: #f9f9f9; padding: 20px; border-radius: 6px; height: 100%; border-top: 3px solid #004225; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-                                        <h3 style="color: #004225; margin: 0 0 10px 0; font-size: 18px;">Mr. Bakar Rashid Bakar</h3>
-                                        <p style="color: #e67e22; font-weight: 600; margin: 0 0 5px 0; font-size: 14px;">Invitee</p>
-                                        <p style="color: #666; margin: 0; font-size: 13px;">Director of Finance</p>
+                                <div class="col-md-6" style="margin-bottom: 30px; padding: 0 15px; display: flex;">
+                                    <div class="council-member" style="background: #f9f9f9; padding: 20px; border-radius: 6px; width: 100%; border-top: 3px solid #004225; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                                        <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                            <div style="width: 80px; height: 80px; border-radius: 50%; background: #e0e0e0; margin-right: 15px; overflow: hidden;">
+                                                <img src="assets/img/haytham.jpg" alt="Mr. Bakar Rashid Bakar" style="width: 100%; height: 100%; object-fit: cover;">
+                                            </div>
+                                            <div>
+                                                <h3 style="color: #004225; margin: 0 0 5px 0; font-size: 18px;">Mr. Bakar Rashid Bakar</h3>
+                                                <p style="color: #e67e22; font-weight: 600; margin: 0 0 5px 0; font-size: 14px;">Invitee</p>
+                                                <p style="color: #666; margin: 0; font-size: 13px;">Director of Finance</p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -268,7 +366,7 @@ include_once 'includes/about_header.php';
     </div>
     <?php
 // Include the footer
-include_once 'includes/footer.php';
+include_once 'includes/about_footer.php';
 ?>
 </div>
 <!-- end Page Content -->

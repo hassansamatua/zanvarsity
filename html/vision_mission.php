@@ -178,7 +178,7 @@ include_once 'includes/about_header.php';
     </div>
     <?php
 // Include the footer
-include_once 'includes/footer.php';
+include_once 'includes/about_footer.php';
 ?>
 </div>
 <!-- end Page Content -->

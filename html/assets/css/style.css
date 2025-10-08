@@ -484,7 +484,7 @@ ul.list-links a:hover {
 }
 
 .connect-block .nav-pills li.active a {
-	background-color: #ea6645;
+	background-color: #006633;
 	color: #fff;
 	position: relative;
 }
@@ -493,7 +493,7 @@ ul.list-links a:hover {
 	opacity: 1;
 }
 .connect-block .nav-pills li.active a:hover {
-	background-color: #ea6645;
+	background-color: #006633;
 }
 .connect-block .nav-pills li a {
 	-moz-border-radius: 0px;
@@ -1123,7 +1123,7 @@ ul.list-links a:hover {
 	background-color: #012951;
 }
 .events.small .event.nearest-second .date {
-	background-color: #ea6645;
+	background-color: #006633;
 }
 
 /****
@@ -1394,7 +1394,7 @@ ul.list-links a:hover {
 	-o-transition: 0.3s;
 	-webkit-transition: 0.3s;
 	transition: 0.3s;
-	background-color: #ea6645;
+	background-color: #006633;
 	display: inline-block;
 	height: 30px;
 	width: 30px;
@@ -1842,7 +1842,7 @@ ul.list-links a:hover {
 	-moz-box-shadow: none;
 	-webkit-box-shadow: none;
 	box-shadow: none;
-	background-color: #ea6645;
+	background-color: #006633;
 }
 
 .price-box {
@@ -2096,7 +2096,7 @@ th.header:before {
 }
 .universal-button figure {
 	display: table-cell;
-	background-color: #ea6645;
+	background-color: #006633;
 	height: 30px;
 	margin-left: 20px;
 	padding: 6px 10px;
@@ -2152,7 +2152,7 @@ th.header:before {
 }
 
 .background-color-secondary {
-	background-color: #ea6645;
+	background-color: #006633;
 }
 
 .background-color-grey-dark {
@@ -2414,7 +2414,7 @@ th.header:before {
 	color: #fff;
 }
 .navigation-wrapper a:hover {
-	color: #ea6645;
+	color: #98FB98;
 }
 .navigation-wrapper .background {
 	background-color: #012951;
@@ -2440,7 +2440,7 @@ th.header:before {
 	padding: inherit;
 }
 .navigation-wrapper .secondary-navigation-wrapper ul li i {
-	color: #ea6645;
+	color: #98FB98;
 	margin-right: 5px;
 }
 .navigation-wrapper .secondary-navigation-wrapper .search {
@@ -2489,6 +2489,7 @@ th.header:before {
 	transition: 0.4s;
 	padding: 30px 0px;
 	position: relative;
+	background-color: #011c38;
 }
 .navigation-wrapper .primary-navigation-wrapper header {
 	border: 0;
@@ -2526,7 +2527,7 @@ th.header:before {
 	z-index: 0;
 }
 .navigation-wrapper .primary-navigation-wrapper header .navbar-brand:after {
-	background-color: #ea6645;
+	background-color: #98FB98;
 	background-image: url("../img/background-city.png");
 	background-position: 0;
 	content: "";
@@ -2615,7 +2616,7 @@ th.header:before {
 	.navbar-nav
 	li.active
 	a {
-	color: #ea6645;
+	color: #98FB98;
 }
 .navigation-wrapper
 	.primary-navigation-wrapper
@@ -2641,7 +2642,7 @@ th.header:before {
 	-o-transition: 0.2s;
 	-webkit-transition: 0.2s;
 	transition: 0.2s;
-	background-color: #011529;
+	background-color: #004225;
 	visibility: hidden;
 	position: absolute;
 	top: 45px;
@@ -2687,7 +2688,7 @@ th.header:before {
 	.child-navigation
 	li
 	a:hover {
-	background-color: #ea6645;
+	background-color: #006633;
 	color: #fff;
 }
 .navigation-wrapper
@@ -2703,7 +2704,7 @@ th.header:before {
 	-o-transition: 0.3s;
 	-webkit-transition: 0.3s;
 	transition: 0.3s;
-	border-color: transparent transparent #011529 transparent;
+	border-color: transparent transparent #004225 transparent;
 	border-style: solid;
 	border-width: 0 7.5px 7px 7.5px;
 	content: "";
@@ -2738,7 +2739,7 @@ th.header:before {
 	.child-navigation
 	li:first-child
 	a:hover:after {
-	border-color: transparent transparent #ea6645 transparent;
+	border-color: transparent transparent #006633 transparent;
 }
 .navigation-wrapper
 	.primary-navigation-wrapper
@@ -2759,7 +2760,7 @@ th.header:before {
 	-o-transition: 0.3s;
 	-webkit-transition: 0.3s;
 	transition: 0.3s;
-	background-color: #ea6645;
+	background-color: #006633;
 	border: 2px solid transparent;
 	color: #fff;
 	font-weight: bold;
@@ -2805,7 +2806,7 @@ th.header:before {
 	color: #ea6645;
 }
 .btn.btn-framed:hover {
-	background-color: #ea6645;
+	background-color: #006633;
 	color: #fff;
 }
 .btn.btn-framed.btn-color-primary {
@@ -4436,7 +4437,7 @@ label.error:before {
 		box-shadow: none;
 		border: 0;
 		height: auto;
-		background-color: #011529;
+		background-color: #004225;
 		max-height: inherit;
 		margin-bottom: -15px;
 		position: relative;
@@ -4454,7 +4455,7 @@ label.error:before {
 		height: 0px;
 		border-style: solid;
 		border-width: 0 5px 8px 5px;
-		border-color: transparent transparent #011529 transparent;
+		border-color: transparent transparent #004225 transparent;
 		position: absolute;
 		top: -8px;
 		right: 32px;

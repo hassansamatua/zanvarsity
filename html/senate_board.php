@@ -82,57 +82,109 @@ include_once 'includes/about_header.php';
 
                                     <h3 style="color: #004225; margin-top: 25px; margin-bottom: 15px; font-size: 20px;">Current Members</h3>
                                     <div class="row">
-                                        <!-- Member 1 -->
-                                        <div class="col-md-6">
-                                            <div class="team-member" style="margin-bottom: 30px; display: flex;">
-                                                <div class="member-image" style="width: 100px; height: 100px; border-radius: 50%; overflow: hidden; margin-right: 20px; flex-shrink: 0; background: #f5f5f5; display: flex; align-items: center; justify-content: center;">
-                                                    <i class='bx bx-user' style="font-size: 50px; color: #004225;"></i>
-                                                </div>
-                                                <div class="member-details">
-                                                    <h3 style="margin: 0 0 5px 0; font-size: 16px; color: #333;">Prof. Idrisa S. Mchulla</h3>
-                                                    <p style="margin: 0 0 8px 0; color: #004225; font-weight: 600; font-size: 14px;">Vice Chancellor (Chairperson)</p>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        <?php
+                                        $members = [
+                                            ['name' => 'Prof. Muhammed A. Elhussein', 'position' => 'Vice Chancellor', 'role' => 'Chairperson'],
+                                            ['name' => 'Dr. Mamudu Daffay', 'position' => 'DVC for Academic Affairs', 'role' => 'Member'],
+                                            ['name' => 'Mr. Iddi K. Haji', 'position' => 'Director, ZHELB', 'role' => 'Member'],
+                                            ['name' => 'Dr. Salama Yussuf', 'position' => 'Dean, FBA', 'role' => 'Member'],
+                                            ['name' => 'Dr. Muhiddin A. Khamis', 'position' => 'Dean, FLS', 'role' => 'Member'],
+                                            ['name' => 'Dr. Mpawenimana A. Said', 'position' => 'Dean, FASS', 'role' => 'Member'],
+                                            ['name' => 'Dr. Akly O. Babi', 'position' => 'Dean, FoS', 'role' => 'Member'],
+                                            ['name' => 'Dr. Khalfan Mohammed', 'position' => 'Dean, Fohas', 'role' => 'Member'],
+                                            ['name' => 'Dr. Amir K. Mwinyi', 'position' => 'Dean, FoE', 'role' => 'Member'],
+                                            ['name' => 'Mr. Hassan H. Saad', 'position' => 'Dean, Student\'s Affairs', 'role' => 'Member'],
+                                            ['name' => 'Dr. Abdallah U. Hamad', 'position' => 'Director, IIBF', 'role' => 'Member'],
+                                            ['name' => 'Dr. Yahya Kh. Hamad', 'position' => 'Senior Lecturer & Legal Advisor', 'role' => 'Member'],
+                                            ['name' => 'Mr. Saleh S. Mwinyi', 'position' => 'Director, ICE', 'role' => 'Member'],
+                                            ['name' => 'CPA. Bakar R. Bakar', 'position' => 'Director of Finance', 'role' => 'Member'],
+                                            ['name' => 'Ms. Haulath Tundamanyire', 'position' => 'Director, Library Services', 'role' => 'Member'],
+                                            ['name' => 'Dr. Suleiman M. Faki', 'position' => 'HoD Accounting & Finance', 'role' => 'Member'],
+                                            ['name' => 'Ms. Intisar O. Said', 'position' => 'HoD, BIT', 'role' => 'Member'],
+                                            ['name' => 'Mr. Sultan S. Omar', 'position' => 'HoD, Marketing', 'role' => 'Member'],
+                                            ['name' => 'Mr. Salem N. Hemed', 'position' => 'HoD, Telecommunication', 'role' => 'Member'],
+                                            ['name' => 'Ms. Nufaila A. Nassor', 'position' => 'HoD, Procurement', 'role' => 'Member'],
+                                            ['name' => 'Ms. Maryam M. Ali', 'position' => 'HoD, Public Administration', 'role' => 'Member'],
+                                            ['name' => 'Dr. Khatib M. Omar', 'position' => 'HoD, Languages', 'role' => 'Member'],
+                                            ['name' => 'Dr. Issa M. Hemed', 'position' => 'HoD, Economics', 'role' => 'Member'],
+                                            ['name' => 'Mr. Soud H. Ali', 'position' => 'HoD, Education', 'role' => 'Member'],
+                                            ['name' => 'Mr. Salim S. Ali', 'position' => 'HoD, BIS', 'role' => 'Member'],
+                                            ['name' => 'Dr. Bakari A. Mohammed', 'position' => 'HoD, Social Work', 'role' => 'Member'],
+                                            ['name' => 'Dr. Sikujua O. Hamdan', 'position' => 'HoD Common Law', 'role' => 'Member'],
+                                            ['name' => 'Mr. Ally U. Hamad', 'position' => 'HoD, Science', 'role' => 'Member'],
+                                            ['name' => 'Mr. Sultan Kh. Muki', 'position' => 'HoD, Counseling Psychology', 'role' => 'Member'],
+                                            ['name' => 'Mr. Seif S. Khalfan', 'position' => 'HoD, Nursing', 'role' => 'Member'],
+                                            ['name' => 'Mr. Nasib A. Wazir', 'position' => 'Examinations Officer', 'role' => 'Member'],
+                                            ['name' => 'Mr. Said H. Salum', 'position' => 'President, ZANUSO', 'role' => 'Member'],
+                                            ['name' => 'Dr. Abdallah H. Gharib', 'position' => 'Quality Assurance Coordinator', 'role' => 'Member'],
+                                            ['name' => 'Dr. Abdo H. Ali Guroob', 'position' => 'Coordinator, IT Services', 'role' => 'Invitee'],
+                                            ['name' => 'Ms. Nasra S. Mohammed', 'position' => 'Admission Officer', 'role' => 'Invitee'],
+                                            ['name' => 'Dr. Rashid J. Rashid', 'position' => 'DVC for Administration', 'role' => 'Secretary/Member']
+                                        ];
 
-                                        <!-- Member 2 -->
-                                        <div class="col-md-6">
-                                            <div class="team-member" style="margin-bottom: 30px; display: flex;">
-                                                <div class="member-image" style="width: 100px; height: 100px; border-radius: 50%; overflow: hidden; margin-right: 20px; flex-shrink: 0; background: #f5f5f5; display: flex; align-items: center; justify-content: center;">
-                                                    <i class='bx bx-user' style="font-size: 50px; color: #004225;"></i>
-                                                </div>
-                                                <div class="member-details">
-                                                    <h3 style="margin: 0 0 5px 0; font-size: 16px; color: #333;">Dr. Mwinyi I. Mwinyi</h3>
-                                                    <p style="margin: 0 0 8px 0; color: #004225; font-weight: 600; font-size: 14px;">Deputy Vice Chancellor</p>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        // Add custom CSS for the number badge
+                                        echo '<style>
+                                            .member-number {
+                                                position: absolute;
+                                                top: -10px;
+                                                left: -10px;
+                                                width: 30px;
+                                                height: 30px;
+                                                background: linear-gradient(135deg, #004225, #006d3a);
+                                                color: white;
+                                                border-radius: 50%;
+                                                display: flex;
+                                                align-items: center;
+                                                justify-content: center;
+                                                font-weight: bold;
+                                                font-size: 14px;
+                                                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+                                                border: 2px solid white;
+                                                z-index: 1;
+                                                transition: all 0.3s ease;
+                                            }
+                                            .member-container {
+                                                position: relative;
+                                            }
+                                            .team-member:hover .member-number {
+                                                transform: scale(1.1);
+                                                box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+                                            }
+                                        </style>';
 
-                                        <!-- Member 3 -->
-                                        <div class="col-md-6">
-                                            <div class="team-member" style="margin-bottom: 30px; display: flex;">
-                                                <div class="member-image" style="width: 100px; height: 100px; border-radius: 50%; overflow: hidden; margin-right: 20px; flex-shrink: 0; background: #f5f5f5; display: flex; align-items: center; justify-content: center;">
-                                                    <i class='bx bx-user' style="font-size: 50px; color: #004225;"></i>
-                                                </div>
-                                                <div class="member-details">
-                                                    <h3 style="margin: 0 0 5px 0; font-size: 16px; color: #333;">Dr. Asha S. Makame</h3>
-                                                    <p style="margin: 0 0 8px 0; color: #004225; font-weight: 600; font-size: 14px;">Registrar (Secretary)</p>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        // Map member names to their image filenames
+                                        $imageMap = [
+                                            'Prof. Muhammed A. Elhussein' => 'vc.jpg',
+                                            'Dr. Mamudu Daffay' => 'daffay.jpeg',
+                                            'Dr. Yahya Kh. Hamad' => 'dryahya.png',
+                                            'Dr. Abdallah H. Gharib' => 'dragharib.jpeg',
+                                            'Dr. Rashid J. Rashid' => 'rashid.jpeg',
+                                            'Dr. Fatma Kassim' => 'drfatma.png',
+                                            'Dr. Afua Mohammed' => 'drafua.png'
+                                            // Add more mappings as needed
+                                        ];
 
-                                        <!-- Member 4 -->
-                                        <div class="col-md-6">
-                                            <div class="team-member" style="margin-bottom: 30px; display: flex;">
-                                                <div class="member-image" style="width: 100px; height: 100px; border-radius: 50%; overflow: hidden; margin-right: 20px; flex-shrink: 0; background: #f5f5f5; display: flex; align-items: center; justify-content: center;">
-                                                    <i class='bx bx-user' style="font-size: 50px; color: #004225;"></i>
-                                                </div>
-                                                <div class="member-details">
-                                                    <h3 style="margin: 0 0 5px 0; font-size: 16px; color: #333;">Prof. Juma A. Juma</h3>
-                                                    <p style="margin: 0 0 8px 0; color: #004225; font-weight: 600; font-size: 14px;">Dean, Faculty of Science and Technology</p>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        $counter = 1;
+                                        foreach ($members as $member) {
+                                            $role = $member['role'] === 'Chairperson' ? $member['role'] : $member['role'];
+                                            $image = isset($imageMap[$member['name']]) ? $imageMap[$member['name']] : 'placeholder.jpg';
+                                            
+                                            echo '<div class="col-md-6">';
+                                            echo '    <div class="team-member" style="margin-bottom: 30px; display: flex; position: relative;">';
+                                            echo '        <div class="member-container" style="position: relative;">';
+                                            echo '            <div class="member-number">' . $counter++ . '</div>';
+                                            echo '            <div class="member-image" style="width: 100px; height: 100px; border-radius: 50%; overflow: hidden; margin-right: 20px; flex-shrink: 0; background: #f5f5f5; display: flex; align-items: center; justify-content: center; position: relative;">';
+                                            echo '                <img src="assets/img/' . $image . '" alt="' . htmlspecialchars($member['name']) . '" style="width: 100%; height: 100%; object-fit: cover;">';
+                                            echo '            </div>';
+                                            echo '        </div>';
+                                            echo '        <div class="member-details">';
+                                            echo '            <h3 style="margin: 0 0 5px 0; font-size: 16px; color: #333;">' . htmlspecialchars($member['name']) . '</h3>';
+                                            echo '            <p style="margin: 0 0 8px 0; color: #004225; font-weight: 600; font-size: 14px;">' . htmlspecialchars($member['position']) . ' (' . $role . ')</p>';
+                                            echo '        </div>';
+                                            echo '    </div>';
+                                            echo '</div>';
+                                        }
+                                        ?>
                                     </div>
 
                                     <div class="alert alert-info" style="background-color: #e7f5f5; border-color: #b8e0e0; color: #31708f; padding: 15px; margin-top: 20px; border-radius: 4px;">
@@ -272,7 +324,7 @@ include_once 'includes/about_header.php';
     </div>
     <?php
 // Include the footer
-include_once 'includes/footer.php';
+include_once 'includes/about_footer.php';
 ?>
 </div>
 <!-- end Page Content -->

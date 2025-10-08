@@ -91,21 +91,28 @@
 <!-- end Wrapper -->
 
 <?php 
-// Get base URL from session
 $base_url = isset($_SESSION['base_url']) ? rtrim($_SESSION['base_url'], '/') : '';
 $assets_url = $base_url . '/assets';
 ?>
 
 <!-- JavaScript Libraries -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.13.3/js/standalone/selectize.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.3/dist/jquery.validate.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-placeholder/2.3.1/jquery.placeholder.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.2/icheck.min.js"></script>
-<script src="<?php echo $assets_url; ?>/js/custom.js" type="text/javascript"></script></script>
+<script src="<?php echo $assets_url; ?>/js/jquery-2.1.0.min.js"></script>
+<script src="<?php echo $assets_url; ?>/js/jquery-migrate-1.2.1.min.js"></script>
+<script src="<?php echo $assets_url; ?>/bootstrap/js/bootstrap.min.js"></script>
+<script src="<?php echo $assets_url; ?>/js/selectize.min.js"></script>
+<script src="<?php echo $assets_url; ?>/js/owl.carousel.min.js"></script>
+<script src="<?php echo $assets_url; ?>/js/jquery.validate.min.js"></script>
+<script src="<?php echo $assets_url; ?>/js/jquery.placeholder.js"></script>
+<script src="<?php echo $assets_url; ?>/js/jQuery.equalHeights.js"></script>
+<script src="<?php echo $assets_url; ?>/js/icheck.min.js"></script>
+<script src="<?php echo $assets_url; ?>/js/jquery.vanillabox-0.1.5.min.js"></script>
+<script src="<?php echo $assets_url; ?>/js/retina-1.1.0.min.js"></script>
+
+<!-- Custom Scripts -->
+<script src="<?php echo $assets_url; ?>/js/custom.js"></script>
+
+<!-- Scroll to Top Button -->
+<?php include('scroll-to-top.php'); ?>
 
 </body>
 </html>

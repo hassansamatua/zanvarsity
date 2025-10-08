@@ -52,14 +52,14 @@ include_once 'includes/about_header.php';
                                 <!-- Vice Chancellor -->
                                 <div class="col-md-6">
                                     <div class="team-member" style="margin-bottom: 30px; display: flex;">
-                                        <div class="member-image" style="width: 120px; height: 120px; border-radius: 50%; overflow: hidden; margin-right: 20px; flex-shrink: 0; background: #f5f5f5; display: flex; align-items: center; justify-content: center;">
-                                            <i class='bx bx-user' style="font-size: 60px; color: #004225;"></i>
+                                        <div class="member-image" style="width: 120px; height: 120px; border-radius: 50%; overflow: hidden; margin-right: 20px; flex-shrink: 0; border: 3px solid #f0f0f0;">
+                                        <img src="assets/img/chancellor.png" alt="Chancellor" style="width: 100%; height: 100%; object-fit: cover;">
                                         </div>
                                         <div class="member-details">
-                                            <h3 style="margin: 0 0 5px 0; font-size: 18px; color: #333;">Prof. Idrisa S. Mchulla</h3>
-                                            <p style="margin: 0 0 8px 0; color: #004225; font-weight: 600;">Vice Chancellor</p>
+                                            <h3 style="margin: 0 0 5px 0; font-size: 18px; color: #333;">Eng. Abdulqadir Othman Hafez</h3>
+                                            <p style="margin: 0 0 8px 0; color: #004225; font-weight: 600;">Chancellor</p>
                                             <p style="margin: 0; color: #666; font-size: 14px; line-height: 1.5;">
-                                                The Chief Executive and Academic Officer of the University, responsible for the day-to-day administration and implementation of the University's policies.
+                                                The Chancellor is the titular head of the University, presiding over ceremonial functions including degree conferment and Vice Chancellor installation. Appointed by the President of Zanzibar.
                                             </p>
                                         </div>
                                     </div>
@@ -68,46 +68,50 @@ include_once 'includes/about_header.php';
                                 <!-- Deputy Vice Chancellor -->
                                 <div class="col-md-6">
                                     <div class="team-member" style="margin-bottom: 30px; display: flex;">
-                                        <div class="member-image" style="width: 120px; height: 120px; border-radius: 50%; overflow: hidden; margin-right: 20px; flex-shrink: 0; background: #f5f5f5; display: flex; align-items: center; justify-content: center;">
-                                            <i class='bx bx-user' style="font-size: 60px; color: #004225;"></i>
+                                        <div class="member-image" style="width: 120px; height: 120px; border-radius: 50%; overflow: hidden; margin-right: 20px; flex-shrink: 0; border: 3px solid #f0f0f0;">
+                                            <img src="assets/img/vc.jpg" alt="Vice Chancellor" style="width: 100%; height: 100%; object-fit: cover;">
                                         </div>
                                         <div class="member-details">
-                                            <h3 style="margin: 0 0 5px 0; font-size: 18px; color: #333;">Dr. Mwinyi I. Mwinyi</h3>
-                                            <p style="margin: 0 0 8px 0; color: #004225; font-weight: 600;">Deputy Vice Chancellor</p>
+                                            <h3 style="margin: 0 0 5px 0; font-size: 18px; color: #333;">Prof. Mohamed Awadelkarim Elhussein</h3>
+                                            <p style="margin: 0 0 8px 0; color: #004225; font-weight: 600;">Vice Chancellor</p>
                                             <p style="margin: 0; color: #666; font-size: 14px; line-height: 1.5;">
-                                                Assists the Vice Chancellor in the administration of the University and acts in the absence of the Vice Chancellor.
+                                                The Vice Chancellor is the principal academic and administrative officer of the University, responsible for the day-to-day management, academic leadership, and implementation of the University's strategic vision and policies.
                                             </p>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- University Bursar -->
+                            </div>
+                            
+                            <!-- DVC Row -->
+                            <div class="row">
+                                <!-- DVC Academic -->
                                 <div class="col-md-6">
                                     <div class="team-member" style="margin-bottom: 30px; display: flex;">
-                                        <div class="member-image" style="width: 120px; height: 120px; border-radius: 50%; overflow: hidden; margin-right: 20px; flex-shrink: 0; background: #f5f5f5; display: flex; align-items: center; justify-content: center;">
-                                            <i class='bx bx-user' style="font-size: 60px; color: #004225;"></i>
+                                        <div class="member-image" style="width: 120px; height: 120px; border-radius: 50%; overflow: hidden; margin-right: 20px; flex-shrink: 0; border: 3px solid #f0f0f0;">
+                                            <img src="assets/img/daffay.jpeg" alt="Dr. Mammudu Daffay" style="width: 100%; height: 100%; object-fit: cover;">
                                         </div>
                                         <div class="member-details">
-                                            <h3 style="margin: 0 0 5px 0; font-size: 18px; color: #333;">Mr. Hamad S. Hamad</h3>
-                                            <p style="margin: 0 0 8px 0; color: #004225; font-weight: 600;">University Bursar</p>
+                                            <h3 style="margin: 0 0 5px 0; font-size: 18px; color: #333;">Dr. Mammudu Daffay</h3>
+                                            <p style="margin: 0 0 8px 0; color: #004225; font-weight: 600;">DVC Academic</p>
                                             <p style="margin: 0; color: #666; font-size: 14px; line-height: 1.5;">
-                                                Responsible for the financial administration and management of the University's resources.
+                                                The DVC Academic provides strategic leadership for all academic programs, ensuring academic excellence, curriculum development, and quality assurance across the University's faculties and departments.
                                             </p>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Academic Registrar -->
+                                <!-- DVC Administration -->
                                 <div class="col-md-6">
                                     <div class="team-member" style="margin-bottom: 30px; display: flex;">
-                                        <div class="member-image" style="width: 120px; height: 120px; border-radius: 50%; overflow: hidden; margin-right: 20px; flex-shrink: 0; background: #f5f5f5; display: flex; align-items: center; justify-content: center;">
-                                            <i class='bx bx-user' style="font-size: 60px; color: #004225;"></i>
+                                        <div class="member-image" style="width: 120px; height: 120px; border-radius: 50%; overflow: hidden; margin-right: 20px; flex-shrink: 0; border: 3px solid #f0f0f0;">
+                                            <img src="assets/img/rashid.jpeg" alt="Dr. Rashid Juma Rashid" style="width: 100%; height: 100%; object-fit: cover;">
                                         </div>
                                         <div class="member-details">
-                                            <h3 style="margin: 0 0 5px 0; font-size: 18px; color: #333;">Dr. Asha S. Makame</h3>
-                                            <p style="margin: 0 0 8px 0; color: #004225; font-weight: 600;">Academic Registrar</p>
+                                            <h3 style="margin: 0 0 5px 0; font-size: 18px; color: #333;">Dr. Rashid Juma Rashid</h3>
+                                            <p style="margin: 0 0 8px 0; color: #004225; font-weight: 600;">DVC Administration</p>
                                             <p style="margin: 0; color: #666; font-size: 14px; line-height: 1.5;">
-                                                Oversees academic administration, student records, and related academic services.
+                                                The DVC Administration oversees the University's administrative functions, including human resources, finance, infrastructure, and support services, ensuring efficient operations that enable the University to achieve its strategic objectives.
                                             </p>
                                         </div>
                                     </div>
@@ -197,7 +201,7 @@ include_once 'includes/about_header.php';
     </div>
     <?php
 // Include the footer
-include_once 'includes/footer.php';
+include_once 'includes/about_footer.php';
 ?>
 </div>
 <!-- end Page Content -->

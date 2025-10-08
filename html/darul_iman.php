@@ -477,7 +477,7 @@ include_once 'includes/about_header.php';
 <div style="width: 100%; margin: 0; padding: 0;">
     <?php
     // Include the footer
-    include_once 'includes/footer.php';
+    include_once 'includes/about_footer.php';
     ?>
 </div>
 <style>
