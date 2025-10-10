@@ -158,8 +158,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && isset($_P
                     // Debug: Log successful session creation
                     error_log('Session created successfully for user ID: ' . $user['id']);
                     
-                    // Set default redirect URL
-                    $redirectUrl = '/c/zanvarsity/html/my-account.php';
+                    // Set default redirect URL with full path
+                    $basePath = '/c/zanvarsity/html/';
+                    $redirectUrl = $basePath . 'my-account.php';
                     
                     // Check for redirect in this order of priority:
                     // 1. POST parameter (from hidden form field)
@@ -388,9 +389,24 @@ include 'new-header.php';
                     ?>
                     <?php
                     // Preserve the redirect URL if it exists
-                    $redirect = isset($_GET['redirect']) ? $_GET['redirect'] : (isset($_SESSION['redirect_after_login']) ? $_SESSION['redirect_after_login'] : 'my-account.php');
+                    $basePath = '/c/zanvarsity/html/';
+                    $defaultRedirect = $basePath . 'my-account.php';
+                    
+                    // Get redirect URL from GET, SESSION, or use default
+                    if (!empty($_GET['redirect'])) {
+                        $redirect = strpos($_GET['redirect'], '/') === 0 ? $_GET['redirect'] : $basePath . ltrim($_GET['redirect'], '/');
+                    } elseif (!empty($_SESSION['redirect_after_login'])) {
+                        $redirect = strpos($_SESSION['redirect_after_login'], '/') === 0 ? $_SESSION['redirect_after_login'] : $basePath . ltrim($_SESSION['redirect_after_login'], '/');
+                    } else {
+                        $redirect = $defaultRedirect;
+                    }
+                    
+                    // Ensure the redirect URL is within our application
+                    if (strpos($redirect, $basePath) !== 0) {
+                        $redirect = $defaultRedirect;
+                    }
                     ?>
-                    <form action="" method="post" class="form-vertical">
+                    <form action="/c/zanvarsity/html/login.php" method="post" class="form-vertical">
                         <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                         <input type="hidden" name="redirect" value="<?php echo htmlspecialchars($redirect, ENT_QUOTES, 'UTF-8'); ?>">
                         <div class="form-group">

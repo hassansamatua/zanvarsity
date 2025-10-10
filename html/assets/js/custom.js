@@ -18,13 +18,54 @@ $(document).ready(function($) {
     }
 
 //  Homepage Slider (Flex Slider)
-
     if ($('.flexslider').length > 0) {
         $('.flexslider').flexslider({
             controlNav: false,
             prevText: "",
-            nextText: ""
+            nextText: "",
+            start: function() {
+                $(window).trigger('resize');
+            }
         });
+    }
+    
+    // Initialize Owl Carousel
+    if ($('.image-carousel.owl-carousel').length > 0) {
+        var $carousel = $('.image-carousel.owl-carousel');
+        $carousel.owlCarousel({
+            items: 1,
+            loop: true,
+            nav: true,
+            dots: true,
+            autoplay: true,
+            autoplayTimeout: 5000,
+            autoplayHoverPause: true,
+            navText: [
+                '<i class="fa fa-angle-left" aria-hidden="true"></i>',
+                '<i class="fa fa-angle-right" aria-hidden="true"></i>'
+            ],
+            responsive: {
+                0: { items: 1 },
+                600: { items: 1 },
+                1000: { items: 1 }
+            },
+            onInitialized: function() {
+                console.log('Carousel initialized successfully');
+                $carousel.trigger('refresh.owl.carousel');
+                
+                // Add custom navigation classes
+                $carousel.find('.owl-nav').removeClass('disabled');
+                $carousel.find('.owl-dots').removeClass('disabled');
+            },
+            onTranslated: function() {
+                console.log('Slide changed');
+            }
+        });
+        
+        // Force refresh after a short delay
+        setTimeout(function() {
+            $carousel.trigger('refresh.owl.carousel');
+        }, 1000);
     }
 
 //  Open tab from another page

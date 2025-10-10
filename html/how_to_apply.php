@@ -207,9 +207,11 @@ include_once 'includes/about_header.php';
                     <p><i class="fa fa-envelope"></i> <a href="mailto:admission@zanvarsity.ac.tz">admission@zanvarsity.ac.tz</a></p>
                     <p><i class="fa fa-map-marker"></i> P.O. Box 1240, Zanzibar, Tanzania</p>
                 </div>
+                <?php include_once 'includes/about_footer.php'; ?>
             </div>
-        </div>
+        </div>  
     </div>
+  
 </div>
 
 <style>
@@ -295,4 +297,3 @@ table th {
 }
 </style>
 
-<?php include_once 'includes/about_footer.php'; ?>

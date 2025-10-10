@@ -3,23 +3,22 @@
  * This script handles the initialization and configuration of the homepage carousel
  */
 
-(function($) {
-    'use strict';
+// Wait for the document to be fully loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Function to initialize carousel
+    function initCarousel() {
+        if (typeof jQuery === 'undefined' || typeof jQuery.fn.owlCarousel === 'undefined') {
+            console.error('jQuery or Owl Carousel not loaded');
+            return false;
+        }
 
-    // Wait for window and all assets to load
-    $(window).on('load', function() {
-        console.log('Window and all assets loaded, initializing carousel...');
-        
-        var $carousel = $(".image-carousel");
+        var $carousel = jQuery(".image-carousel.owl-carousel");
         
         if ($carousel.length) {
             console.log('Carousel element found, initializing...');
             
-            // Ensure the carousel has the owl-carousel class
-            $carousel.addClass('owl-carousel');
-            
-            // Initialize Owl Carousel with debug options
             try {
+                // Initialize Owl Carousel
                 $carousel.owlCarousel({
                     items: 1,
                     loop: true,
@@ -42,44 +41,97 @@
                     },
                     onInitialize: function() {
                         console.log('Carousel initialized successfully');
-                        // Force show the carousel
                         $carousel.css('opacity', '1');
                     },
                     onInitialized: function() {
                         console.log('Carousel fully initialized');
-                        // Hide loading spinner if exists
-                        $('.owl-carousel-loading').remove();
-                    },
-                    onTranslated: function() {
-                        console.log('Slide changed');
-                    },
-                    onResize: function() {
-                        console.log('Carousel resized');
-                        $carousel.trigger('refresh.owl.carousel');
+                        jQuery('.owl-carousel-loading').remove();
                     }
                 });
                 
-                // Force refresh after a short delay
+                // Fix for carousel not showing
                 setTimeout(function() {
-                    console.log('Refreshing carousel...');
                     $carousel.trigger('refresh.owl.carousel');
-                }, 1000);
+                }, 100);
                 
+                return true;
             } catch (e) {
                 console.error('Error initializing carousel:', e);
+                return false;
             }
-            
         } else {
             console.error('Carousel element not found. Check your HTML structure.');
+            return false;
         }
-    });
+    }
 
-    // Fallback in case window.onload doesn't fire
-    setTimeout(function() {
-        if (typeof $('.image-carousel').data('owl.carousel') === 'undefined') {
-            console.warn('Carousel not initialized after 3 seconds, attempting to initialize...');
-            $('.image-carousel').owlCarousel();
+    // Function to load required CSS
+    function loadCarouselCSS() {
+        if (document.querySelector('link[href*="owl.carousel"]') === null) {
+            var css1 = document.createElement('link');
+            css1.rel = 'stylesheet';
+            css1.href = 'https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css';
+            document.head.appendChild(css1);
+            
+            var css2 = document.createElement('link');
+            css2.rel = 'stylesheet';
+            css2.href = 'https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css';
+            document.head.appendChild(css2);
         }
-    }, 3000);
+    }
 
-})(jQuery);
+    // Main initialization
+    function initialize() {
+        // Check if jQuery is loaded
+        if (typeof jQuery === 'undefined') {
+            console.error('jQuery is not loaded');
+            return;
+        }
+
+        // Load CSS
+        loadCarouselCSS();
+
+        // Check if Owl Carousel is loaded
+        if (typeof jQuery.fn.owlCarousel === 'undefined') {
+            // Load Owl Carousel
+            var script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js';
+            script.onload = function() {
+                console.log('Owl Carousel loaded successfully');
+                initCarousel();
+            };
+            script.onerror = function() {
+                console.error('Failed to load Owl Carousel');
+            };
+            document.body.appendChild(script);
+        } else {
+            // Owl Carousel already loaded
+            initCarousel();
+        }
+    }
+
+    // Start initialization
+    initialize();
+
+    // Fallback in case of any issues
+    var attempts = 0;
+    var maxAttempts = 5;
+    var checkInterval = setInterval(function() {
+        attempts++;
+        if (typeof jQuery !== 'undefined' && typeof jQuery.fn.owlCarousel !== 'undefined') {
+            if (jQuery('.owl-carousel.image-carousel').length > 0) {
+                if (typeof jQuery('.owl-carousel.image-carousel').data('owl.carousel') === 'undefined') {
+                    console.log('Fallback: Initializing carousel (attempt ' + attempts + ')');
+                    initCarousel();
+                } else {
+                    clearInterval(checkInterval);
+                }
+            }
+        }
+        
+        if (attempts >= maxAttempts) {
+            console.warn('Maximum initialization attempts reached');
+            clearInterval(checkInterval);
+        }
+    }, 1000);
+});

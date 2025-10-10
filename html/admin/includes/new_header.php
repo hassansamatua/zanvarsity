@@ -46,14 +46,15 @@
         }
         
         .navigation-wrapper {
-            background: white;
+            background: #004225; /* Dark green background */
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         
         .secondary-navigation-wrapper {
-            background: var(--primary-color);
+            background: #003318; /* Slightly darker green */
             color: white;
             padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .navigation-contact {
@@ -81,6 +82,7 @@
             margin-bottom: 0;
             border: none;
             min-height: 70px;
+            background: #004225; /* Match the dark green */
         }
         
         .navbar-brand {
@@ -88,7 +90,7 @@
             height: auto;
             font-size: 24px;
             font-weight: 700;
-            color: var(--primary-color) !important;
+            color: white !important;
         }
         
         .navbar-toggle {

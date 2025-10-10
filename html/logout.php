@@ -29,18 +29,17 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Store the redirect URL if provided (only allow relative URLs for security)
-$redirect = '/';
+// Always redirect to sign-in.php after logout
+$redirect = '/c/zanvarsity/html/sign-in.php';
+
+// Clear any existing redirect parameters to prevent open redirects
 if (isset($_GET['redirect'])) {
-    $redirect = filter_var($_GET['redirect'], FILTER_SANITIZE_URL);
-    // Only allow relative URLs
-    if (strpos($redirect, 'http') === 0 || strpos($redirect, '//') === 0) {
-        $redirect = '/';
-    }
-    // Ensure the redirect is within our application
-    if (strpos($redirect, '/c/zanvarsity/') !== 0) {
-        $redirect = '/';
-    }
+    unset($_GET['redirect']);
+}
+
+// Clear any existing logout parameters to prevent loops
+if (isset($_GET['logout'])) {
+    unset($_GET['logout']);
 }
 
 // Unset all session variables
@@ -81,6 +80,6 @@ header('Cache-Control: no-cache, no-store, must-revalidate');
 header('Pragma: no-cache');
 header('Expires: 0');
 
-// Redirect to login page with a success message
-header('Location: /c/zanvarsity/html/login.php?logout=1&redirect=' . urlencode($redirect));
+// Redirect directly to sign-in page
+header('Location: /c/zanvarsity/html/sign-in.php');
 exit();

@@ -157,8 +157,71 @@
   <link rel="stylesheet" href="assets/css/style.css" type="text/css" />
   <style>
     /* Navigation Bar */
-    .navigation-wrapper {
-      background-color: #004225; /* Same as footer bottom */
+    .navigation-wrapper,
+    .primary-navigation-wrapper,
+    .secondary-navigation-wrapper,
+    .navbar-default,
+    .navbar {
+      background-color: #004225 !important; /* Dark green color */
+    }
+    
+    /* Ensure dropdown menus also have the same background */
+    .navbar-nav > li > .dropdown-menu,
+    .child-navigation,
+    .navbar-collapse {
+      background-color: #004225 !important;
+      border-color: #003319 !important;
+    }
+    
+    .navbar-nav > li > a,
+    .navbar-nav > li > .no-link,
+    .navbar-nav .open .dropdown-menu > li > a {
+      color: #ffffff !important;
+    }
+        /* Hover states */
+        .navbar-nav > li > a:hover,
+        .navbar-nav > li > a:focus {
+          background-color: transparent !important;
+          color: #e0f2e9 !important; /* Lighter green on hover */
+        }
+        
+        /* Active menu item */
+        .navbar-nav > .active > a,
+        .navbar-nav > .active > a:hover,
+        .navbar-nav > .active > a:focus,
+        .navbar-nav > .current-menu-item > a,
+        .navbar-nav > .current-menu-parent > a,
+        .navbar-nav > .current-page-ancestor > a,
+        .navbar-nav > .current_page_item > a,
+        .navbar-nav > .current_page_parent > a {
+          background-color: transparent !important;
+          color: #5cb85c !important; /* Success green text to match buttons */
+          font-weight: bold !important;
+        }
+        
+        /* Ensure dropdown active items are also styled */
+        .dropdown-menu > .active > a,
+        .dropdown-menu > .current-menu-item > a,
+        .dropdown-menu > .current-menu-parent > a,
+        .dropdown-menu > li > a.active {
+          background-color: transparent !important;
+          color: #5cb85c !important; /* Success green text to match buttons */
+          font-weight: bold !important;
+        }
+        
+        /* Ensure the active state is visible in dropdowns */
+        .child-navigation > li > a.active {
+          color: #5cb85c !important; /* Success green text to match buttons */
+          font-weight: bold !important;
+        }  
+    /* Mobile menu button */
+    .navbar-toggle {
+      border-color: #ffffff;
+    }
+    
+{{ ... }}
+    .navbar-toggle .icon-bar {
+      background-color: #ffffff;
     }
     
     /* Secondary Navigation Bar */
@@ -2042,21 +2105,26 @@
   <!-- end Wrapper -->
 
   <!-- jQuery and other JS files -->
+  <!-- Load jQuery first -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- Then load jQuery Migrate -->
   <script src="assets/js/jquery-migrate-1.2.1.min.js"></script>
+  <!-- Then load Bootstrap -->
   <script src="assets/bootstrap/js/bootstrap.min.js"></script>
   <!-- Load Owl Carousel -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
-  <!-- Other scripts -->
-  <script src="assets/js/selectize.min.js"></script>
+  <!-- Other scripts that depend on jQuery -->
   <script src="assets/js/jquery.validate.min.js"></script>
   <script src="assets/js/jquery.placeholder.js"></script>
-  <script src="assets/js/jQuery.equalHeights.js"></script>
+  <script src="assets/js/selectize.min.js"></script>
   <script src="assets/js/icheck.min.js"></script>
+  <script src="assets/js/jQuery.equalHeights.js"></script>
   <script src="assets/js/jquery.vanillabox-0.1.5.min.js"></script>
-  <script src="assets/js/retina-1.1.0.min.js"></script>
   <!-- Custom scripts -->
-  <script src="assets/js/custom.js"></script>
   <script src="assets/js/carousel.js"></script>
+  <script src="assets/js/custom.js"></script>
+  <!-- Retina.js should be loaded last -->
+  <script src="assets/js/retina-1.1.0.min.js"></script>
   
   <script type="text/javascript">
   // Initialize infinite scroll for event cards if the container exists

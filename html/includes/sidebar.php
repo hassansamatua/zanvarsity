@@ -55,81 +55,86 @@ $is_admin_page = (strpos($_SERVER['REQUEST_URI'], '/admin/') !== false);
 ?>
 <!-- Sidebar -->
 <aside class="col-md-3 col-sm-4">
-    <div class="sidebar" style="background: #fff; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1); padding: 20px; margin-bottom: 30px;">
-        <div class="sidebar-inner">
-            <div class="sidebar-widget text-center" style="padding: 20px 0;">
-                <div class="user-avatar">
-                    <div style="width: 100px; height: 100px; margin: 0 auto 15px; background-color: #4caf50; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: bold; text-transform: uppercase; text-align: center; padding: 5px; line-height: 1.2;">
-                        <?php 
-                        $initials = '';
-                        $name_parts = explode(' ', $user_name);
-                        foreach($name_parts as $part) {
-                            $initials .= strtoupper(substr($part, 0, 1));
-                            if(strlen($initials) >= 2) break;
-                        }
-                        echo $initials;
-                        ?>
-                    </div>
-                    <div class="text-center">
-                        <h4 style="margin: 10px 0 5px; color: #333; font-size: 18px;"><?php echo htmlspecialchars($user_name); ?></h4>
-                        <span class="label label-primary" style="background-color: #4caf50; padding: 3px 10px; border-radius: 3px; font-size: 12px; font-weight: 600; text-transform: uppercase;"><?php echo $role_display; ?></span>
-                    </div>
-                </div>
+    <!-- User Profile Card -->
+    <div class="card mb-4">
+        <div class="card-body text-center">
+            <div class="user-avatar mx-auto mb-3" style="width: 100px; height: 100px; font-size: 40px; background-color: #4caf50; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                <?php 
+                $initials = '';
+                $name_parts = explode(' ', $user_name);
+                foreach($name_parts as $part) {
+                    $initials .= strtoupper(substr($part, 0, 1));
+                    if(strlen($initials) >= 2) break;
+                }
+                echo $initials;
+                ?>
             </div>
+            <h5 class="card-title"><?php echo htmlspecialchars($user_name); ?></h5>
+            <p class="text-muted"><?php echo $role_display; ?></p>
             
-            <div class="sidebar-widget">
-                <ul class="nav nav-pills nav-stacked" style="margin: 0; padding: 0; list-style: none;">
-                    <li style="border-bottom: 1px solid #eee;">
-                        <a href="<?php echo $base_url; ?>/my-account.php" style="display: block; padding: 12px 15px; color: #555; text-decoration: none; transition: all 0.3s ease;<?php echo basename($_SERVER['PHP_SELF']) == 'my-account.php' ? ' background-color: #f5f5f5; color: #4caf50; border-left: 3px solid #4caf50;' : ''; ?>">
-                            <i class="fa fa-dashboard" style="width: 20px; margin-right: 10px; text-align: center;"></i> Dashboard
-                        </a>
-                    </li>
-                    <?php if (in_array($user_role, ['super_admin', 'admin'])): ?>
-                    <li style="border-bottom: 1px solid #eee;">
-                        <a href="/c/zanvarsity/html/logout.php?redirect=/c/zanvarsity/html/admin/users.php"
-                           style="display: block; padding: 12px 15px; color: #555; text-decoration: none; cursor: pointer; transition: all 0.3s ease;<?php echo basename($_SERVER['PHP_SELF']) == 'users.php' ? ' background-color: #f5f5f5; color: #4caf50; border-left: 3px solid #4caf50;' : ''; ?>"
-                           onclick="event.preventDefault(); window.location.href=this.href; return false;">
-                            <i class="fa fa-users" style="width: 20px; margin-right: 10px; text-align: center;"></i> Manage Users
-                        </a>
-                    </li>
-                    <li style="border-bottom: 1px solid #eee;">
-                        <a href="/c/zanvarsity/html/logout.php?redirect=/c/zanvarsity/html/admin/contents.php"
-                           style="display: block; padding: 12px 15px; color: #555; text-decoration: none; cursor: pointer; transition: all 0.3s ease;<?php echo ($current_page == 'contents.php' || $current_page == 'content-edit.php' || $current_page == 'content-add.php') ? ' background-color: #f5f5f5; color: #4caf50; border-left: 3px solid #4caf50;' : ''; ?>"
-                           onclick="event.preventDefault(); window.location.href=this.href; return false;">
-                            <i class="fa fa-file-text" style="width: 20px; margin-right: 10px; text-align: center;"></i> Manage Contents
-                        </a>
-                    </li>
-                    <?php endif; ?>
-                    <li style="border-bottom: 1px solid #eee;">
-                        <a href="<?php echo $base_url; ?>/my-courses.php" style="display: block; padding: 12px 15px; color: #555; text-decoration: none; transition: all 0.3s ease;<?php echo $current_page == 'my-courses.php' ? ' background-color: #f5f5f5; color: #4caf50; border-left: 3px solid #4caf50;' : ''; ?>">
-                            <i class="fa fa-book" style="width: 20px; margin-right: 10px; text-align: center;"></i> My Courses
-                        </a>
-                    </li>
-                    <li style="border-bottom: 1px solid #eee;">
-                        <a href="<?php echo $base_url; ?>/my-profile.php" style="display: block; padding: 12px 15px; color: #555; text-decoration: none; transition: all 0.3s ease;<?php echo $current_page == 'my-profile.php' ? ' background-color: #f5f5f5; color: #4caf50; border-left: 3px solid #4caf50;' : ''; ?>">
-                            <i class="fa fa-user" style="width: 20px; margin-right: 10px; text-align: center;"></i> My Profile
-                        </a>
-                    </li>
-                    <li style="border-bottom: 1px solid #eee;">
-                        <a href="<?php echo $base_url; ?>/settings.php" style="display: block; padding: 12px 15px; color: #555; text-decoration: none; transition: all 0.3s ease;<?php echo $current_page == 'settings.php' ? ' background-color: #f5f5f5; color: #4caf50; border-left: 3px solid #4caf50;' : ''; ?>">
-                            <i class="fa fa-cog" style="width: 20px; margin-right: 10px; text-align: center;"></i> Settings
-                        </a>
-                    </li>
-                    <?php if (in_array($user_role, ['instructor', 'admin', 'super_admin'])): ?>
-                    <li style="border-bottom: 1px solid #eee;">
-                        <a href="<?php echo $base_url; ?>/instructor/" style="display: block; padding: 12px 15px; color: #555; text-decoration: none; transition: all 0.3s ease;<?php echo (strpos($_SERVER['PHP_SELF'], '/instructor/') !== false) ? ' background-color: #f5f5f5; color: #4caf50; border-left: 3px solid #4caf50;' : ''; ?>">
-                            <i class="fa fa-graduation-cap" style="width: 20px; margin-right: 10px; text-align: center;"></i> Instructor Panel
-                        </a>
-                    </li>
-                    <?php endif; ?>
-                    <li style="border-bottom: 1px solid #eee;">
-                        <a href="<?php echo $base_url; ?>/logout.php" 
-                           style="display: block; padding: 12px 15px; color: #555; text-decoration: none; transition: all 0.3s ease;"
-                           onclick="return confirm('Are you sure you want to log out?')">
-                            <i class="fa fa-sign-out" style="width: 20px; margin-right: 10px; text-align: center;"></i> Logout
-                        </a>
-                    </li>
-                </ul>
+            <!-- Navigation -->
+            <div class="list-group">
+                <a href="<?php echo $base_url; ?>/my-account.php" class="list-group-item list-group-item-action <?php echo basename($_SERVER['PHP_SELF']) == 'my-account.php' ? 'active' : ''; ?>">
+                    <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                </a>
+                
+                <?php if (in_array($user_role, ['super_admin', 'admin'])): ?>
+                <a href="/c/zanvarsity/html/logout.php?redirect=/c/zanvarsity/html/admin/users.php" 
+                   class="list-group-item list-group-item-action <?php echo basename($_SERVER['PHP_SELF']) == 'users.php' ? 'active' : ''; ?>"
+                   onclick="event.preventDefault(); window.location.href=this.href; return false;">
+                    <i class="fas fa-users me-2"></i> Manage Users
+                </a>
+                <a href="/c/zanvarsity/html/logout.php?redirect=/c/zanvarsity/html/admin/contents.php"
+                   class="list-group-item list-group-item-action <?php echo (in_array($current_page, ['contents.php', 'content-edit.php', 'content-add.php'])) ? 'active' : ''; ?>"
+                   onclick="event.preventDefault(); window.location.href=this.href; return false;">
+                    <i class="fas fa-file-text me-2"></i> Manage Contents
+                </a>
+                <?php endif; ?>
+                
+                <a href="<?php echo $base_url; ?>/my-courses.php" class="list-group-item list-group-item-action <?php echo $current_page == 'my-courses.php' ? 'active' : ''; ?>">
+                    <i class="fas fa-book me-2"></i> My Courses
+                </a>
+                
+                <a href="<?php echo $base_url; ?>/my-profile.php" class="list-group-item list-group-item-action <?php echo $current_page == 'my-profile.php' ? 'active' : ''; ?>">
+                    <i class="fas fa-user me-2"></i> My Profile
+                </a>
+                
+                <a href="<?php echo $base_url; ?>/settings.php" class="list-group-item list-group-item-action <?php echo $current_page == 'settings.php' ? 'active' : ''; ?>">
+                    <i class="fas fa-cog me-2"></i> Settings
+                </a>
+                
+                <?php if (in_array($user_role, ['instructor', 'admin', 'super_admin'])): ?>
+                <a href="<?php echo $base_url; ?>/instructor/" class="list-group-item list-group-item-action <?php echo strpos($_SERVER['PHP_SELF'], '/instructor/') !== false ? 'active' : ''; ?>">
+                    <i class="fas fa-graduation-cap me-2"></i> Instructor Panel
+                </a>
+                <?php endif; ?>
+                
+                <a href="<?php echo $base_url; ?>/logout.php" 
+                   class="list-group-item list-group-item-action text-danger"
+                   onclick="return confirm('Are you sure you want to log out?')">
+                    <i class="fas fa-sign-out-alt me-2"></i> Logout
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Stats Card -->
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h6 class="mb-0">Quick Stats</h6>
+        </div>
+        <div class="list-group list-group-flush">
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-book me-2"></i> My Courses</span>
+                <span class="badge bg-primary rounded-pill">5</span>
+            </div>
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-tasks me-2"></i> Assignments</span>
+                <span class="badge bg-warning text-dark rounded-pill">3</span>
+            </div>
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-bell me-2"></i> Notifications</span>
+                <span class="badge bg-danger rounded-pill">2</span>
             </div>
         </div>
     </div>

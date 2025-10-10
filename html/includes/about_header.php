@@ -29,6 +29,53 @@
     
     <title><?php echo isset($page_title) ? $page_title . ' - ' : ''; ?>Zanvarsity</title>
     
+    <style>
+        /* Navigation Styles */
+        .navbar-nav > li > a,
+        .navbar-nav > li > .no-link,
+        .navbar-nav .open .dropdown-menu > li > a {
+            color: #ffffff !important;
+            transition: color 0.3s ease;
+        }
+        
+        /* Hover states */
+        .navbar-nav > li > a:hover,
+        .navbar-nav > li > a:focus {
+            background-color: transparent !important;
+            color: #e0f2e9 !important; /* Lighter green on hover */
+        }
+        
+        /* Active menu item */
+        .navbar-nav > .active > a,
+        .navbar-nav > .active > a:hover,
+        .navbar-nav > .active > a:focus,
+        .navbar-nav > .current-menu-item > a,
+        .navbar-nav > .current-menu-parent > a,
+        .navbar-nav > .current-page-ancestor > a,
+        .navbar-nav > .current_page_item > a,
+        .navbar-nav > .current_page_parent > a {
+            background-color: transparent !important;
+            color: #5cb85c !important; /* Success green text to match buttons */
+            font-weight: bold !important;
+        }
+        
+        /* Ensure dropdown active items are also styled */
+        .dropdown-menu > .active > a,
+        .dropdown-menu > .current-menu-item > a,
+        .dropdown-menu > .current-menu-parent > a,
+        .dropdown-menu > li > a.active {
+            background-color: transparent !important;
+            color: #5cb85c !important; /* Success green text to match buttons */
+            font-weight: bold !important;
+        }
+        
+        /* Ensure the active state is visible in dropdowns */
+        .child-navigation > li > a.active {
+            color: #5cb85c !important; /* Success green text to match buttons */
+            font-weight: bold !important;
+        }
+    </style>
+    
     <!-- Favicon -->
     <link rel="shortcut icon" href="assets/img/favicon.ico" type="image/x-icon">
     
@@ -118,7 +165,7 @@
                 <li><a href="../html/uploads/doc/almanac-2023.pdf" target="_blank">Almanac</a></li>
                 <li><a href="fee-structure.php" target="_blank">Fee Structure</a></li>
                 <li><a href="alumni.php" target="_blank">Alumni</a></li>
-                <li><a href="admin/login.php" style="color: #fff; text-decoration: none; transition: color 0.3s ease;"><i class="fa fa-sign-in" style="color: #98FB98; margin-right: 5px;"></i>Admin Login</a></li>
+                <li><a href="sign-in.php" style="color: #fff; text-decoration: none; transition: color 0.3s ease;"><i class="fa fa-sign-in" style="color: #98FB98; margin-right: 5px;"></i>Admin Login</a></li>
             </ul>
         </div>
     </div><!-- /.secondary-navigation -->

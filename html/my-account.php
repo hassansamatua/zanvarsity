@@ -4,147 +4,107 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Include necessary files using document root
-$auth_file = $_SERVER['DOCUMENT_ROOT'] . '/zanvarsity/includes/auth_functions.php';
-if (!file_exists($auth_file)) {
-    die('Auth file not found at: ' . $auth_file);
-}
-require_once $auth_file;
+// Define root path - point to zanvarsity directory
+define('ROOT_PATH', dirname(dirname(__DIR__)));
 
-// Check if user is logged in and is admin
+// Include necessary files
+require_once ROOT_PATH . '/zanvarsity/includes/auth_functions.php';
+require_once ROOT_PATH . '/zanvarsity/includes/database.php';
+
+// Check if user is logged in
 require_login();
-$is_admin = ($_SESSION['role'] ?? '') === 'admin';
-
-// Get database connection
-$db_file = $_SERVER['DOCUMENT_ROOT'] . '/zanvarsity/includes/database.php';
-if (!file_exists($db_file)) {
-    die('Database file not found at: ' . $db_file);
-}
-require_once $db_file;
 
 // Get user information from session
 $user_id = $_SESSION['user_id'] ?? null;
-$user_email = $_SESSION['user_email'] ?? 'Guest';
+$user_email = $_SESSION['email'] ?? 'Guest';
 $user_name = $_SESSION['first_name'] ?? 'User';
-$user_role = $_SESSION['role'] ?? 'student'; // Get role from session if available
+$user_role = $_SESSION['role'] ?? 'student';
 $is_admin = in_array($user_role, ['admin', 'super_admin']);
 
-// Get user data from database and ensure role is up to date
+// Get user data from database
 if (isset($conn) && $user_id) {
     $query = "SELECT id, email, first_name, last_name, role FROM users WHERE id = ?";
     if ($stmt = $conn->prepare($query)) {
         $stmt->bind_param("i", $user_id);
         if ($stmt->execute()) {
             $result = $stmt->get_result();
-            
-            if ($result && $user_data = $result->fetch_assoc()) {
-                // Update role from database if different
-                if (!empty($user_data['role']) && $user_data['role'] !== $user_role) {
-                    $user_role = $user_data['role'];
-                    $_SESSION['role'] = $user_role;
-                    $is_admin = in_array($user_role, ['admin', 'super_admin']);
-                }
-                
-                // Update name if available
+            if ($user_data = $result->fetch_assoc()) {
+                // Update session data from database
                 if (!empty($user_data['first_name'])) {
                     $user_name = $user_data['first_name'];
                     $_SESSION['first_name'] = $user_name;
+                }
+                if (!empty($user_data['role'])) {
+                    $user_role = $user_data['role'];
+                    $_SESSION['role'] = $user_role;
+                    $is_admin = in_array($user_role, ['admin', 'super_admin']);
                 }
             }
         }
         $stmt->close();
     }
 }
+
+// Get user stats from database
+$stats = [];
+if (isset($conn)) {
+    // Get user's course count
+    $query = "SELECT COUNT(*) as count FROM user_courses WHERE user_id = ?";
+    if ($stmt = $conn->prepare($query)) {
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $stats['courses'] = $result->fetch_assoc()['count'] ?? 0;
+        $stats['completed'] = 0; // Initialize other stats
+        $stats['in_progress'] = 0;
+        $stats['certificates'] = 0;
+        $stmt->close();
+    }
+}
+
+// Set page title for the header
+$page_title = 'My Account - Zanvarsity';
+
+// Include the admin header (must be after all session and variable setup)
+require_once __DIR__ . '/admin/includes/admin_header.php';
 ?>
-<!DOCTYPE html>
-<html lang="en-US" xmlns="http://www.w3.org/1999/html">
-<head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="author" content="Theme Starz">
 
-    <link href='http://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
-    <link href="assets/css/font-awesome.css" rel="stylesheet" type="text/css">
-    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.css" type="text/css">
-    <link rel="stylesheet" href="assets/css/selectize.css" type="text/css">
-    <link rel="stylesheet" href="assets/css/owl.carousel.css" type="text/css">
-    <link rel="stylesheet" href="assets/css/vanillabox/vanillabox.css" type="text/css">
-    <link rel="stylesheet" href="assets/css/style.css" type="text/css">
-    <link rel="stylesheet" href="assets/css/green-theme.css" type="text/css">
-
-    <title>My Account - Zanvarsity</title>
-</head>
-
-<body class="page-sub-page page-my-account">
-<!-- Wrapper -->
-<div class="wrapper">
-<!-- Header -->
-<div class="navigation-wrapper">
-    <div class="secondary-navigation-wrapper">
-        <div class="container">
-            <div class="navigation-contact pull-left">
-                <i class="fa fa-phone"></i> Call Us: <span class="opacity-70">+255 123 456 789</span>
-            </div>
-            <ul class="secondary-navigation list-unstyled pull-right">
-                <li><a href="#tab-profile" data-toggle="tab"><i class="fa fa-user"></i>My Profile</a></li>
-                <li><a href="#tab-my-courses" data-toggle="tab">My Courses</a></li>
-                <li><a href="#tab-change-password" data-toggle="tab">Change Password</a></li>
-                <li><a href="<?php echo dirname(dirname($_SERVER['PHP_SELF'])); ?>/logout.php" onclick="return confirm('Are you sure you want to log out?');"><i class="fa fa-sign-out"></i> Log Out</a></li>
-            </ul>
-        </div>
-    </div><!-- /.secondary-navigation -->
-    <div class="primary-navigation-wrapper">
-        <header class="navbar" id="top" role="banner">
-            <div class="container">
-                <div class="navbar-header">
-                    <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-                    <div class="navbar-brand nav" id="brand">
-                        <a href="/zanvarsity/html/index.html">
-                            <img src="/zanvarsity/html/assets/img/logo.png" alt="Zanvarsity" class="logo">
-                        </a>
-                    </div>
-                </div>
-                <nav class="collapse navbar-collapse bs-navbar-collapse navbar-right" role="navigation">
-                    <ul class="nav navbar-nav">
-                        <li><a href="/zanvarsity/html/index.html">Home</a></li>
-                        <li class="<?php echo basename($_SERVER['PHP_SELF']) == 'courses.php' ? 'active' : ''; ?>">
-                            <a href="courses.php">Courses</a>
-                        </li>
-                        <li class="<?php echo basename($_SERVER['PHP_SELF']) == 'events.php' ? 'active' : ''; ?>">
-                            <a href="events.php">Events</a>
-                        </li>
-                        <?php if ($is_admin): ?>
-                        <li>
-                            <a href="admin/dashboard.php">Admin</a>
-                        </li>
-                        <?php endif; ?>
-                    </ul>
-                </nav><!-- /.navbar collapse-->
-            </div><!-- /.container -->
-        </header><!-- /.navbar -->
-    </div><!-- /.primary-navigation -->
-    <div class="background">
-        <img src="assets/img/background-city.png"  alt="background">
-    </div>
-</div>
-<!-- end Header -->
-
-<!-- Breadcrumb -->
-<div class="container">
-    <ol class="breadcrumb">
-        <li><a href="/zanvarsity/html/index.html">Home</a></li>
-        <li class="active">My Account</li>
-    </ol>
-</div>
-<!-- end Breadcrumb -->
+<style>
+/* Ensure the admin header is properly displayed */
+body.page-my-account {
+    padding-top: 0 !important;
+    background-color: #f5f5f5;
+}
+/* Override any conflicting styles from other CSS */
+#page-content {
+    padding-top: 20px;
+    margin-top: 0;
+}
+/* Force the admin header to be dark green */
+.navigation-wrapper {
+    background-color: #006400 !important;
+}
+.secondary-navigation-wrapper {
+    background-color: #004d00 !important;
+}
+.navbar {
+    background-color: #006400 !important;
+    border: none !important;
+}
+.navbar-nav > li > a {
+    color: #e0e0e0 !important;
+}
+.navbar-nav > li > a:hover,
+.navbar-nav > li.active > a {
+    background-color: #005900 !important;
+    color: #ffffff !important;
+}
+</style>
 
 <!-- Page Content -->
-<div id="page-content">
+<!-- Start of page content -->
+<!-- Start of page content -->
+<div id="page-content" class="admin-page" style="margin-top: 0;">
     <div class="container">
         <div class="row">
             <!-- Sidebar -->
@@ -401,107 +361,10 @@ if (isset($conn) && $user_id) {
     </div>
     <!-- end Page Content -->
 </div>
-<!-- end Wrapper -->
+<!-- Include the footer -->
+<?php include_once __DIR__ . '/includes/footer.php'; ?>
 
-<!-- Footer -->
-<footer id="page-footer">
-    <section id="footer-top">
-        <div class="container">
-            <div class="footer-inner">
-                <div class="footer-social">
-                    <figure>Follow us:</figure>
-                    <div class="icons">
-                        <a href="#"><i class="fa fa-twitter"></i></a>
-                        <a href="#"><i class="fa fa-facebook"></i></a>
-                        <a href="#"><i class="fa fa-pinterest"></i></a>
-                        <a href="#"><i class="fa fa-youtube-play"></i></a>
-                    </div>
-                </div>
-                <div class="search pull-right">
-                    <div class="input-group">
-                        <input type="text" class="form-control" placeholder="Search">
-                        <span class="input-group-btn">
-                            <button type="submit" class="btn"><i class="fa fa-search"></i></button>
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="footer-content">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-3 col-sm-12">
-                    <aside class="logo">
-                        <img src="assets/img/logo-white.png" class="vertical-center">
-                    </aside>
-                </div>
-                <div class="col-md-3 col-sm-4">
-                    <aside>
-                        <header><h4>Contact Us</h4></header>
-                        <address>
-                            <strong>Zanvarsity</strong>
-                            <br>
-                            <span>Education City</span>
-                            <br><br>
-                            <span>Dar es Salaam, Tanzania</span>
-                            <br>
-                            <abbr title="Telephone">Phone:</abbr> +255 123 456 789
-                            <br>
-                            <abbr title="Email">Email:</abbr> <a href="mailto:info@zanvarsity.ac.tz">info@zanvarsity.ac.tz</a>
-                        </address>
-                    </aside>
-                </div>
-                <div class="col-md-3 col-sm-4">
-                    <aside>
-                        <header><h4>Important Links</h4></header>
-                        <ul class="list-links">
-                            <li><a href="#">Future Students</a></li>
-                            <li><a href="#">Alumni</a></li>
-                            <li><a href="#">Give a Donation</a></li>
-                            <li><a href="#">Faculty & Staff</a></li>
-                            <li><a href="#">Library</a></li>
-                            <li><a href="#">Research</a></li>
-                        </ul>
-                    </aside>
-                </div>
-                <div class="col-md-3 col-sm-4">
-                    <aside>
-                        <header><h4>About Zanvarsity</h4></header>
-                        <p>Zanvarsity is a leading educational institution committed to academic excellence, innovation, and community engagement. We provide quality education that transforms lives and communities.</p>
-                        <div>
-                            <a href="about.php" class="read-more">Learn More</a>
-                        </div>
-                    </aside>
-                </div>
-            </div>
-        </div>
-        <div class="background"><img src="assets/img/background-city.png" class="" alt=""></div>
-    </section>
-
-    <section id="footer-bottom">
-        <div class="container">
-            <div class="footer-inner">
-                <div class="copyright"> 2023 Zanvarsity. All rights reserved.</div>
-            </div>
-        </div>
-    </section>
-</footer>
-<!-- end Footer -->
-
-<!-- JavaScript -->
-<script type="text/javascript" src="assets/js/jquery-2.1.0.min.js"></script>
-<script type="text/javascript" src="assets/bootstrap/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="assets/js/selectize.min.js"></script>
-<script type="text/javascript" src="assets/js/owl.carousel.min.js"></script>
-<script type="text/javascript" src="assets/js/jquery.validate.min.js"></script>
-<script type="text/javascript" src="assets/js/jquery.placeholder.js"></script>
-<script type="text/javascript" src="assets/js/jQuery.equalHeights.js"></script>
-<script type="text/javascript" src="assets/js/icheck.min.js"></script>
-<script type="text/javascript" src="assets/js/jquery.vanillabox-0.1.5.min.js"></script>
-<script type="text/javascript" src="assets/js/countdown.js"></script>
-<script type="text/javascript" src="assets/js/custom.js"></script>
+<!-- JavaScripts are included in the admin_header.php -->
 <script>
     $(document).ready(function() {
         // Initialize counters
