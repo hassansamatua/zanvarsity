@@ -1469,7 +1469,7 @@
             
             <!-- View All Events Button -->
             <div class="text-center" style="margin-top: 15px;">
-                <a href="events.php" class="btn btn-primary">View All Events</a>
+                <a href="event.php" class="btn btn-primary">View All Events</a>
             </div>
             
           </div><!-- /.container -->

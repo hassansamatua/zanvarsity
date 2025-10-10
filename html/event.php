@@ -6,9 +6,11 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // Set page title
 $page_title = "All Events";
+$page_description = "View all upcoming and ongoing events at Zanvarsity University";
+$page_heading = "All Events";
 
-// Include header
-include_once 'includes/header.php';
+// Include about header
+include_once 'includes/about_header.php';
 
 // Include database connection
 require_once __DIR__ . '/../includes/database.php';
@@ -66,12 +68,49 @@ require_once __DIR__ . '/../includes/database.php';
                                     // Handle image URL
                                     $image_url = '';
                                     if (!empty($row['image_url'])) {
-                                        $image_url = (strpos($row['image_url'], 'http') === 0) ? 
-                                            $row['image_url'] : 
-                                            rtrim(BASE_URL, '/') . '/' . ltrim($row['image_url'], '/');
+                                        if (strpos($row['image_url'], 'http') === 0) {
+                                            $image_url = $row['image_url'];
+                                        } else {
+                                            // Get the filename and handle URL-encoded characters
+                                            $filename = urldecode(basename($row['image_url']));
+                                            $image_path = __DIR__ . '/../uploads/events/' . $filename;
+                                            
+                                            // Check if file exists with the exact filename
+                                            if (file_exists($image_path)) {
+                                                // Encode only the filename part of the URL and ensure no duplicate path segments
+                                                $encoded_filename = rawurlencode($filename);
+                                                $base_path = rtrim(BASE_URL, '/');
+                                                // Remove any duplicate /c/zanvarsity/ from the base URL
+                                                $base_path = preg_replace('|/c/zanvarsity(/.*)?$|', '', $base_path);
+                                                $image_url = $base_path . '/c/zanvarsity/uploads/events/' . $encoded_filename;
+                                            } else {
+                                                // Try to find the file with a case-insensitive match
+                                                $files = glob(__DIR__ . '/../uploads/events/*');
+                                                $found = false;
+                                                foreach ($files as $file) {
+                                                    if (strtolower(basename($file)) === strtolower($filename)) {
+                                                        $encoded_filename = rawurlencode(basename($file));
+                                                        $base_path = rtrim(BASE_URL, '/');
+                                                        // Remove any duplicate /c/zanvarsity/ from the base URL
+                                                        $base_path = preg_replace('|/c/zanvarsity(/.*)?$|', '', $base_path);
+                                                        $image_url = $base_path . '/c/zanvarsity/uploads/events/' . $encoded_filename;
+                                                        $found = true;
+                                                        break;
+                                                    }
+                                                }
+                                                
+                                                // If still not found, use the original path as fallback
+                                                if (!$found) {
+                                                    $image_url = rtrim(BASE_URL, '/') . '/' . ltrim($row['image_url'], '/');
+                                                }
+                                            }
+                                        }
                                     } else {
                                         // Fallback to a placeholder image if no image is set
-                                        $image_url = rtrim(BASE_URL, '/') . '/assets/img/event-placeholder.jpg';
+                                        $base_path = rtrim(BASE_URL, '/');
+                                        // Remove any duplicate /c/zanvarsity/ from the base URL
+                                        $base_path = preg_replace('|/c/zanvarsity(/.*)?$|', '', $base_path);
+                                        $image_url = $base_path . '/c/zanvarsity/assets/img/event-placeholder.jpg';
                                     }
                                     
                                     // Set article style
@@ -183,6 +222,6 @@ require_once __DIR__ . '/../includes/database.php';
 </div>
 
 <?php
-// Include footer
-include_once 'includes/footer.php';
+// Include about footer
+include_once 'includes/about_footer.php';
 ?>

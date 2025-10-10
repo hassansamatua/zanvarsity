@@ -8,20 +8,27 @@
 ?>
 <!DOCTYPE html>
 <html lang="en-US">
-<head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="Zanvarsity">
     <meta name="description" content="<?php echo isset($page_description) ? $page_description : 'Zanvarsity - Empowering Education, Enriching Lives' ?>">
 
-    <link href='http://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
-    <link href="assets/css/font-awesome.css" rel="stylesheet" type="text/css">
-    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.css" type="text/css">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Selectize CSS -->
     <link rel="stylesheet" href="assets/css/selectize.css" type="text/css">
+    <!-- Owl Carousel CSS -->
     <link rel="stylesheet" href="assets/css/owl.carousel.css" type="text/css">
+    <!-- VanillaBox CSS -->
     <link rel="stylesheet" href="assets/css/vanillabox/vanillabox.css" type="text/css">
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/style.css" type="text/css">
     
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+{{ ... }}
     <!-- Page-specific CSS -->
     <?php if (isset($page_css)): ?>
     <link rel="stylesheet" href="<?php echo $page_css; ?>" type="text/css">

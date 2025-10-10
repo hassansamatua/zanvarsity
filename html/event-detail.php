@@ -7,6 +7,19 @@ if (session_status() === PHP_SESSION_NONE) {
 // Include database connection
 require_once __DIR__ . '/../includes/database.php';
 
+// Set page title and description
+$page_title = 'Event Details';
+$page_description = 'View detailed information about the event';
+$page_heading = 'Event Details';
+
+// Include about header
+include_once 'includes/about_header.php';
+
+// Define base URL
+$base_url = rtrim(str_replace('/c/zanvarsity', '', $_SERVER['REQUEST_URI']), '/');
+$base_url = str_replace(basename($_SERVER['REQUEST_URI']), '', $base_url);
+$base_url = 'http://' . $_SERVER['HTTP_HOST'] . '/c/zanvarsity' . $base_url;
+
 // Check if event ID is provided
 $event_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
@@ -133,28 +146,23 @@ try {
     exit();
 }
 
-// Include header
-include_once 'includes/header.php';
 ?>
 
 <!-- Page Content -->
-<div id="page-content">
+<div class="container py-5">
     <!-- Breadcrumb -->
-    <div class="block">
-        <div class="container">
-            <div class="block-breadcrumb">
-                <a href="index.php">Home</a>
-                <a href="event.php">Events</a>
-                <span><?php echo htmlspecialchars($event['title']); ?></span>
-            </div>
-        </div>
+    <div class="mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="index.php">Home</a></li>
+                <li class="breadcrumb-item"><a href="event.php">Events</a></li>
+                <li class="breadcrumb-item active" aria-current="page"><?php echo htmlspecialchars($event['title']); ?></li>
+            </ol>
+        </nav>
     </div>
-    <!-- end Breadcrumb -->
-
-    <div class="block">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-8">
+    
+    <div class="row">
+        <div class="col-md-8">
                     <article class="event-detail">
                         <!-- Debug Info -->
                         <?php if (isset($_GET['debug'])): ?>
@@ -169,23 +177,175 @@ include_once 'includes/header.php';
                         <div class="event-gallery" style="margin-bottom: 30px;">
                             <?php if (!empty($gallery_images)): ?>
                                 <div class="main-image" style="margin-bottom: 15px; border-radius: 6px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-                                    <img id="main-gallery-image" 
-                                         src="<?php echo htmlspecialchars($gallery_images[0]['image_url']); ?>" 
-                                         alt="<?php echo htmlspecialchars($event['title']); ?>" 
-                                         style="width: 100%; max-height: 500px; object-fit: cover; cursor: pointer;"
-                                         onclick="openLightbox('<?php echo htmlspecialchars($gallery_images[0]['image_url']); ?>', '<?php echo htmlspecialchars($gallery_images[0]['caption'] ?? $event['title']); ?>')">
+                                    <?php 
+                                $main_image = $gallery_images[0]['image_url'];
+                                
+                                // Initialize debug info
+                                $debug_info = [];
+                                $debug_info[] = "Original path: " . $main_image;
+                                
+                                // Define base paths
+                                $base_path = '/c/zanvarsity';
+                                $uploads_path = $base_path . '/uploads/events/';
+                                $assets_path = $base_path . '/assets/images/';
+                                
+                                // If it's already a full URL, use it as is
+                                if (strpos($main_image, 'http') === 0) {
+                                    $debug_info[] = "Using full URL as is";
+                                } 
+                                // Handle relative paths
+                                else {
+                                    // Remove any protocol and domain if present
+                                    $main_image = preg_replace('|^https?://[^/]+|', '', $main_image);
+                                    $debug_info[] = "After removing protocol: " . $main_image;
+                                    
+                                    // Normalize slashes
+                                    $main_image = str_replace('\\', '/', $main_image);
+                                    $main_image = ltrim($main_image, '/');
+                                    
+                                    // Check if file exists in the uploads directory first
+                                    $filename = basename($main_image);
+                                    $possible_paths = [
+                                        $uploads_path . $filename,
+                                        $base_path . '/' . $main_image,
+                                        $assets_path . 'placeholder.jpg'
+                                    ];
+                                    
+                                    $found = false;
+                                    foreach ($possible_paths as $path) {
+                                        $full_path = $_SERVER['DOCUMENT_ROOT'] . $path;
+                                        $debug_info[] = "Checking path: " . $full_path;
+                                        
+                                        if (file_exists($full_path)) {
+                                            $main_image = $path;
+                                            $debug_info[] = "Found image at: " . $path;
+                                            $found = true;
+                                            break;
+                                        }
+                                    }
+                                    
+                                    if (!$found) {
+                                        $debug_info[] = "Image not found, using placeholder";
+                                        $main_image = $assets_path . 'placeholder.jpg';
+                                        
+                                        // Create placeholder if it doesn't exist
+                                        $placeholder_path = $_SERVER['DOCUMENT_ROOT'] . $main_image;
+                                        if (!file_exists($placeholder_path)) {
+                                            // Create a simple placeholder image
+                                            $placeholder = imagecreatetruecolor(800, 600);
+                                            $bg_color = imagecolorallocate($placeholder, 240, 240, 240);
+                                            $text_color = imagecolorallocate($placeholder, 150, 150, 150);
+                                            
+                                            imagefill($placeholder, 0, 0, $bg_color);
+                                            $text = 'Image Not Found';
+                                            $font_size = 5;
+                                            $text_width = imagefontwidth($font_size) * strlen($text);
+                                            $text_height = imagefontheight($font_size);
+                                            $x = (800 - $text_width) / 2;
+                                            $y = (600 - $text_height) / 2;
+                                            
+                                            imagestring($placeholder, $font_size, $x, $y, $text, $text_color);
+                                            
+                                            // Create directories if they don't exist
+                                            if (!is_dir(dirname($placeholder_path))) {
+                                                mkdir(dirname($placeholder_path), 0755, true);
+                                            }
+                                            
+                                            // Save the placeholder image
+                                            imagejpeg($placeholder, $placeholder_path, 80);
+                                            imagedestroy($placeholder);
+                                            $debug_info[] = "Created placeholder image at: " . $placeholder_path;
+                                        }
+                                    }
+                                }
+                                
+                                // Output debug info if debug mode is on
+                                if (isset($_GET['debug'])) {
+                                    echo '<div class="alert alert-warning"><pre>' . implode("\n", $debug_info) . '</pre></div>';
+                                }
+                                ?>
+                                <?php 
+                                // Ensure the image URL is properly encoded
+                                $main_image_src = htmlspecialchars($main_image);
+                                $main_image_alt = htmlspecialchars($event['title']);
+                                $main_image_title = htmlspecialchars($gallery_images[0]['caption'] ?? $event['title']);
+                                ?>
+                                <?php
+                                // Ensure the image path is properly formatted
+                                $main_image_src = $main_image;
+                                
+                                // If it's a relative path, make sure it starts with /
+                                if (strpos($main_image_src, '/') !== 0 && strpos($main_image_src, 'http') !== 0) {
+                                    $main_image_src = '/' . $main_image_src;
+                                }
+                                
+                                // Make sure the path doesn't contain double slashes
+                                $main_image_src = preg_replace('#/+#', '/', $main_image_src);
+                                
+                                // If the image is in the uploads directory but the path is incorrect
+                                if (strpos($main_image_src, '/uploads/') !== false && !file_exists($_SERVER['DOCUMENT_ROOT'] . $main_image_src)) {
+                                    $filename = basename($main_image_src);
+                                    $correct_path = '/c/zanvarsity/uploads/events/' . $filename;
+                                    if (file_exists($_SERVER['DOCUMENT_ROOT'] . $correct_path)) {
+                                        $main_image_src = $correct_path;
+                                    }
+                                }
+                                
+                                // Add timestamp to prevent caching issues
+                                $main_image_src .= (strpos($main_image_src, '?') === false ? '?' : '&') . 't=' . time();
+                                ?>
+                                <img id="main-gallery-image" 
+                                     src="<?php echo htmlspecialchars($main_image_src); ?>" 
+                                     alt="<?php echo htmlspecialchars($main_image_alt); ?>" 
+                                     title="<?php echo htmlspecialchars($main_image_title); ?>"
+                                     class="img-fluid rounded shadow"
+                                     style="width: 100%; max-height: 500px; object-fit: cover; cursor: pointer;"
+                                     onerror="this.onerror=null; this.src='/c/zanvarsity/assets/images/placeholder.jpg?t=<?php echo time(); ?>';"
+                                     onclick="openLightbox('<?php echo $main_image_src; ?>', '<?php echo $main_image_title; ?>')">
                                 </div>
                                 
                                 <?php if (count($gallery_images) > 1): ?>
-                                <div class="gallery-thumbnails" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px;">
-                                    <?php foreach ($gallery_images as $index => $image): ?>
-                                        <div class="thumbnail" style="width: 80px; height: 60px; overflow: hidden; border-radius: 4px; border: 2px solid #ddd; cursor: pointer; transition: all 0.3s ease;"
+                                <div class="gallery-thumbnails d-flex flex-wrap gap-2 mt-3">
+                                    <?php foreach ($gallery_images as $index => $image): 
+                                        $thumb_image = $image['image_url'];
+                                        
+                                        // If it's already a full URL, use it as is
+                                        if (strpos($thumb_image, 'http') === 0) {
+                                            // Do nothing, use as is
+                                        } 
+                                        // Handle relative paths
+                                        else {
+                                            // Remove any protocol and domain if present
+                                            $thumb_image = preg_replace('|^https?://[^/]+|', '', $thumb_image);
+                                            
+                                            // Remove any duplicate /c/zanvarsity/ segments
+                                            $thumb_image = preg_replace('|(/c/zanvarsity)+|', '/c/zanvarsity', $thumb_image);
+                                            
+                                            // If it doesn't start with /c/zanvarsity, add it
+                                            if (strpos($thumb_image, '/c/zanvarsity') !== 0) {
+                                                $thumb_image = '/c/zanvarsity' . (strpos($thumb_image, '/') === 0 ? '' : '/') . ltrim($thumb_image, '/');
+                                            }
+                                            
+                                            // Check if file exists, if not try with just the filename in uploads/events/
+                                            $image_path = $_SERVER['DOCUMENT_ROOT'] . $thumb_image;
+                                            if (!file_exists($image_path)) {
+                                                $filename = basename($thumb_image);
+                                                $alt_path = $_SERVER['DOCUMENT_ROOT'] . '/c/zanvarsity/uploads/events/' . $filename;
+                                                if (file_exists($alt_path)) {
+                                                    $thumb_image = '/c/zanvarsity/uploads/events/' . $filename;
+                                                }
+                                            }
+                                        }
+                                    ?>
+                                        <div class="thumbnail position-relative" 
+                                             style="width: 80px; height: 60px; overflow: hidden; border-radius: 4px; border: 2px solid #dee2e6; cursor: pointer; transition: all 0.3s ease;"
                                              onmouseover="this.style.borderColor='#006400'" 
-                                             onmouseout="this.style.borderColor='#ddd'"
+                                             onmouseout="this.style.borderColor='#dee2e6'"
                                              onclick="changeMainImage('<?php echo $index; ?>')">
-                                            <img src="<?php echo htmlspecialchars($image['image_url']); ?>" 
+                                            <img src="<?php echo htmlspecialchars($thumb_image); ?>" 
                                                  alt="<?php echo htmlspecialchars($image['caption'] ?? 'Gallery image ' . ($index + 1)); ?>"
-                                                 style="width: 100%; height: 100%; object-fit: cover;">
+                                                 class="w-100 h-100"
+                                                 style="object-fit: cover;">
                                         </div>
                                     <?php endforeach; ?>
                                 </div>
@@ -350,6 +510,7 @@ include_once 'includes/header.php';
                 </div>
                 
                 <div class="col-md-4">
+                    <!-- Sidebar content here -->
                     <div class="event-sidebar" style="background-color: #f9f9f9; border-radius: 6px; padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
                         <h3 style="color: #006400; margin-top: 0; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #e0e0e0;">
                             Event Details
@@ -428,12 +589,129 @@ include_once 'includes/header.php';
                     </div>
                     <?php endif; ?>
                 </div>
+        </div> <!-- End of col-md-8 -->
+        
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Event Details</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-3">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-calendar-alt text-primary me-2 mt-1"></i>
+                                <div>
+                                    <h6 class="mb-0">Date & Time</h6>
+                                    <p class="mb-0">
+                                        <?php 
+                                        echo $start_date->format('F j, Y');
+                                        if ($end_date && $end_date->format('Y-m-d') !== $start_date->format('Y-m-d')) {
+                                            echo ' - ' . $end_date->format('F j, Y');
+                                        }
+                                        ?>
+                                        <br>
+                                        <?php 
+                                        echo $start_date->format('g:i A');
+                                        if ($end_date) {
+                                            echo ' - ' . $end_date->format('g:i A');
+                                        }
+                                        ?>
+                                    </p>
+                                </div>
+                            </div>
+                        </li>
+                        <?php if (!empty($event['location'])): ?>
+                        <li class="mb-3">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-map-marker-alt text-primary me-2 mt-1"></i>
+                                <div>
+                                    <h6 class="mb-0">Location</h6>
+                                    <p class="mb-0"><?php echo htmlspecialchars($event['location']); ?></p>
+                                </div>
+                            </div>
+                        </li>
+                        <?php endif; ?>
+                        <?php if (!empty($event['registration_link'])): ?>
+                        <li class="text-center mt-4">
+                            <a href="<?php echo htmlspecialchars($event['registration_link']); ?>" 
+                               class="btn btn-primary w-100" 
+                               target="_blank">
+                                <i class="fas fa-user-plus me-2"></i>Register Now
+                            </a>
+                        </li>
+                        <?php endif; ?>
+                    </ul>
+                </div>
+            </div>
+            
+            <?php if (!empty($event['map_embed_code'])): ?>
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Location Map</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="ratio ratio-16x9">
+                        <?php echo $event['map_embed_code']; ?>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
+        </div> <!-- End of col-md-4 -->
+    </div> <!-- End of row -->
+</div> <!-- End of container -->
+
+<!-- Lightbox Modal -->
+<div class="modal fade" id="imageLightbox" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="lightboxTitle"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="lightboxImage" src="" class="img-fluid" alt="">
             </div>
         </div>
     </div>
 </div>
 
+<script>
+// Function to open lightbox with image
+function openLightbox(imageSrc, title) {
+    const lightbox = new bootstrap.Modal(document.getElementById('imageLightbox'));
+    const lightboxImg = document.getElementById('lightboxImage');
+    const lightboxTitle = document.getElementById('lightboxTitle');
+    
+    lightboxImg.src = imageSrc;
+    lightboxImg.alt = title;
+    lightboxTitle.textContent = title || '';
+    
+    lightbox.show();
+}
+
+// Function to change main image when thumbnail is clicked
+function changeMainImage(index) {
+    const gallery = <?php echo json_encode($gallery_images); ?>;
+    const mainImg = document.getElementById('main-gallery-image');
+    
+    if (gallery[index]) {
+        let imgSrc = gallery[index].image_url;
+        if (imgSrc.indexOf('http') !== 0) {
+            imgSrc = '/c/zanvarsity/' + imgSrc.replace(/^\//, '');
+        }
+        mainImg.src = imgSrc;
+        mainImg.alt = gallery[index].caption || gallery[index].title || 'Event Image';
+        
+        // Update onclick to open lightbox with the new image
+        mainImg.onclick = function() {
+            openLightbox(imgSrc, gallery[index].caption || gallery[index].title || '');
+        };
+    }
+}
+</script>
+
 <?php
-// Include footer
-include_once 'includes/footer.php';
+// Include about footer
+include_once 'includes/about_footer.php';
 ?>
