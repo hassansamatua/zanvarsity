@@ -5,68 +5,113 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // Check if user is logged in and is an admin
-if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
-    header("Location: /zanvarsity/html/403.php");
+if (!isset($_SESSION['user_id'])) {
+    header("Location: /c/zanvarsity/html/sign-in.php");
     exit();
 }
 
 // Set page title if not already set
 if (!isset($page_title)) {
-    $page_title = 'Admin Panel';
+    $page_title = 'My Account';
 }
+
+// Get user information
+$user_id = $_SESSION['user_id'] ?? null;
+$user_role = $_SESSION['role'] ?? 'student';
+$user_email = $_SESSION['email'] ?? '';
+$user_name = !empty($_SESSION['name']) ? $_SESSION['name'] : (explode('@', $user_email)[0] ?? 'User');
+$is_admin = in_array($user_role, ['admin', 'super_admin']);
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo htmlspecialchars($page_title); ?> - ZANVarsity Admin</title>
+    <title><?php echo htmlspecialchars($page_title); ?> - Zanvarsity</title>
     
     <!-- Favicon -->
     <link rel="shortcut icon" href="/c/zanvarsity/favicon.ico" type="image/x-icon">
     
     <!-- Google Fonts -->
-    <link href='https://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
-    
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href='http://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
     
     <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/c/zanvarsity/html/assets/css/font-awesome.css" rel="stylesheet" type="text/css">
     
-    <!-- Boxicons -->
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    
-    <!-- DataTables CSS -->
-    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-    <link href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap5.min.css" rel="stylesheet">
-    
-    <!-- jQuery UI CSS (for tooltip support) - Load before Summernote -->
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
-    
-    <!-- Summernote CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="/c/zanvarsity/html/assets/bootstrap/css/bootstrap.css" type="text/css">
     
     <!-- Custom CSS -->
+    <link href="/c/zanvarsity/html/assets/css/style.css" rel="stylesheet" type="text/css">
+    
+    <!-- Admin CSS -->
     <link href="/c/zanvarsity/html/assets/css/admin.css" rel="stylesheet">
-    <link href="/c/zanvarsity/html/assets/css/selectize.css" rel="stylesheet">
-    <link href="/c/zanvarsity/html/assets/css/owl.carousel.min.css" rel="stylesheet">
-    <link href="/c/zanvarsity/html/assets/css/vanillabox/vanillabox.css" rel="stylesheet">
-    <link href="/c/zanvarsity/html/assets/css/style.css" rel="stylesheet">
     
-    <!-- Admin Style Overrides -->
     <style>
-        /* Fix for Summernote tooltips */
-        .note-toolbar {
-            z-index: 1 !important;
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f5f5f5;
         }
-        .note-editable {
-            min-height: 300px;
+        
+        /* Top Navigation */
+        .top-navigation {
+            background-color: #004225;
+            color: #fff;
+            padding: 5px 0;
+            font-size: 13px;
         }
-    </style>
-    
-    <!-- Custom styles for this template -->
-    <style>
+        
+        .top-navigation a {
+            color: #fff;
+            text-decoration: none;
+            margin-right: 15px;
+            transition: color 0.3s ease;
+        }
+        
+        .top-navigation a:hover {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+        
+        .user-menu {
+            float: right;
+        }
+        
+        .user-menu a {
+            margin-left: 15px;
+        }
+        
+        /* Main Navigation */
+        .main-navigation {
+            background-color: #006400;
+            padding: 15px 0;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #fff;
+            text-decoration: none;
+        }
+        
+        .nav-links {
+            float: right;
+            margin-top: 5px;
+        }
+        
+        .nav-links a {
+            color: #fff;
+            margin-left: 25px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-links a:hover {
+            color: #4CAF50;
+        }
+        
+        /* Sidebar */
         .sidebar {
             position: fixed;
             top: 0;
@@ -353,141 +398,42 @@ if (!isset($page_title)) {
         .form-switch .form-check-input:checked {
             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
         }
-        /* Navigation Wrapper */
-        .navigation-wrapper {
-            position: relative;
-            z-index: 1000;
-        }
-        
-        /* Secondary Navigation */
-        .secondary-navigation-wrapper {
-            background-color: #f8f9fa;
-            border-bottom: 1px solid #e9ecef;
-            padding: 5px 0;
-        }
-        
-        .navigation-contact {
-            display: inline-block;
-            color: #6c757d;
-            margin-right: 15px;
-        }
-        
-        .secondary-navigation {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-            float: right;
-        }
-        
-        .secondary-navigation li {
-            display: inline-block;
-            margin-left: 15px;
-        }
-        
-        .secondary-navigation a {
-            color: #6c757d;
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-        
-        .secondary-navigation a:hover {
-            color: #0d6efd;
-        }
-        
-        /* Primary Navigation */
-        .primary-navigation-wrapper {
-            background-color: #fff;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .navbar-brand img {
-            max-height: 40px;
-        }
-        
-        /* Background Image */
-        .background {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            z-index: -1;
-            opacity: 0.1;
-            pointer-events: none;
-        }
-        
-        .background img {
-            width: 100%;
-            height: auto;
-        }
     </style>
 </head>
-<body class="page-sub-page">
-<!-- Wrapper -->
-<div class="wrapper">
-    <!-- Header -->
-    <div class="navigation-wrapper">
-        <div class="secondary-navigation-wrapper">
-            <div class="container">
-                <div class="navigation-contact">Call Us: <span class="opacity-70">+255 123 456 789</span></div>
-                <ul class="secondary-navigation list-unstyled">
-                    <li><a href="/zanvarsity/html/my-account.php"><i class="fa fa-user"></i> My Profile</a></li>
-                    <li><a href="/zanvarsity/html/my-courses.php">My Courses</a></li>
-                    <li><a href="/zanvarsity/html/settings.php">Settings</a></li>
-                    <li><a href="/zanvarsity/logout.php" onclick="return confirm('Are you sure you want to log out?')">Log Out</a></li>
-                </ul>
-            </div>
-        </div>
-        
-        <div class="primary-navigation-wrapper">
-            <header class="navbar navbar-expand-lg" id="top" role="banner">
-                <div class="container">
-                    <a class="navbar-brand" href="/zanvarsity/html/index.php">
-                        <img src="/zanvarsity/html/assets/img/logo.png" alt="ZANVarsity">
-                    </a>
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <nav class="collapse navbar-collapse" id="mainNav">
-                        <ul class="navbar-nav ms-auto">
-                            <li class="nav-item">
-                                <a class="nav-link" href="/zanvarsity/html/index.php">Home</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/zanvarsity/html/courses.php">Courses</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/zanvarsity/html/events.php">Events</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/zanvarsity/html/about.php">About Us</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/zanvarsity/html/blog.php">Blog</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/zanvarsity/html/contact.php">Contact</a>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
-            </header>
-        </div>
-        
-        <div class="background">
-            <img src="/zanvarsity/html/assets/img/background-city.png" alt="background">
+<body>
+    <!-- Top Navigation -->
+<div class="top-navigation">
+    <div class="container">
+        <div class="user-menu">
+            <span>Welcome, <?php echo htmlspecialchars($user_name); ?></span>
+            <a href="/c/zanvarsity/html/my-profile.php"><i class="fa fa-user"></i> Profile</a>
+            <a href="/c/zanvarsity/html/change-password.php"><i class="fa fa-key"></i> Change Password</a>
+            <a href="/c/zanvarsity/html/logout.php"><i class="fa fa-sign-out"></i> Logout</a>
         </div>
     </div>
-    <!-- end Header -->
-    
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar collapse">
-        <div class="position-sticky pt-3">
-            <div class="text-center mb-4">
-                <h4 class="text-white">Zanvarsity</h4>
-                <p class="text-white-50 mb-0">Admin Panel</p>
-            </div>
+</div>
+
+<!-- Main Navigation -->
+<header class="main-navigation">
+    <div class="container">
+        <a href="/c/zanvarsity/html/my-account.php" class="logo">Zanvarsity</a>
+        <nav class="nav-links">
+            <a href="/c/zanvarsity/html/index.php">Home</a>
+            <a href="/c/zanvarsity/html/prospectus.php">Prospectus</a>
+            <a href="/c/zanvarsity/html/almanac.php">Almanac</a>
+            <a href="/c/zanvarsity/html/fee_structure.php">Fee Structure</a>
+            <a href="/c/zanvarsity/html/alumni.php">Alumni</a>
+        </nav>
+    </div>
+</header>
+
+<!-- Sidebar -->
+<nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+    <div class="position-sticky pt-3">
+        <div class="text-center mb-4">
+            <h4 class="text-white">My Account</h4>
+            <p class="text-white-50 mb-0"><?php echo ucfirst($user_role); ?> Panel</p>
+        </div>
             
             <ul class="nav flex-column">
                 <li class="nav-item">
@@ -699,7 +645,7 @@ if (!isset($page_title)) {
                             <li><a class="dropdown-item" href="profile.php"><i class='bx bx-user me-2'></i> Profile</a></li>
                             <li><a class="dropdown-item" href="settings.php"><i class='bx bx-cog me-2'></i> Settings</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="/zanvarsity/logout.php"><i class='bx bx-log-out me-2'></i> Sign out</a></li>
+                            <li><a class="dropdown-item" href="/c/zanvarsity/html/logout.php"><i class='bx bx-log-out me-2'></i> Sign out</a></li>
                         </ul>
                     </div>
                 </div>

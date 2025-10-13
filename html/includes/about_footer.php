@@ -251,5 +251,80 @@ if (!isset($hide_page_content_div) || $hide_page_content_div !== true) {
 <!-- JavaScript Files (already included in header) -->
 </div><!-- end Wrapper -->
 <?php include('scroll-to-top.php'); ?>
+<script>
+// Handle all dropdown menus
+document.addEventListener('DOMContentLoaded', function() {
+    // Get all menu items with dropdowns
+    const dropdownItems = document.querySelectorAll('.has-child');
+    
+    // Function to handle dropdown behavior
+    function setupDropdowns() {
+        dropdownItems.forEach(item => {
+            const link = item.querySelector('a');
+            const submenu = item.querySelector('.child-navigation');
+            
+            if (link && submenu) {
+                // Remove any existing event listeners to prevent duplicates
+                link.removeEventListener('mouseenter', showSubmenu);
+                link.removeEventListener('mouseleave', hideSubmenu);
+                submenu.removeEventListener('mouseenter', showSubmenu);
+                submenu.removeEventListener('mouseleave', hideSubmenu);
+                
+                // Add new event listeners
+                link.addEventListener('mouseenter', showSubmenu);
+                link.addEventListener('mouseleave', hideSubmenu);
+                submenu.addEventListener('mouseenter', showSubmenu);
+                submenu.addEventListener('mouseleave', hideSubmenu);
+            }
+        });
+    }
+    
+    // Show submenu and handle chevron rotation
+    function showSubmenu(e) {
+        const parentLi = this.closest('li');
+        if (!parentLi) return;
+        
+        const submenu = parentLi.querySelector('.child-navigation');
+        const chevron = this.querySelector('.fa-chevron-right');
+        
+        if (submenu) {
+            submenu.style.display = 'block';
+        }
+        if (chevron) {
+            chevron.style.transform = 'rotate(90deg)';
+        }
+    }
+    
+    // Hide submenu and reset chevron
+    function hideSubmenu(e) {
+        // Only proceed if we're not hovering over the submenu or its parent
+        if (e.relatedTarget && (this.contains(e.relatedTarget) || this.closest('li').contains(e.relatedTarget))) {
+            return;
+        }
+        
+        const parentLi = this.closest('li');
+        if (!parentLi) return;
+        
+        const submenu = parentLi.querySelector('.child-navigation');
+        const chevron = parentLi.querySelector('.fa-chevron-right');
+        
+        if (submenu) {
+            submenu.style.display = 'none';
+        }
+        if (chevron) {
+            chevron.style.transform = 'rotate(0deg)';
+        }
+    }
+    
+    // Initialize dropdowns
+    setupDropdowns();
+    
+    // Re-initialize dropdowns after AJAX or other dynamic content loads
+    document.addEventListener('click', function() {
+        // Small delay to ensure any dynamic content has been added
+        setTimeout(setupDropdowns, 100);
+    });
+});
+</script>
 </body>
 </html>

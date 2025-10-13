@@ -5,7 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // Define root path - point to zanvarsity directory
-define('ROOT_PATH', dirname(dirname(__DIR__)));
+define('ROOT_PATH', dirname(dirname(dirname(__DIR__))));
 
 // Include necessary files
 require_once ROOT_PATH . '/zanvarsity/includes/auth_functions.php';
@@ -66,7 +66,7 @@ if (isset($conn)) {
 $page_title = 'My Account - Zanvarsity';
 
 // Include the admin header (must be after all session and variable setup)
-require_once __DIR__ . '/admin/includes/admin_header.php';
+require_once __DIR__ . '/admin/includes/header.php';
 ?>
 
 <style>
@@ -98,6 +98,65 @@ body.page-my-account {
 .navbar-nav > li.active > a {
     background-color: #005900 !important;
     color: #ffffff !important;
+}
+
+/* Sidebar Styling */
+.sidebar {
+    width: auto;
+    min-width: 200px;
+    max-width: 250px;
+    background: #ffffff;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.sidebar .sidebar-widget {
+    margin-bottom: 20px;
+}
+
+.sidebar .nav-pills {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.sidebar .nav-pills > li {
+    float: none;
+    display: block;
+    margin: 0;
+    width: 100%;
+}
+
+.sidebar .nav-pills > li > a {
+    border-radius: 4px;
+    padding: 10px 15px;
+    margin-bottom: 5px;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar .nav-pills > li > a:hover,
+.sidebar .nav-pills > li.active > a {
+    background-color: #f0f0f0;
+    color: #006400;
+}
+
+.sidebar .nav-pills > li > a i {
+    margin-right: 8px;
+    width: 20px;
+    text-align: center;
+}
+
+/* Make sure the sidebar takes minimum width on mobile */
+@media (max-width: 767px) {
+    .sidebar {
+        width: 100%;
+        max-width: 100%;
+    }
 }
 </style>
 

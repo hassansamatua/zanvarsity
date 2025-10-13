@@ -778,17 +778,55 @@
                   </ul>
                 </li>
                 <li>
-                  <a href="#" class="has-child no-link">Admission</a>
-                  <ul class="list-unstyled child-navigation" style="background-color: #004225;">
-                    <li>
-                      <a href="event-listing-images.html">Events Listing with images</a>
-                    </li>
-                    <li><a href="event-listing.html">Events Listing</a></li>
-                    <li><a href="event-grid.html">Events Grid</a></li>
-                    <li><a href="event-detail.html">Event Detail</a></li>
-                    <li><a href="event-calendar.html">Events Calendar</a></li>
-                  </ul>
-                </li>
+                    <a href="#" class="has-child no-link" style="color: #fff; transition: color 0.3s ease; padding: 15px 20px; display: block;">Admissions</a>
+                      <ul class="list-unstyled child-navigation" style="background-color: #004225; border: 1px solid #003319; min-width: 200px;">
+                        <li class="has-child">
+                          <a href="#" class="no-link" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease; position: relative;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">
+                                        Applications <i class="fa fa-chevron-right" style="float: right; margin-top: 5px; transition: transform 0.3s ease;"></i>
+                          </a>
+                          <ul class="list-unstyled child-navigation" style="position: absolute; left: 100%; top: 0; min-width: 220px; background-color: #006633; border: 1px solid #005229; display: none;">
+                            <li><a href="how_to_apply.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">How to Apply</a></li>
+                            <li><a href="entry_requirements.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Entry Requirements</a></li>
+                            <li><a href="programmes_offered.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Programs Offered</a></li>
+                            <li><a href="https://www.zumis.ac.tz/admission/data/register" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Online Application</a></li>
+                          </ul>
+                        </li>
+                        <li class="has-child">
+                          <a href="#" class="no-link" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease; position: relative;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">
+                                        Fees <i class="fa fa-chevron-right" style="float: right; margin-top: 5px; transition: transform 0.3s ease;"></i>
+                          </a>
+                          <ul class="list-unstyled child-navigation" style="position: absolute; left: 100%; top: 0; min-width: 220px; background-color: #006633; border: 1px solid #005229; display: none;">
+                            <li><a href="fee_structure.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Fee Structure</a></li>
+                              <li><a href="how_to_pay.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Payment Methods</a></li>
+                                        <!-- <li><a href="scholarships.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Scholarships</a></li>
+                                        <li><a href="financial_aid.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Financial Aid</a></li> -->
+                                </ul>
+                            </li>
+                            <li class="has-child">
+                              <a href="#" class="no-link" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease; position: relative;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">
+                                        Transfers <i class="fa fa-chevron-right" style="float: right; margin-top: 5px; transition: transform 0.3s ease;"></i>
+                                </a>
+                              <ul class="list-unstyled child-navigation" style="position: absolute; left: 100%; top: 0; min-width: 220px; background-color: #006633; border: 1px solid #005229; display: none;">
+                                <li><a href="student_transfers.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Students Transfers</a></li>
+                                <li><a href="postponent_transfer.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Postponent & Resuption of Studies</a></li>
+                                <li><a href="credit_transfer.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Credit Transfer</a></li>
+                              </ul>
+                            </li>
+                            <li class="has-child">
+                              <a href="#" class="no-link" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease; position: relative;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">
+                                        Others <i class="fa fa-chevron-right" style="float: right; margin-top: 5px; transition: transform 0.3s ease;"></i>
+                              </a>
+                              <ul class="list-unstyled child-navigation" style="position: absolute; left: 100%; top: 0; min-width: 220px; background-color: #006633; border: 1px solid #005229; display: none;">
+                                <li><a href="international_students.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">International Students</a></li>
+                                <li><a href="mature_age.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Mature Age Entry</a></li>
+                                <li><a href="special_admissions.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Special Admissions</a></li>
+                                <li><a href="faq.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">FAQs</a></li>
+                              </ul>
+                            </li>
+                                
+                          </ul>
+                        </li>
+                
                 <!-- <li>
 										<a href="about-us.html">About Us</a>
 									</li> -->
@@ -2154,6 +2192,56 @@
         }
       }
     }, true);
+  </script>
+  <script>
+    // Handle all dropdown menus
+    document.addEventListener('DOMContentLoaded', function() {
+      // Get all menu items with dropdowns
+      const dropdownItems = document.querySelectorAll('.has-child');
+      
+      // Add event listeners to each dropdown item
+      dropdownItems.forEach(item => {
+        const link = item.querySelector('a');
+        const submenu = item.querySelector('.child-navigation');
+        
+        if (link && submenu) {
+          // Show submenu on hover
+          item.addEventListener('mouseenter', function() {
+            submenu.style.display = 'block';
+            const chevron = link.querySelector('.fa-chevron-right');
+            if (chevron) {
+              chevron.style.transform = 'rotate(90deg)';
+            }
+          });
+          
+          // Hide submenu when mouse leaves the item
+          item.addEventListener('mouseleave', function() {
+            submenu.style.display = 'none';
+            const chevron = link.querySelector('.fa-chevron-right');
+            if (chevron) {
+              chevron.style.transform = 'rotate(0deg)';
+            }
+          });
+          
+          // Keep submenu open when hovering over it
+          submenu.addEventListener('mouseenter', function() {
+            this.style.display = 'block';
+            const chevron = link.querySelector('.fa-chevron-right');
+            if (chevron) {
+              chevron.style.transform = 'rotate(90deg)';
+            }
+          });
+          
+          submenu.addEventListener('mouseleave', function() {
+            this.style.display = 'none';
+            const chevron = link.querySelector('.fa-chevron-right');
+            if (chevron) {
+              chevron.style.transform = 'rotate(0deg)';
+            }
+          });
+        }
+      });
+    });
   </script>
 </body>
 </html>

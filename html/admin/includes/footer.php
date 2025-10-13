@@ -1,14 +1,11 @@
         </div><!-- End content-wrapper -->
     </main><!-- End main -->
 
-    <!-- jQuery (required by Bootstrap, jQuery UI, DataTables, Summernote) -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     
-    <!-- jQuery UI (required by Summernote) -->
-    <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js" integrity="sha256-eTyxS0rkjpLEo16uXTS0uVCS4815lc40K2iVpWDvdSY=" crossorigin="anonymous"></script>
-    
-    <!-- Bootstrap 5 Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     
     <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
@@ -16,85 +13,33 @@
     <script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.2.9/js/responsive.bootstrap5.min.js"></script>
     
-    <!-- Summernote -->
-    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
-    
-    <!-- Initialize Summernote -->
-    <script>
-    $(document).ready(function() {
-        // Initialize Summernote with Bootstrap 4
-        $('.summernote').summernote({
-            height: 300,
-            toolbar: [
-                ['style', ['style']],
-                ['font', ['bold', 'italic', 'underline', 'clear']],
-                ['color', ['color']],
-                ['para', ['ul', 'ol', 'paragraph']],
-                ['insert', ['link', 'picture', 'video']],
-                ['view', ['fullscreen', 'codeview', 'help']]
-            ]
-        });
-    });
-    </script>
-    
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <!-- Custom Scripts -->
     <script>
-        // Wait for the document to be fully loaded
-        $(document).ready(function() {
-            // Toggle sidebar on mobile
-            $('#sidebarToggle').on('click', function(e) {
-                e.preventDefault();
-                $('body').toggleClass('sidebar-toggled');
-                $('.sidebar').toggleClass('toggled');
-                
-                if ($('.sidebar').hasClass('toggled')) {
-                    $('.sidebar .collapse').collapse('hide');
-                }
-            });
-            
-            // Close any open menu accordions when window is resized below 768px
-            $(window).resize(function() {
-                if ($(window).width() < 768) {
-                    $('.sidebar .collapse').collapse('hide');
-                }
-                
-                // Toggle the side navigation when window is resized below 480px
-                if ($(window).width() < 480 && !$('.sidebar').hasClass('toggled')) {
-                    $('body').addClass('sidebar-toggled');
-                    $('.sidebar').addClass('toggled');
-                    $('.sidebar .collapse').collapse('hide');
-                }
-            });
-            
-            // Prevent the content wrapper from scrolling when the fixed side navigation hovered over
-            $('body.fixed-nav .sidebar').on('mousewheel DOMMouseScroll wheel', function(e) {
-                if ($(window).width() > 768) {
-                    var e0 = e.originalEvent,
-                        delta = e0.wheelDelta || -e0.detail;
-                    this.scrollTop += (delta < 0 ? 1 : -1) * 30;
-                    e.preventDefault();
-                }
-            });
-            
-            // Initialize Bootstrap tooltips
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl);
-            });
-            
-            // Initialize Bootstrap popovers
-            var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
-            var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
-                var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
-                popoverTriggerList.forEach(function (popoverTriggerEl) {
-                    new bootstrap.Popover(popoverTriggerEl);
-                });
-            }
-            
-            // Handle active state for sidebar items
+        // Toggle sidebar on mobile
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.querySelector('.main-content').classList.toggle('active');
+            document.querySelector('.navbar').classList.toggle('active');
+        });
+        
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+        
+        // Initialize popovers
+        var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+        var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+            return new bootstrap.Popover(popoverTriggerEl);
+        });
+        
+        // Handle active state for sidebar items
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add active class to current nav item
             const currentPage = window.location.pathname.split('/').pop() || 'dashboard.php';
             const navLinks = document.querySelectorAll('.nav-link');
             
