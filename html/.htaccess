@@ -1,0 +1,13 @@
+# Enable the rewrite engine
+RewriteEngine On
+
+# Set the base directory (adjust this if needed)
+RewriteBase /c/zanvarsity/html/
+
+# Handle 404 errors
+ErrorDocument 404 /c/zanvarsity/html/not_found.php
+
+# If the requested file doesn't exist, redirect to not_found.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ not_found.php [L]

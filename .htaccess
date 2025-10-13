@@ -4,7 +4,17 @@ RewriteBase /c/zanvarsity/
 # Prevent directory listing
 Options -Indexes
 
+# Set the 404 error document
+ErrorDocument 404 /c/zanvarsity/html/not_found.php
+
 # Handle Front Controller...
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_URI} !^/c/zanvarsity/html/not_found\.php$
 RewriteRule ^ index.php [L]
+
+# Handle 404 errors for non-existent files and directories
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !^/c/zanvarsity/html/not_found\.php$
+RewriteRule ^(.*)$ /c/zanvarsity/html/not_found.php [L,R=404]

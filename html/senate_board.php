@@ -331,5 +331,3 @@ include_once 'includes/about_footer.php';
 
 <!-- Add any additional scripts here if needed -->
 
-</body>
-</html>

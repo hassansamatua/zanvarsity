@@ -115,15 +115,19 @@ include_once 'includes/about_header.php';
                     <div class="alert alert-danger">
                         <p><strong>Documentation Required:</strong> Previously discontinued students must submit all relevant academic transcripts and a letter of clearance from their previous institution during the application process.</p>
                     </div>
-                    
                 </div>
-                <?php include_once 'includes/about_footer.php'; ?>
+            
+               
             </div>
+            
         </div>  
+
     </div>
+    
   
 </div>
 <?php include_once 'includes/about_footer.php'; ?>
+
 <style>
     .section {
         margin-bottom: 40px;
@@ -133,106 +137,4 @@ include_once 'includes/about_header.php';
         border-left: 4px solid #004225;
     }
 
-<<<<<<< HEAD
-=======
-    .section h3 {
-        color: #004225;
-        margin-top: 0;
-        padding-bottom: 10px;
-        border-bottom: 1px solid #eee;
-    }
-
-    .alert {
-        margin: 20px 0;
-        padding: 15px;
-        border-radius: 4px;
-    }
-
-    .alert-info {
-        background-color: #d9edf7;
-        border-color: #bce8f1;
-        color: #31708f;
-    }
-
-    .alert-warning {
-        background-color: #fcf8e3;
-        border-color: #faebcc;
-        color: #8a6d3b;
-    }
-
-    .contact-box {
-        margin-top: 40px;
-        padding: 20px;
-        background-color: #f0f7f0;
-        border-radius: 5px;
-    }
-
-    .contact-box i {
-        width: 20px;
-        text-align: center;
-        margin-right: 10px;
-        color: #004225;
-    }
-
-    table {
-        margin: 20px 0;
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    table, th, td {
-        border: 1px solid #ddd;
-    }
-
-    th, td {
-        padding: 12px;
-        text-align: left;
-    }
-
-    th {
-        background-color: #f5f5f5;
-    }
-
-    .btn-primary {
-        background-color: #004225;
-        border-color: #003319;
-        color: white;
-        padding: 8px 16px;
-        text-decoration: none;
-        display: inline-block;
-        border-radius: 4px;
-        transition: background-color 0.3s;
-    }
-
-    .btn-primary:hover {
-        background-color: #003319;
-        color: white;
-        text-decoration: none;
-    }
-
-    .text-muted {
-        color: #6c757d;
-    }
-
-    @media (max-width: 768px) {
-        .section {
-            padding: 15px;
-        }
-
-        .table-responsive {
-            border: 1px solid #ddd;
-            margin-bottom: 15px;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        table {
-            font-size: 14px;
-        }
-
-        th, td {
-            padding: 8px;
-        }
-    }
 </style>
->>>>>>> fd2d4bc (late)

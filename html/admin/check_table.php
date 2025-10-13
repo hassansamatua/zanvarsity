@@ -1,78 +1,92 @@
 <?php
-// Database connection settings
-$servername = 'localhost';
-$username = 'root';  // Default XAMPP username
-$password = '';      // Default XAMPP password (empty)
-$dbname = 'zanvarsity';
-
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error . "\n");
+// Start session and check authentication
+session_start();
+if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['admin', 'super_admin'])) {
+    header("Location: /c/zanvarsity/html/sign-in.php");
+    exit();
 }
 
-echo "Successfully connected to database '$dbname'.\n\n";
+// Include database connection
+require_once __DIR__ . '/../includes/database.php';
 
-// List all tables in the database
-echo "Listing all tables in database '$dbname':\n";
-$result = $conn->query("SHOW TABLES");
-$tables = [];
-$carousel_tables = [];
+// Set page title
+$page_title = 'Check Faculty Table';
 
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_array()) {
-        $table_name = $row[0];
-        $tables[] = $table_name;
-        
-        // Check if table name contains 'carousel' (case insensitive)
-        if (stripos($table_name, 'carousel') !== false) {
-            $carousel_tables[] = $table_name;
-        }
+// Include header
+include __DIR__ . '/includes/header.php';
+
+// Check if faculty_tbl exists
+$table_check = $conn->query("SHOW TABLES LIKE 'faculty_tbl'");
+$table_exists = $table_check && $table_check->num_rows > 0;
+
+// Get table structure if it exists
+$table_structure = [];
+if ($table_exists) {
+    $result = $conn->query("DESCRIBE faculty_tbl");
+    if ($result) {
+        $table_structure = $result->fetch_all(MYSQLI_ASSOC);
     }
-    
-    echo "All tables: " . implode(', ', $tables) . "\n\n";
-    
-    if (empty($carousel_tables)) {
-        die("No carousel-related tables found.\n");
-    } else {
-        echo "Found carousel-related tables: " . implode(', ', $carousel_tables) . "\n\n";
-        // Get structure of the first carousel table found
-        $table_name = $carousel_tables[0];
-        echo "Checking structure of table '$table_name':\n";
-        
-        $result = $conn->query("DESCRIBE `$table_name`");
-        if (!$result) {
-            die("Error describing table: " . $conn->error . "\n");
-        }
-        
-        echo str_pad("Field", 20) . str_pad("Type", 20) . str_pad("Null", 10) . str_pad("Key", 10) . str_pad("Default", 15) . "Extra\n";
-        echo str_repeat("-", 80) . "\n";
-        
-        while ($row = $result->fetch_assoc()) {
-            echo str_pad($row['Field'], 20) . 
-                 str_pad($row['Type'], 20) . 
-                 str_pad($row['Null'], 10) . 
-                 str_pad($row['Key'], 10) . 
-                 str_pad($row['Default'] ?? 'NULL', 15) . 
-                 $row['Extra'] . "\n";
-        }
-        
-        // Show sample data
-        $result = $conn->query("SELECT * FROM `$table_name` LIMIT 1");
-        if ($result->num_rows > 0) {
-            $row = $result->fetch_assoc();
-            echo "\nSample data from '$table_name':\n";
-            print_r($row);
-        } else {
-            echo "\nNo data found in '$table_name' table.\n";
-        }
-    }
-} else {
-    die("No tables found in database.\n");
 }
+?>
 
-// Close the database connection
-$conn->close();
+<div class="container-fluid">
+    <h1 class="h3 mb-4">Check Faculty Table</h1>
+    
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Table Status</h6>
+        </div>
+        <div class="card-body">
+            <?php if ($table_exists): ?>
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i> The table 'faculty_tbl' exists in the database.
+                </div>
+                
+                <h5>Table Structure:</h5>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th>Type</th>
+                                <th>Null</th>
+                                <th>Key</th>
+                                <th>Default</th>
+                                <th>Extra</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($table_structure as $column): ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($column['Field']); ?></td>
+                                    <td><?php echo htmlspecialchars($column['Type']); ?></td>
+                                    <td><?php echo htmlspecialchars($column['Null']); ?></td>
+                                    <td><?php echo htmlspecialchars($column['Key']); ?></td>
+                                    <td><?php echo htmlspecialchars($column['Default'] ?? 'NULL'); ?></td>
+                                    <td><?php echo htmlspecialchars($column['Extra']); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <a href="manage_faculties.php" class="btn btn-primary">Back to Faculties</a>
+                
+            <?php else: ?>
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i> The table 'faculty_tbl' does not exist in the database.
+                </div>
+                
+                <p>Would you like to create the faculty table with sample data?</p>
+                <a href="create_faculty_table.php" class="btn btn-primary">
+                    <i class="fas fa-database"></i> Create Faculty Table
+                </a>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+
+<?php
+// Include footer
+include __DIR__ . '/includes/footer.php';
 ?>

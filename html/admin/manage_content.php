@@ -13,11 +13,6 @@ require_once ROOT_PATH . '/includes/database.php';
 // Check if user is logged in and is admin
 require_login();
 
-// Debug: Check user role and session
-$user_role = $_SESSION['role'] ?? 'guest';
-$user_id = $_SESSION['user_id'] ?? 0;
-error_log("User ID: $user_id, Role: $user_role");
-
 // Use the global database connection
 global $conn;
 
@@ -266,24 +261,6 @@ $page_title = 'Content Management Dashboard';
                         <?php endif; ?>
 
                         <div class="row">
-                            <!-- Background Information -->
-                            <div class="col-md-4 col-sm-6">
-                                <div class="dashboard-card card h-100">
-                                    <div class="card-body text-center">
-                                        <div class="card-icon">
-                                            <i class='bx bx-info-circle'></i>
-                                        </div>
-                                        <h5 class="card-title">Background Information</h5>
-                                        <p class="card-text">Manage the background information content for the website.</p>
-                                    </div>
-                                    <div class="card-footer text-center">
-                                        <a href="manage_background.php" class="btn btn-success btn-sm">
-                                            <i class='bx bx-edit me-1'></i> Manage Background
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-
                             <!-- Events Management -->
                             <div class="col-md-4 col-sm-6">
                                 <div class="dashboard-card card h-100">
@@ -401,7 +378,7 @@ $page_title = 'Content Management Dashboard';
                                         <p class="card-text">Manage homepage slider/carousel images.</p>
                                     </div>
                                     <div class="card-footer text-center">
-                                        <a href="/c/zanvarsity/html/admin/manage_carousel.php" class="btn btn-success btn-sm">
+                                        <a href="manage_courasel.php" class="btn btn-success btn-sm">
                                             <i class='bx bx-edit me-1'></i> Manage Carousel
                                         </a>
                                     </div>
@@ -529,23 +506,6 @@ $page_title = 'Content Management Dashboard';
                                     <div class="card-footer text-center">
                                         <a href="manage_notes.php" class="btn btn-success btn-sm">
                                             <i class='bx bx-edit me-1'></i> Manage Materials
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-<!-- manage background information -->
-                            <div class="col-md-4 col-sm-6">
-                                <div class="dashboard-card card h-100">
-                                    <div class="card-body text-center">
-                                        <div class="card-icon">
-                                            <i class='bx bx-note'></i>
-                                        </div>
-                                        <h5 class="card-title">Background Information</h5>
-                                        <p class="card-text">Manage Background Information</p>
-                                    </div>
-                                    <div class="card-footer text-center">
-                                        <a href="manage_background.php" class="btn btn-success btn-sm">
-                                            <i class='bx bx-edit me-1'></i> Manage Background Info
                                         </a>
                                     </div>
                                 </div>

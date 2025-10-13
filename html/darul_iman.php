@@ -469,17 +469,19 @@ include_once 'includes/about_header.php';
             </div>
             <!-- end Sidebar -->
         </div>
+        <?php
+    // Include the footer
+    include_once 'includes/about_footer.php';
+    ?>
     </div>
+  
 </div>
 <!-- end Page Content -->
 
 <!-- Full-width Footer -->
-<div style="width: 100%; margin: 0; padding: 0;">
-    <?php
-    // Include the footer
-    include_once 'includes/about_footer.php';
-    ?>
-</div>
+
+    
+
 <style>
 /* Hover effects for better interactivity */
 .box {

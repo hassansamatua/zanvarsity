@@ -1,0 +1,172 @@
+/* Student Transfers Page Styles */
+:root {
+    --primary-color: #004225;
+    --secondary-color: #28a745;
+    --accent-color: #ffc107;
+    --light-bg: #f8f9fa;
+    --dark-text: #2c3e50;
+    --light-text: #6c757d;
+    --border-radius: 8px;
+    --box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+}
+
+/* Page Header */
+.transfers-page h1 {
+    font-size: 1.9rem;
+    margin: 2rem 0 1.5rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 2px solid var(--border-color);
+    line-height: 1.4;
+    font-weight: 600;
+}
+
+.transfers-page h1:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 4px;
+    background: var(--accent-color);
+    border-radius: 2px;
+}
+
+/* Card Styling */
+.transfers-page .card {
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    transition: var(--transition);
+    margin-bottom: 2rem;
+    overflow: hidden;
+    border-left: 4px solid var(--primary-color);
+}
+
+.transfers-page .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.transfers-page .card-header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 1.25rem 1.5rem;
+    border-bottom: none;
+    font-weight: 600;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+/* List Styling */
+.transfers-page .card ul {
+    padding-left: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.transfers-page .card ul li {
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+    line-height: 1.9;
+    color: #333;
+    max-width: 75ch;
+}
+
+.transfers-page .card ul li:before {
+    content: '•';
+    color: var(--primary-color);
+    font-weight: bold;
+    position: absolute;
+    left: 0;
+    font-size: 1.2em;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 992px) {
+    body {
+        font-size: 1.03rem;
+        line-height: 1.7;
+    }
+    
+    .card-body {
+        padding: 1.5rem;
+    }
+    
+    h1 {
+        font-size: 2rem;
+        margin: 1.5rem 0 2rem;
+    }
+    
+    h2 {
+        font-size: 1.7rem;
+        margin: 1.8rem 0 1.4rem;
+    }
+    
+    h3 {
+        font-size: 1.5rem;
+        margin: 1.6rem 0 1.2rem;
+    }
+    
+    h4 {
+        font-size: 1.3rem;
+        margin: 1.4rem 0 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        font-size: 1rem;
+        line-height: 1.7;
+    }
+    
+    .card-body {
+        padding: 1.25rem;
+    }
+    
+    h1 {
+        font-size: 1.8rem;
+        margin: 1.2rem 0 1.8rem;
+    }
+    
+    h2 {
+        font-size: 1.5rem;
+        margin: 1.6rem 0 1.2rem;
+    }
+    
+    h3 {
+        font-size: 1.3rem;
+        margin: 1.4rem 0 1rem;
+    }
+    
+    h4 {
+        font-size: 1.2rem;
+        margin: 1.2rem 0 0.8rem;
+    }
+    
+    .transfers-page .card h2 {
+        font-size: 1.4rem;
+    }
+
+/* Print Styles */
+@media print {
+    .transfers-page .card {
+        box-shadow: none;
+        border: 1px solid #dee2e6;
+        page-break-inside: avoid;
+    }
+    
+    .transfers-page .card:hover {
+        transform: none;
+    }
+    
+    .transfers-page a[href]:after {
+        content: none !important;
+    }
+    
+    .transfers-page .card {
+        margin-bottom: 20px;
+    }
+}

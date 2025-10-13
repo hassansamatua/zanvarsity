@@ -321,7 +321,7 @@ redirect_if_logged_in();
                                 </div>
                                 <?php endif; ?>
                                 
-                                <form id="loginForm" role="form" class="clearfix" action="/zanvarsity/login.php" method="post" style="max-width: 400px; margin: 0 auto;" onsubmit="return handleLogin(event)">
+                                <form id="loginForm" role="form" class="clearfix" action="/c/zanvarsity/login.php" method="post" style="max-width: 400px; margin: 0 auto;" onsubmit="return handleLogin(event)">
                                     <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] = bin2hex(random_bytes(32)); ?>">
                                     <div class="form-group">
                                         <label for="email">Email address</label>
@@ -536,7 +536,7 @@ function handleLogin(event) {
         console.log('Form submission data:', formProps);
         
         // Log to server for debugging
-        fetch('/zanvarsity/debug_log.php', {
+        fetch('/c/zanvarsity/debug_log.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
