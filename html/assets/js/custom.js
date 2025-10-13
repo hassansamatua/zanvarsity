@@ -338,7 +338,7 @@ function disableJoin() {
     var courseStart = document.getElementById("course-start");
     if (courseCountDown) courseCountDown.classList.add("disable-join");
     if (courseStart) courseStart.classList.add("disable-join");
-}
+};
 
 // Count Down - Course Detail
 if (typeof _date != 'undefined' && typeof Countdown !== 'undefined') {
@@ -349,3 +349,4 @@ if (typeof _date != 'undefined' && typeof Countdown !== 'undefined') {
             disableJoin(); // Run this function after count down is over
         }
     });
+}

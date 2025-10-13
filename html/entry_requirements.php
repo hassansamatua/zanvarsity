@@ -1,162 +1,93 @@
 <?php
 $page_title = 'Entry Requirements';
-$page_description = 'Detailed entry requirements for all programs at Zanvarsity University';
+$page_description = 'Detailed entry requirements for all programs at Zanzibar University';
 $page_heading = 'Entry Requirements';
 include_once 'includes/about_header.php';
 ?>
 
 <!-- Page Content -->
-<div class="container">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="page-content">
-                <h2>Admission Requirements</h2>
-                
-                <div class="alert alert-info">
-                    <p>All applicants must meet the minimum entry requirements set by the Tanzania Commission for Universities (TCU) and the National Council for Technical Education (NACTE) for their respective programs.</p>
-                </div>
-                
-                <div class="section">
-                    <h3>Undergraduate Programs</h3>
-                    <h4>Direct Entry Qualifications</h4>
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-striped">
-                            <thead class="thead-dark">
-                                <tr>
-                                    <th>Program</th>
-                                    <th>Minimum Entry Requirements</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Bachelor of Science in Computer Science</td>
-                                    <td>Two principal passes (4 points) in Advanced Mathematics and Physics with a minimum of 4.0 points from Two Subjects. An applicant must have at least a pass in Physics and Chemistry at O-Level.</td>
-                                </tr>
-                                <tr>
-                                    <td>Bachelor of Business Administration</td>
-                                    <td>Two principal passes (4 points) in the following subjects: Accountancy, Economics, Commerce, Mathematics, Geography, Physics or Chemistry. An applicant must have at least a pass in Mathematics at O-Level.</td>
-                                </tr>
-                                <tr>
-                                    <td>Bachelor of Arts in Education</td>
-                                    <td>Two principal passes (4 points) in relevant teaching subjects. An applicant must have at least a credit pass in the subject to be studied at the University.</td>
-                                </tr>
-                                <tr>
-                                    <td>Bachelor of Laws</td>
-                                    <td>Two principal passes (4 points) in any subjects. An applicant must have at least a credit pass in English Language at O-Level.</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                    <h4>Equivalent Qualifications</h4>
-                    <p>Applicants with the following qualifications may also be considered for admission:</p>
-                    <ul>
-                        <li>Diploma in relevant fields with a minimum GPA of 3.0</li>
-                        <li>Professional qualifications equivalent to Advanced Certificate of Secondary Education</li>
-                        <li>Foundation Programme Certificate from a recognized institution</li>
-                    </ul>
-                </div>
-                
-                <div class="section">
-                    <h3>Postgraduate Programs</h3>
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-striped">
-                            <thead class="thead-dark">
-                                <tr>
-                                    <th>Program</th>
-                                    <th>Minimum Entry Requirements</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Master of Business Administration (MBA)</td>
-                                    <td>Bachelor's degree with at least a Lower Second Class or its equivalent from a recognized institution. At least two years of work experience is required.</td>
-                                </tr>
-                                <tr>
-                                    <td>Master of Science in IT</td>
-                                    <td>Bachelor's degree in Computer Science, Information Technology, or related field with at least a Lower Second Class. Candidates with a Postgraduate Diploma in IT may also apply.</td>
-                                </tr>
-                                <tr>
-                                    <td>Master of Education</td>
-                                    <td>Bachelor's degree in Education or related field with at least a Lower Second Class. Teaching experience is an added advantage.</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                
-                <div class="section">
-                    <h3>Doctoral Programs</h3>
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-striped">
-                            <thead class="thead-dark">
-                                <tr>
-                                    <th>Program</th>
-                                    <th>Minimum Entry Requirements</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Doctor of Philosophy (PhD)</td>
-                                    <td>Master's degree in a relevant field with a minimum GPA of 3.5 or its equivalent. Applicants must submit a research proposal in their area of interest.</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                
-                <div class="section">
-                    <h3>Special Entry Requirements</h3>
-                    <div class="alert alert-warning">
-                        <h4>International Students</h4>
-                        <p>International applicants must meet the following additional requirements:</p>
-                        <ul>
-                            <li>Certificates obtained from foreign institutions must be verified by the Tanzania Commission for Universities (TCU)</li>
-                            <li>Proof of English language proficiency (for non-English speaking countries)</li>
-                            <li>Valid student visa</li>
-                            <li>Medical insurance coverage</li>
-                        </ul>
-                    </div>
+<div class="container-fluid" style="padding: 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="page-content">
+                    <h2>Entry Qualifications for Joining Zanzibar University - 2025/2026</h2>
                     
                     <div class="alert alert-info">
-                        <h4>Mature Age Entry</h4>
-                        <p>Applicants who do not meet the direct entry requirements but are 25 years of age or older may be considered for admission under the Mature Age Entry Scheme. They must:</p>
-                        <ul>
-                            <li>Be at least 25 years old by 1st January of the year of admission</li>
-                            <li>Have completed Form IV or VI at least five years before the year of admission</li>
-                            <li>Pass the Mature Age Entry Examination conducted by the University</li>
-                            <li>Attend and pass an interview</li>
-                        </ul>
+                        <p>Please download the relevant guidebook for detailed information about entry requirements for each program category. All applicants must meet the minimum entry requirements set by the Tanzania Commission for Universities (TCU) and the National Council for Technical Education (NACTE) for their respective programs.</p>
+                    </div>
+                
+                <div class="row">
+                    <!-- Non-Degree Programmes -->
+                    <div class="col-md-6 col-lg-3 mb-4">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body text-center">
+                                <div class="icon-box">
+                                    <i class="fa fa-certificate fa-3x text-primary mb-3"></i>
+                                </div>
+                                <h5 class="card-title">Non-Degree Programmes</h5>
+                                <p class="card-text">Certificate and Diploma Programs</p>
+                                <a href="uploads/doc/GuideBook - Non Degree 2023 2024.pdf" target="_blank" class="btn btn-outline-primary">
+                                    <i class="fa fa-download me-2"></i>Download Guidebook
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Undergraduate (Form 6) -->
+                    <div class="col-md-6 col-lg-3 mb-4">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body text-center">
+                                <div class="icon-box">
+                                    <i class="fa fa-graduation-cap fa-3x text-success mb-3"></i>
+                                </div>
+                                <h5 class="card-title">Undergraduate Programmes</h5>
+                                <p class="card-text">Direct Entry - Form 6</p>
+                                <a href="uploads/doc/Admission Guidebook - Form 6.pdf" target="_blank" class="btn btn-outline-success">
+                                    <i class="fa fa-download me-2"></i>Download Guidebook
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Undergraduate (Diploma) -->
+                    <div class="col-md-6 col-lg-3 mb-4">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body text-center">
+                                <div class="icon-box">
+                                    <i class="fa fa-book fa-3x text-info mb-3"></i>
+                                </div>
+                                <h5 class="card-title">Undergraduate Programmes</h5>
+                                <p class="card-text">Equivalent - Diploma/Foundation</p>
+                                <a href="uploads/doc/Admissions Guidebook - Diploma.pdf" target="_blank" class="btn btn-outline-info">
+                                    <i class="fa fa-download me-2"></i>Download Guidebook
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Postgraduate Programmes -->
+                    <div class="col-md-6 col-lg-3 mb-4">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body text-center">
+                                <div class="icon-box">
+                                    <i class="fa fa-user-graduate fa-3x text-warning mb-3"></i>
+                                </div>
+                                <h5 class="card-title">Postgraduate Programmes</h5>
+                                <p class="card-text">Postgraduate Diploma, Masters and PhD</p>
+                                <a href="uploads/doc/GuideBook - Postgraduate 2023 2024.pdf" target="_blank" class="btn btn-outline-warning">
+                                    <i class="fa fa-download me-2"></i>Download Guidebook
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
-                <div class="section">
-                    <h3>Application Process</h3>
-                    <ol>
-                        <li>Obtain and complete the application form from the University or download it from the website</li>
-                        <li>Attach certified copies of all relevant academic certificates and transcripts</li>
-                        <li>Include two recent passport-size photographs</li>
-                        <li>Attach a copy of birth certificate or passport</li>
-                        <li>Pay the non-refundable application fee</li>
-                        <li>Submit the complete application package to the Admissions Office before the deadline</li>
-                    </ol>
-                    
-                    <div class="alert alert-warning">
-                        <h4>Important Notes:</h4>
-                        <ul>
-                            <li>All documents submitted become the property of the University and will not be returned</li>
-                            <li>Provision of false information will lead to automatic disqualification</li>
-                            <li>Meeting the minimum entry requirements does not guarantee admission</li>
-                            <li>The University reserves the right to verify all submitted documents</li>
-                        </ul>
-                    </div>
-                </div>
                 
                 <div class="section">
                     <h3>Contact Information</h3>
                     <p>For more information about entry requirements, please contact:</p>
                     <address>
-                        <strong>Admissions Office</strong><br>
                         Zanvarsity University<br>
                         P.O. Box 12345<br>
                         Dar es Salaam, Tanzania<br>
@@ -171,6 +102,28 @@ include_once 'includes/about_header.php';
 </div>
 
 <style>
+.icon-box {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: rgba(0, 66, 37, 0.1);
+}
+
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+}
+
 .section {
     margin-bottom: 40px;
     padding: 20px;

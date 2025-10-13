@@ -1,200 +1,111 @@
 <?php
-$page_title = 'How to Pay';
-$page_description = 'Payment methods and instructions for Zanvarsity University fees';
-$page_heading = 'How to Pay Your Fees';
+$page_title = 'Payment Instructions';
+$page_description = 'Learn how to make payments for your studies at Zanzibar University';
+$page_heading = 'Payment Instructions';
 include_once 'includes/about_header.php';
 ?>
 
 <!-- Page Content -->
-<div class="container">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="page-content">
-                <h2>Payment Methods</h2>
-                <p>Zanvarsity University offers multiple convenient payment options for your tuition and other fees. Please review the following payment methods and choose the one that works best for you.</p>
+<div class="container-fluid" style="padding: 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="page-content">
+                    <h2>Payment Instructions</h2>
+                    <div class="alert alert-warning">
+                        <h4>Please read them carefully.</h4>
+                        <p>No Payment will be Allowed if not followed the Stipulated Channel.</p>
+                        <p>The Fee Structure is subjected to change from time to time by the University Council.</p>
+                        <p>Access to Studies and Examination is only granted to students who have paid their allocated installments accordingly.</p>
+                    </div>
                 
-                <div class="alert alert-info">
-                    <p><strong>Important:</strong> Always include your student ID number as the payment reference when making any payment. This ensures your payment is properly credited to your account.</p>
-                </div>
-                
-                <div class="section">
-                    <h3>1. Bank Transfers</h3>
-                    <div class="payment-method">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="bank-details">
-                                    <h4>Domestic Bank Transfer</h4>
-                                    <div class="bank-info">
-                                        <p><strong>Bank Name:</strong> CRDB Bank</p>
-                                        <p><strong>Account Name:</strong> Zanvarsity University</p>
-                                        <p><strong>Account Number:</strong> 01J1085091700</p>
-                                        <p><strong>Branch:</strong> Sam Nujoma Branch</p>
-                                        <p><strong>SWIFT Code:</strong> CORUTZTZ</p>
-                                        <p><strong>Reference:</strong> Your Student ID Number</p>
-                                    </div>
-                                </div>
+                    <!-- Step 1: Generate Control Number -->
+                    <div class="card mb-4 border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="step-number bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; font-weight: bold; font-size: 1.2rem;">Step</div>
+                                <h4 class="mb-0 ms-3">01</h4>
                             </div>
-                            <div class="col-md-6">
-                                <div class="bank-details">
-                                    <h4>International Bank Transfer</h4>
-                                    <div class="bank-info">
-                                        <p><strong>Bank Name:</strong> CRDB Bank</p>
-                                        <p><strong>Account Name:</strong> Zanvarsity University</p>
-                                        <p><strong>Account Number:</strong> 01J1085091700</p>
-                                        <p><strong>SWIFT Code:</strong> CORUTZTZ</p>
-                                        <p><strong>IBAN:</strong> TZ3500100100000000000123</p>
-                                        <p><strong>Bank Address:</strong> Sam Nujoma Road, Dar es Salaam, Tanzania</p>
-                                        <p><strong>Reference:</strong> Your Student ID Number</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="alert alert-warning">
-                            <h5>Important Notes for Bank Transfers:</h5>
-                            <ul>
-                                <li>Bank transfers may take 1-3 business days to reflect in your account</li>
-                                <li>All bank charges are the responsibility of the student</li>
-                                <li>Email a copy of the deposit slip to <a href="mailto:finance@zanvarsity.ac.tz">finance@zanvarsity.ac.tz</a> for faster processing</li>
-                            </ul>
+                            <h4>Generate Control Number</h4>
+                            <p class="mb-0">The link for generating Control Number is: 
+                                <a href="https://www.billing.zumis.ac.tz" target="_blank" class="fw-bold">www.billing.zumis.ac.tz</a>
+                            </p>
                         </div>
                     </div>
-                </div>
-                
-                <div class="section">
-                    <h3>2. Mobile Money Payments</h3>
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="payment-option">
-                                <div class="payment-icon">
-                                    <i class="fa fa-mobile fa-3x"></i>
-                                </div>
-                                <h4>M-Pesa</h4>
-                                <ol>
-                                    <li>Go to M-Pesa on your phone</li>
-                                    <li>Select "Lipa na M-Pesa"</li>
-                                    <li>Select "Pay Bill"</li>
-                                    <li>Enter Business Number: <strong>123456</strong></li>
-                                    <li>Enter Account Number: <strong>Your Student ID</strong></li>
-                                    <li>Enter Amount</li>
-                                    <li>Enter your M-Pesa PIN</li>
-                                    <li>Confirm and send</li>
-                                </ol>
+
+                    <!-- Step 2: Choose Mode of Payment -->
+                    <div class="card mb-4 border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="step-number bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; font-weight: bold; font-size: 1.2rem;">Step</div>
+                                <h4 class="mb-0 ms-3">02</h4>
                             </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="payment-option">
-                                <div class="payment-icon">
-                                    <i class="fa fa-phone fa-3x"></i>
+                            <h4>Choose Mode of Payment</h4>
+                            <p class="mb-3">After generating the Control Number you can pay using one of the 3 following modes.</p>
+                            
+                            <!-- Payment Methods -->
+                            <div class="row">
+                                <!-- PBZ Bank -->
+                                <div class="col-md-4 mb-4">
+                                    <div class="card h-100 border-0 shadow-sm">
+                                        <div class="card-body">
+                                            <div class="d-flex align-items-center mb-3">
+                                                <div class="step-number bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; font-weight: bold; font-size: 1.2rem;">Step</div>
+                                                <h4 class="mb-0 ms-3">03</h4>
+                                            </div>
+                                            <h5>PBZ Bank</h5>
+                                            <p class="mb-0">Visit any PBZ Bank Branch or agent and provide your money and Control Number.</p>
+                                        </div>
+                                    </div>
                                 </div>
-                                <h4>Tigo Pesa</h4>
-                                <ol>
-                                    <li>Go to Tigo Pesa on your phone</li>
-                                    <li>Select "Pay Bill"</li>
-                                    <li>Enter Business Number: <strong>654321</strong></li>
-                                    <li>Enter Reference: <strong>Your Student ID</strong></li>
-                                    <li>Enter Amount</li>
-                                    <li>Enter your Tigo Pesa PIN</li>
-                                    <li>Confirm and send</li>
-                                </ol>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="payment-option">
-                                <div class="payment-icon">
-                                    <i class="fa fa-money fa-3x"></i>
+
+                                <!-- Airtel Money -->
+                                <div class="col-md-4 mb-4">
+                                    <div class="card h-100 border-0 shadow-sm">
+                                        <div class="card-body">
+                                            <div class="d-flex align-items-center mb-3">
+                                                <div class="step-number bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; font-weight: bold; font-size: 1.2rem;">Step</div>
+                                                <h4 class="mb-0 ms-3">04</h4>
+                                            </div>
+                                            <h5>Airtel Money</h5>
+                                            <p class="mb-3">You can pay directly using Airtel Money by following this link - 
+                                                <a href="https://www.billing.zumis.ac.tz/verifyBill" target="_blank" class="fw-bold">Pay Using Airtel Money</a>
+                                            </p>
+                                        </div>
+                                    </div>
                                 </div>
-                                <h4>Airtel Money</h4>
-                                <ol>
-                                    <li>Go to Airtel Money on your phone</li>
-                                    <li>Select "Pay Bill"</li>
-                                    <li>Select "Education"</li>
-                                    <li>Select "Zanvarsity University"</li>
-                                    <li>Enter Student ID as Reference</li>
-                                    <li>Enter Amount</li>
-                                    <li>Enter your Airtel Money PIN</li>
-                                    <li>Confirm and send</li>
-                                </ol>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="section">
-                    <h3>3. Online Payment Portal</h3>
-                    <div class="online-payment">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h4>Secure Online Payment</h4>
-                                <p>Make payments directly through our secure online portal using your credit or debit card.</p>
-                                <a href="https://portal.zanvarsity.ac.tz/payments" class="btn btn-primary btn-lg" target="_blank">Make Online Payment</a>
-                                
-                                <div class="accepted-cards mt-4">
-                                    <h5>We Accept:</h5>
-                                    <div class="card-icons">
-                                        <i class="fa fa-cc-visa fa-3x"></i>
-                                        <i class="fa fa-cc-mastercard fa-3x"></i>
-                                        <i class="fa fa-cc-paypal fa-3x"></i>
+
+                                <!-- Tigo Pesa -->
+                                <div class="col-md-4 mb-4">
+                                    <div class="card h-100 border-0 shadow-sm">
+                                        <div class="card-body">
+                                            <div class="d-flex align-items-center mb-3">
+                                                <div class="step-number bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; font-weight: bold; font-size: 1.2rem;">Step</div>
+                                                <h4 class="mb-0 ms-3">05</h4>
+                                            </div>
+                                            <h5>Tigo Pesa</h5>
+                                            <ol class="ps-3">
+                                                <li>Dial Tigo Pesa Menu *150*01#</li>
+                                                <li>Select Number 4. Lipa Bili</li>
+                                                <li>Select Number 3. Ingiza Number ya Kampuni</li>
+                                                <li>Enter Our Company Number - 244099</li>
+                                                <li>Enter the exact Amount as shown in the Control Number Details</li>
+                                                <li>Enter the Control Number Provided</li>
+                                                <li>Enter Your Tigo Pesa PIN to Authorize Payment</li>
+                                            </ol>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="card">
-                                    <div class="card-header bg-primary text-white">
-                                        <h5 class="mb-0">Online Payment Benefits</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <ul class="benefits-list">
-                                            <li><i class="fa fa-check text-success"></i> Instant payment confirmation</li>
-                                            <li><i class="fa fa-check text-success"></i> 24/7 availability</li>
-                                            <li><i class="fa fa-check text-success"></i> Secure transactions</li>
-                                            <li><i class="fa fa-check text-success"></i> Email receipt immediately</li>
-                                            <li><i class="fa fa-check text-success"></i> No bank queues</li>
-                                            <li><i class="fa fa-check text-success"></i> Save payment history</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <!-- Important Notes -->
+                    <div class="alert alert-info mt-4">
+                        <h5><i class="fa fa-info-circle me-2"></i>Important Notes:</h5>
+                        <ul class="mb-0">
+                            <li>Always keep your payment receipt as proof of payment.</li>
+                            <li>Payments may take up to 24-48 hours to reflect in the system.</li>
+                            <li>For any payment issues, contact the Finance Department at <a href="mailto:finance@zanvarsity.ac.tz" class="fw-bold">finance@zanvarsity.ac.tz</a> or call +255 24 223 2124.</li>
+                        </ul>
                     </div>
-                </div>
-                
-                <div class="section">
-                    <h3>4. In-Person Payments</h3>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="payment-location">
-                                <h4>Finance Office</h4>
-                                <p>You can make cash or card payments in person at our Finance Office during working hours.</p>
-                                <p><strong>Location:</strong> Administration Building, Ground Floor</p>
-                                <p><strong>Hours:</strong> Monday - Friday, 8:00 AM - 4:00 PM</p>
-                                <p><strong>Accepted Payment Methods:</strong> Cash, Debit/Credit Cards, Banker's Cheque</p>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="payment-location">
-                                <h4>Bank Deposits</h4>
-                                <p>You can also make payments directly at any of our partner bank branches:</p>
-                                <ul>
-                                    <li>CRDB Bank - All branches</li>
-                                    <li>NMB Bank - All branches</li>
-                                    <li>NBC Bank - Selected branches</li>
-                                </ul>
-                                <p>Please ensure you obtain and keep your deposit slip as proof of payment.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="section">
-                    <h3>Payment Plans & Installments</h3>
-                    <p>Zanvarsity University offers flexible payment plans to help manage your educational expenses. Please contact the Finance Office to discuss available options.</p>
-                    
-                    <div class="alert alert-info">
-                        <h5>Installment Payment Plan:</h5>
-                        <ul>
-                            <li>Minimum 50% of tuition fees must be paid at registration</li>
-                            <li>Remaining balance can be paid in up to 3 equal installments</li>
                             <li>Installment plan attracts a 5% administrative fee</li>
                             <li>All fees must be cleared before taking final examinations</li>
                         </ul>
