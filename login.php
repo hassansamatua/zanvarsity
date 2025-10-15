@@ -13,6 +13,9 @@ if (session_status() === PHP_SESSION_NONE) {
     ini_set('session.cookie_secure', isset($_SERVER['HTTPS']));
     session_start();
 }
+if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 
 // Include necessary files
 require_once __DIR__ . '/includes/auth_functions.php';
@@ -24,13 +27,13 @@ $redirect_url = '/c/zanvarsity/html/my-account.php';
 // Handle POST request
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Verify CSRF token
-    if (!isset($_POST['csrf_token']) || !isset($_SESSION['csrf_token']) || 
-        !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
-        error_log('CSRF token validation failed');
-        header('Location: /c/zanvarsity/html/login.php?error=invalid_csrf');
-        exit();
-    }
-    
+    // Verify CSRF token with detailed error logging
+if (!isset($_POST['csrf_token']) || !isset($_SESSION['csrf_token']) || 
+    !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+    error_log('CSRF token validation failed. Session token: ' . ($_SESSION['csrf_token'] ?? 'not set') . ', POST token: ' . ($_POST['csrf_token'] ?? 'not set'));
+    header('Location: /c/zanvarsity/html/sign-in.php?error=invalid_csrf');
+    exit();
+}
     // Validate required fields
     if (empty($_POST['email']) || empty($_POST['password'])) {
         header("Location: /c/zanvarsity/html/login.php?error=empty_fields");
@@ -90,6 +93,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['role'],
             $_SERVER['REMOTE_ADDR'] ?? 'unknown'
         ));
+        // After successful login in login.php, before redirecting:
+$_SESSION['csrf_token'] = bin2hex(random_bytes(32));
         
         // Clear the CSRF token after successful login
         unset($_SESSION['csrf_token']);
