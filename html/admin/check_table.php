@@ -12,8 +12,11 @@ require_once __DIR__ . '/../includes/database.php';
 // Set page title
 $page_title = 'Check Faculty Table';
 
+// Define base URL for assets
+$base_url = '/c/zanvarsity/html';
+
 // Include header
-include __DIR__ . '/includes/header.php';
+include dirname(__DIR__) . '/includes/about_header.php';
 
 // Check if faculty_tbl exists
 $table_check = $conn->query("SHOW TABLES LIKE 'faculty_tbl'");

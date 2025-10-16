@@ -5,6 +5,17 @@
  * This is a reusable header template for about-related pages.
  * It includes the site header, navigation, and page title section.
  */
+
+// Determine the correct asset path based on where this file is being included from
+$current_dir = dirname($_SERVER['PHP_SELF']);
+$asset_path = '';
+
+// If we're in a subdirectory (like admin), we need to go up one level
+if (strpos($current_dir, '/admin') !== false) {
+    $asset_path = '../';
+} elseif (strpos($current_dir, '/includes') !== false) {
+    $asset_path = '../';
+}
 ?>
 <!DOCTYPE html>
 <html lang="en-US">
@@ -15,12 +26,12 @@
     <meta name="description" content="<?php echo isset($page_description) ? $page_description : 'Zanvarsity - Empowering Education, Enriching Lives' ?>">
 
     <link href='http://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
-    <link href="assets/css/font-awesome.css" rel="stylesheet" type="text/css">
-    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.css" type="text/css">
-    <link rel="stylesheet" href="assets/css/selectize.css" type="text/css">
-    <link rel="stylesheet" href="assets/css/owl.carousel.css" type="text/css">
-    <link rel="stylesheet" href="assets/css/vanillabox/vanillabox.css" type="text/css">
-    <link rel="stylesheet" href="assets/css/style.css" type="text/css">
+    <link href="<?php echo $asset_path; ?>assets/css/font-awesome.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="<?php echo $asset_path; ?>assets/bootstrap/css/bootstrap.css" type="text/css">
+    <link rel="stylesheet" href="<?php echo $asset_path; ?>assets/css/selectize.css" type="text/css">
+    <link rel="stylesheet" href="<?php echo $asset_path; ?>assets/css/owl.carousel.css" type="text/css">
+    <link rel="stylesheet" href="<?php echo $asset_path; ?>assets/css/vanillabox/vanillabox.css" type="text/css">
+    <link rel="stylesheet" href="<?php echo $asset_path; ?>assets/css/style.css" type="text/css">
     
     <!-- Page-specific CSS -->
     <?php if (isset($page_css)): ?>
@@ -279,7 +290,7 @@
                                     </a>
                                     <ul class="list-unstyled child-navigation" style="position: absolute; left: 100%; top: 0; min-width: 220px; background-color: #006633; border: 1px solid #005229; display: none;">
                                         <li><a href="http://localhost/c/zanvarsity/html/research.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Research & Publications</a></li>
-                                        <li><a href="http://localhost/c/zanvarsity/html/repository.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Repository</a></li>
+                                        <li><a href="how_to_pay.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Repositor</a></li>
                                         <!-- <li><a href="scholarships.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Scholarships</a></li>
                                         <li><a href="financial_aid.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Financial Aid</a></li> -->
                                     </ul>
@@ -288,7 +299,22 @@
                                     <a href="#" class="no-link" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease; position: relative;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">
                                       Examination Regulations <i class="fa fa-chevron-right" style="float: right; margin-top: 5px; transition: transform 0.3s ease;"></i>
                                     </a>
-                                   
+                                    <ul class="list-unstyled child-navigation" style="position: absolute; left: 100%; top: 0; min-width: 220px; background-color: #006633; border: 1px solid #005229; display: none;">
+                                        <li><a href="student_transfers.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Students Transfers</a></li>
+                                        <li><a href="postponent_transfer.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Postponent & Resuption of Studies</a></li>
+                                        <li><a href="credit_transfer.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Credit Transfer</a></li>
+                                    </ul>
+                                </li>
+                                <li class="has-child">
+                                    <a href="#" class="no-link" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease; position: relative;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">
+                                        Others <i class="fa fa-chevron-right" style="float: right; margin-top: 5px; transition: transform 0.3s ease;"></i>
+                                    </a>
+                                    <ul class="list-unstyled child-navigation" style="position: absolute; left: 100%; top: 0; min-width: 220px; background-color: #006633; border: 1px solid #005229; display: none;">
+                                        <li><a href="international_students.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">International Students</a></li>
+                                        <li><a href="mature_age.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Mature Age Entry</a></li>
+                                        <li><a href="special_admissions.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Special Admissions</a></li>
+                                        <li><a href="faq.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">FAQs</a></li>
+                                    </ul>
                                 </li>
                                 
                             </ul>

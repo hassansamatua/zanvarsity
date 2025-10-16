@@ -345,3 +345,5 @@ Stack trace:
 [13-Oct-2025 08:34:06 Europe/Berlin] Event ID 6 - Original path: /zanvarsity/uploads/events/event_68de3298927bf_restaurant.jpg | Checking paths: ..//zanvarsity/uploads/events/event_68de3298927bf_restaurant.jpg, //zanvarsity/uploads/events/event_68de3298927bf_restaurant.jpg, ../uploads/events/event_68de3298927bf_restaurant.jpg, /c/zanvarsity/html/admin/uploads/events/event_68de3298927bf_restaurant.jpg, event_68de3298927bf_restaurant.jpg | Not found: ..//zanvarsity/uploads/events/event_68de3298927bf_restaurant.jpg (Full path: ) | Not found: //zanvarsity/uploads/events/event_68de3298927bf_restaurant.jpg (Full path: ) | Found image at: C:\xampp\htdocs\c\zanvarsity\uploads\events\event_68de3298927bf_restaurant.jpg | Serving from URL: //localhost/c/zanvarsity/html/../uploads/events/event_68de3298927bf_restaurant.jpg
 [13-Oct-2025 13:17:21 Europe/Berlin] Executing query: SELECT * FROM events ORDER BY start_date DESC
 [13-Oct-2025 13:17:21 Europe/Berlin] Fetched 9 events from database
+[15-Oct-2025 14:20:33 Europe/Berlin] Executing query: SELECT * FROM events ORDER BY start_date DESC
+[15-Oct-2025 14:20:33 Europe/Berlin] Fetched 9 events from database

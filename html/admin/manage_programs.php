@@ -123,7 +123,11 @@ $programs = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $page_title; ?> - Zanvarsity Admin</title>
-    <?php include 'includes/header.php'; ?>
+    <?php 
+    // Define base URL for assets
+    $base_url = '/c/zanvarsity/html';
+    include dirname(__DIR__) . '/includes/about_header.php'; 
+    ?>
     <style>
         .program-card {
             margin-bottom: 20px;
