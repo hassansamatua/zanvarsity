@@ -830,47 +830,71 @@
                 <!-- <li>
 										<a href="about-us.html">About Us</a>
 									</li> -->
-                <li>
-                  <a href="#" class="has-child no-link">Academics</a>
-                  <ul class="list-unstyled child-navigation" style="background-color: #004225;">
-                    <li><a href="blog-listing.html">Blog listing</a></li>
-                    <li><a href="blog-detail.html">Blog Detail</a></li>
-                  </ul>
-                </li>
-                <li>
-                  <a href="#" class="has-child no-link">Directorates</a>
-                  <ul class="list-unstyled child-navigation" style="background-color: #004225;">
-                    <li><a href="full-width.html">Fullwidth</a></li>
-                    <li><a href="left-sidebar.html">Left Sidebar</a></li>
-                    <li><a href="right-sidebar.html">Right Sidebar</a></li>
-                    <li><a href="microsite.html">Microsite</a></li>
-                    <li><a href="my-account.html">My Account</a></li>
-                    <li><a href="members.html">Members</a></li>
-                    <li><a href="member-detail.html">Member Detail</a></li>
-                    <li>
-                      <a href="register-sign-in.html">Register & Sign In</a>
+                <li<?php 
+                    $academic_pages = ['faculty.php', 'publications.php', 'exams_regulations.pdf'];
+                    $current_page = basename($_SERVER['PHP_SELF']);
+                    echo (in_array($current_page, $academic_pages) || strpos($_SERVER['REQUEST_URI'], 'faculty.php') !== false) ? ' class="active"' : ''; 
+                ?>>
+                  <a href="#" class="has-child no-link" style="color: #fff; transition: color 0.3s ease; padding: 15px 20px; display: block;">Academics</a>
+                  <ul class="list-unstyled child-navigation" style="background-color: #004225; border: 1px solid #003319; min-width: 200px;">
+                    <li class="has-child">
+                      <a href="#" class="no-link" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease; position: relative;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">
+                        Faculties & Institutes <i class="fa fa-chevron-right" style="float: right; margin-top: 5px; transition: transform 0.3s ease;"></i>
+                      </a>
+                      <ul class="list-unstyled child-navigation" style="position: absolute; left: 100%; top: 0; min-width: 220px; background-color: #006633; border: 1px solid #005229; display: none;">
+                        <li><a href="http://localhost/c/zanvarsity/html/faculty.php?id=1" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Faculty Of Business Administration (FBA)</a></li>
+                        <li><a href="faculty.php?id=2" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Faculty Of Law And Shariah (FLS)</a></li>
+                        <li><a href="faculty.php?id=3" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Faculty Of Arts And Social Sciences (FASS)</a></li>
+                        <li><a href="faculty.php?id=4" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Faculty Of Engineering (FOE)</a></li>
+                        <li><a href="faculty.php?id=5" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Faculty Of Health And Allied Sciences (FOHAS)</a></li>
+                        <li><a href="faculty.php?id=6" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Faculty Of Science (FOS)</a></li>
+                        <li><a href="faculty.php?id=7" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Institute Of Postgraduate Studies & Research (IPGRS)</a></li>
+                        <li><a href="faculty.php?id=8" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Institute Of Islamic Banking And Finance (IIBF)</a></li>
+                        <li><a href="faculty.php?id=9" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Institute Of Continuing Education (ICE)</a></li>
+                      </ul>
                     </li>
-                    <li><a href="shortcodes.html">Shortcodes</a></li>
-                  </ul>
-                </li>
-                <li>
-                  <a href="#" class="has-child no-link">Facilities</a>
-                  <ul class="list-unstyled child-navigation" style="background-color: #004225;">
-                    <li><a href="full-width.html">Fullwidth</a></li>
-                    <li><a href="left-sidebar.html">Left Sidebar</a></li>
-                    <li><a href="right-sidebar.html">Right Sidebar</a></li>
-                    <li><a href="microsite.html">Microsite</a></li>
-                    <li><a href="my-account.html">My Account</a></li>
-                    <li><a href="members.html">Members</a></li>
-                    <li><a href="member-detail.html">Member Detail</a></li>
-                    <li>
-                      <a href="register-sign-in.html">Register & Sign In</a>
+                    <li class="has-child">
+                      <a href="#" class="no-link" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease; position: relative;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">
+                        Research & Publications <i class="fa fa-chevron-right" style="float: right; margin-top: 5px; transition: transform 0.3s ease;"></i>
+                      </a>
+                      <ul class="list-unstyled child-navigation" style="position: absolute; left: 100%; top: 0; min-width: 220px; background-color: #006633; border: 1px solid #005229; display: none;">
+                        <li><a href="publications.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Research & Publications</a></li>
+                        <li><a href="repositories.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Repositories</a></li>
+                      </ul>
                     </li>
-                    <li><a href="shortcodes.html">Shortcodes</a></li>
+                    <li><a href="http://localhost/c/zanvarsity/html/uploads/doc/exams_regulations.pdf" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease; "target='_blank' onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">Examination Regulations</a></li>
                   </ul>
                 </li>
-                <li>
-                  <a href="contact-us.html">Contact Us</a>
+                <li<?php 
+                    $directorates_pages = ['Library_Services.php', 'ICT_Services.php', 'Student_Services.php', 'Quality_Assurance.php', 'Distance_Learning.php'];
+                    $current_page = basename($_SERVER['PHP_SELF']);
+                    echo (in_array($current_page, $directorates_pages)) ? ' class="active"' : ''; 
+                ?>>
+                  <a href="#" class="has-child no-link" style="color: #fff; transition: color 0.3s ease; padding: 15px 20px; display: block;">Directorates</a>
+                  <ul class="list-unstyled child-navigation" style="background-color: #004225; border: 1px solid #003319; min-width: 200px;">
+                    <li><a href="Library_Services.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">Library Services</a></li>
+                    <li><a href="ICT_Services.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">ICT Services</a></li>
+                    <li><a href="Student_Services.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">Student Services</a></li>
+                    <li><a href="Quality_Assurance.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">Quality Assurance</a></li>
+                    <li><a href="Distance_Learning.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">Distance Learning</a></li>
+                  </ul>
+                </li>
+                <li<?php 
+                    $facilities_pages = ['library.php', 'labs.php', 'sports.php', 'hostels.php', 'cafeteria.php'];
+                    $current_page = basename($_SERVER['PHP_SELF']);
+                    echo (in_array($current_page, $facilities_pages)) ? ' class="active"' : ''; 
+                ?>>
+                  <a href="#" class="has-child no-link" style="color: #fff; transition: color 0.3s ease; padding: 15px 20px; display: block;">Facilities</a>
+                  <ul class="list-unstyled child-navigation" style="background-color: #004225; border: 1px solid #003319; min-width: 200px;">
+                    <li><a href="library.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">University Library</a></li>
+                    <li><a href="labs.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">Computer Labs</a></li>
+                    <li><a href="sports.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">Sports Facilities</a></li>
+                    <li><a href="hostels.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">Student Hostels</a></li>
+                    <li><a href="cafeteria.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">Cafeteria</a></li>
+                  </ul>
+                </li>
+                <li<?php echo (basename($_SERVER['PHP_SELF']) == 'contact_us.php') ? ' class="active"' : ''; ?>>
+                  <a href="contact_us.php" style="color: #fff; transition: color 0.3s ease; padding: 15px 20px; display: block;">Contact Us</a>
                 </li>
               </ul>
             </nav>
@@ -1519,7 +1543,7 @@
 				<div class="block">
 					<div class="container">
 						<div class="row">
-							<div class="col-md-4 col-sm-4">
+							<div class="col-md-6">
 								<section id="academic-life">
 									<header>
 										<h2>Academic Life & Research</h2>
@@ -1534,13 +1558,11 @@
 											<li><a href="#">Course Calendars & Listings</a></li>
 										</ul>
 									</div>
-									<!-- /.section-content -->
 								</section>
-								<!-- /.academic-life -->
 							</div>
-							<!-- /.col-md-4 -->
-
-							<div class="col-md-4 col-sm-4">
+							<!-- /.col-md-6 -->
+							
+							<div class="col-md-6">
 								<section id="campus-life">
 									<header>
 										<h2>Campus Life</h2>
@@ -1548,323 +1570,317 @@
 									<div class="section-content">
 										<ul class="list-links">
 											<li><a href="#">Athletics & Recreation</a></li>
-											<li>
-												<a href="#">Clubs & Extra-curricular Activities</a>
-											</li>
+											<li><a href="#">Clubs & Extra-curricular Activities</a></li>
 											<li><a href="#">Health & Wellness</a></li>
 											<li><a href="#">Housing & Residence</a></li>
 											<li><a href="#">Arts & Culture</a></li>
 											<li><a href="#">Student IT Services</a></li>
+											<li><a href="#">Newsletter</a></li>
 										</ul>
 									</div>
-									<!-- /.section-content -->
 								</section>
-								<!-- /.campus-life -->
-							</div>
-							<!-- /.col-md-4 -->
+              </div>
+            </div>
+          </div>
+        </div>
 
-							<div class="col-md-4 col-sm-4">
-								<section id="newsletter">
-									<header>
-										<h2>Newsletter</h2>
-										<div class="section-content">
-											<div class="newsletter">
-												<div class="input-group">
-													<input
-														type="text"
-														class="form-control"
-														placeholder="Your e-mail"
-													/>
-													<span class="input-group-btn">
-														<button type="submit" class="btn">
-															<i class="fa fa-angle-right"></i>
-														</button>
-													</span>
+
+								
+					
+
+							<!-- Latest Publications Section -->
+							<div class="col-12">
+								<section class="pubs py-5 bg-light">
+									<div class="container">
+										<h2 class="text-center mb-4">Latest Publications</h2>
+										<div class="publications-carousel">
+											<div class="publications-track" id="publications-track">
+												<!-- Publications will be loaded here by JavaScript -->
+												<div class="col-12 text-center">
+													<div class="spinner-border text-primary" role="status">
+														<span class="visually-hidden">Loading...</span>
+													</div>
 												</div>
-												<!-- /input-group -->
 											</div>
-											<!-- /.newsletter -->
-											<p class="opacity-50">
-												Ut tincidunt, quam in tincidunt vestibulum, turpis ipsum
-												porttitor nisi, et fermentum augue lit eu neque. In at
-												tempor dolor, sit amet dictum lacus. Praesent porta orci
-												eget laoreet ultrices.
-											</p>
+											<div class="text-center mt-4">
+												<a href="publications.php" class="btn btn-primary">
+													View All Publications <i class="fas fa-arrow-right ms-2"></i>
+												</a>
+											</div>
 										</div>
-										<!-- /.section-content -->
-									</header>
+									</div>
 								</section>
-								<!-- /.newsletter -->
 							</div>
-							<!-- /.col-md-4 -->
-						</div>
-						<!-- /.row -->
-					</div>
-					<!-- /.container -->
-				</div>
+							<!-- /.col-12 -->
+
+						
+					
 				<!-- end Academic Life, Campus Life, Newsletter -->
-   <section id="featured-courses"style="height:550px;">
-        <div class="block">
-            <div class="container" >
-                <header><h2>Research And Publications</h2></header>
-                <div class="publications-container">
-                    <div class="publications-track" id="publicationsTrack">
-                    <?php
-                    // Include database connection
-                    require_once __DIR__ . '/../includes/db_connect.php';
-                    
-                    // Fetch all featured publications
-                    $query = "SELECT * FROM publications WHERE is_featured = 1 ORDER BY publication_date DESC";
-                    $result = $conn->query($query);
-                    $publications = [];
-                    
-                    if ($result && $result->num_rows > 0) {
-                        // Store all publications in an array
-                        while ($publication = $result->fetch_assoc()) {
-                            $publications[] = $publication;
-                        }
-                        
-                        // If there are more than 4 publications, we'll create a seamless loop
-                        $publicationsToShow = $publications;
-                        if (count($publications) > 4) {
-                            $publicationsToShow = array_merge($publicationsToShow, $publications);
-                        }
-                        
-                        foreach ($publicationsToShow as $publication) {
-                            // Format publication date as relative time
-                            $pub_date = $publication['publication_date'];
-                            $pub_timestamp = strtotime($pub_date);
-                            $current_time = time();
-                            $time_diff = $current_time - $pub_timestamp;
-                            
-                            // Format date as relative time (e.g., "2 days ago")
-                            if ($time_diff < 60) {
-                                $time_ago = 'Just now';
-                            } elseif ($time_diff < 3600) {
-                                $minutes = floor($time_diff / 60);
-                                $time_ago = $minutes . ' min' . ($minutes > 1 ? 's' : '') . ' ago';
-                            } elseif ($time_diff < 86400) {
-                                $hours = floor($time_diff / 3600);
-                                $time_ago = $hours . ' hr' . ($hours > 1 ? 's' : '') . ' ago';
-                            } elseif ($time_diff < 604800) {
-                                $days = floor($time_diff / 86400);
-                                $time_ago = $days . ' day' . ($days > 1 ? 's' : '') . ' ago';
-                            } else {
-                                $time_ago = date('M j, Y', $pub_timestamp);
-                            }
-                            // Get the first 150 characters of the description for the excerpt
-                            $excerpt = strlen($publication['description']) > 150 ? 
-                                substr($publication['description'], 0, 147) . '...' : 
-                                $publication['description'];
-                            
-                            // Set default image if none provided
-                            $image_url = !empty($publication['image_url']) ? 
-                                $publication['image_url'] : 
-                                '/c/zanvarsity/html/assets/img/default-publication.jpg';
-                            
-                            // Set document icon class based on file type
-                            $doc_icon = 'fa-file-pdf';
-                            if (!empty($publication['document_url'])) {
-                                $ext = strtolower(pathinfo($publication['document_url'], PATHINFO_EXTENSION));
-                                if (in_array($ext, ['doc', 'docx'])) {
-                                    $doc_icon = 'fa-file-word';
-                                } elseif (in_array($ext, ['xls', 'xlsx'])) {
-                                    $doc_icon = 'fa-file-excel';
-                                } elseif (in_array($ext, ['ppt', 'pptx'])) {
-                                    $doc_icon = 'fa-file-powerpoint';
-                                }
-                            }
-                            ?>
-                            <div class="publication-col">
-                                <div class="publication-card">
-                                    <div class="publication-image">
-                                        <a href="<?php echo !empty($publication['document_url']) ? $publication['document_url'] : '#'; ?>" target="_blank">
-                                            <img src="<?php echo $image_url; ?>" alt="<?php echo htmlspecialchars($publication['title']); ?>">
-                                        </a>
-                                    </div>
-                                    <div class="publication-content">
-                                        <h3 class="publication-title">
-                                            <a href="<?php echo !empty($publication['document_url']) ? $publication['document_url'] : '#'; ?>" target="_blank">
-                                                <?php echo htmlspecialchars($publication['title']); ?>
-                                            </a>
-                                        </h3>
-                                        <div class="publication-meta">
-                                            <span class="publication-author">
-                                                <i class="fa fa-user"></i> <?php echo htmlspecialchars($publication['author']); ?>
-                                            </span>
-                                            <span class="publication-date">
-                                                <i class="fa fa-calendar"></i> <?php echo $time_ago; ?>
-                                            </span>
-                                        </div>
-                                        <?php if (!empty($publication['document_url'])): ?>
-                                        <div class="publication-footer" style="margin-top: 15px;">
-                                            <a href="<?php echo $publication['document_url']; ?>" class="document-link" target="_blank">
-                                                <i class="fa <?php echo $doc_icon; ?>"></i> View Document
-                                            </a>
-                                        </div>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
-                            </div>
-                            <?php
-                        }
-                    } else {
-                        echo '<div class="col-12"><p class="text-center">No featured publications found.</p></div>';
-                    }
-                    ?>
-                    </div><!-- /.publications-track -->
-                </div><!-- /.publications-container -->
-                <?php if (count($publications) > 4): ?>
-                <div class="text-center" style="margin-top: 0px;">
-                    <a href="publications.php" class="view-all-btn">View All Publications</a>
-                </div>
-                <?php else: ?>
-                <div class="text-center" style="margin-top: 20px;">
-                    <a href="publications.php" class="view-all-btn">View All Publications</a>
-                </div>
-                <?php endif; ?>
-            </div><!-- /.container -->
-            <div class="background background-color-grey-background"></div>
-        </div><!-- /.block -->
+   
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const track = document.getElementById('publications-track');
+    let currentPosition = 0;
+    let publications = [];
+    let itemsPerView = 3; // Default for large screens
+    let autoScrollInterval;
+
+    // Update items per view based on screen size
+    function updateItemsPerView() {
+        if (window.innerWidth < 768) {
+            itemsPerView = 1;
+        } else if (window.innerWidth < 992) {
+            itemsPerView = 2;
+        } else {
+            itemsPerView = 3;
+        }
+        // Update CSS variable for responsive card width
+        document.documentElement.style.setProperty('--items-per-view', itemsPerView);
+        moveCarousel();
+    }
+
+    // Move carousel
+    function moveCarousel() {
+        if (!track || !track.children.length) return;
         
-        <!-- Publication Details Modal -->
-        <div class="modal fade" id="publicationModal" tabindex="-1" role="dialog" aria-labelledby="publicationModalLabel">
-            <div class="modal-dialog modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                        <h4 class="modal-title" id="publicationModalLabel">Publication Details</h4>
+        // Calculate the maximum position to prevent empty space at the end
+        const maxPosition = Math.max(0, Math.ceil(publications.length / itemsPerView) - 1);
+        currentPosition = Math.min(currentPosition, maxPosition);
+        
+        const slideWidth = 100 / itemsPerView;
+        track.style.transform = `translateX(-${currentPosition * slideWidth}%)`;
+    }
+
+    // Create publication card
+    function createPublicationCard(pub) {
+        // Handle date formatting with fallback
+        let pubDate = 'Date not available';
+        const dateString = pub.date || pub.created_at || pub.publication_date;
+        
+        if (dateString) {
+            const dateObj = new Date(dateString);
+            if (!isNaN(dateObj.getTime())) {
+                pubDate = dateObj.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+            }
+        }
+
+        return `
+            <div class="publication-card">
+                <div class="card h-100" style="box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <div style="height: 180px; overflow: hidden;">
+                        <img src="${pub.image_url || '../assets/images/published.jpg'}" 
+                             class="card-img-top h-100 w-100" 
+                             alt="${pub.title}" 
+                             onerror="this.onerror=null; this.src='../assets/images/published.jpg'"
+                             style="object-fit: cover; transition: transform 0.3s ease;">
                     </div>
-                    <div class="modal-body" id="publicationDetails">
-                        <div class="text-center"><i class="fa fa-spinner fa-spin fa-3x"></i> Loading...</div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <a href="#" id="downloadBtn" class="btn btn-primary" target="_blank">
-                            <i class="fa fa-download"></i> Download
-                        </a>
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title" style="font-size: 1rem; min-height: 3em; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">${pub.title}</h5>
+                        <div class="publication-meta small text-muted mb-2">
+                            <div class="author">
+                                ${pub.firstName || ''} ${pub.middleName ? pub.middleName + ' ' : ''}${pub.lastName || 'ZUMI'}
+                            </div>
+                            <div class="date mt-1">
+                                <i class="far fa-calendar-alt me-1"></i> ${pubDate}
+                            </div>
+                        </div>
+                        <p class="card-text flex-grow-1" style="font-size: 0.9rem; color: #555; min-height: 3em; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">${(pub.description || '').substring(0, 100)}</p>
+                        <a href="publication.php?id=${pub.id}" class="btn btn-primary mt-auto" style="background-color: #004225; border-color: #003319;">Read More</a>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        `;
+    }
+
+    // Auto-scroll functionality
+    function startAutoScroll() {
+        // Clear any existing interval
+        stopAutoScroll();
+        
+        // Start new interval
+        autoScrollInterval = setInterval(() => {
+            const maxPosition = Math.max(0, Math.ceil(publications.length / itemsPerView) - 1);
+            if (currentPosition >= maxPosition) {
+                currentPosition = 0;
+            } else {
+                currentPosition++;
+            }
+            moveCarousel();
+        }, 5000);
+    }
     
-    <script>
-    $(document).ready(function() {
-        // Handle view details button click
-        $(document).on('click', '.view-publication', function(e) {
-            e.preventDefault();
-            var publicationId = $(this).data('id');
-            
-            // Show loading spinner
-            $('#publicationDetails').html('<div class="text-center"><i class="fa fa-spinner fa-spin fa-3x"></i> Loading...</div>');
-            
-            // Show the modal immediately
-            $('#publicationModal').modal('show');
-            
-            // Load publication details via AJAX
-            $.ajax({
-                url: 'admin/ajax/get_publication.php',
-                type: 'GET',
-                data: { id: publicationId },
-                dataType: 'json',
-                success: function(response) {
-                    if (response.success) {
-                        var pub = response.data;
-                        // Format the publication date as relative time
-                        function formatRelativeTime(dateString) {
-                            const pubDate = new Date(dateString);
-                            const now = new Date();
-                            const diffInSeconds = Math.floor((now - pubDate) / 1000);
-                            
-                            const intervals = {
-                                year: 31536000,
-                                month: 2592000,
-                                week: 604800,
-                                day: 86400,
-                                hour: 3600,
-                                minute: 60
-                            };
-                            
-                            for (const [unit, seconds] of Object.entries(intervals)) {
-                                const interval = Math.floor(diffInSeconds / seconds);
-                                if (interval >= 1) {
-                                    return interval + ' ' + unit + (interval === 1 ? '' : 's') + ' ago';
-                                }
-                            }
-                            return 'just now';
-                        }
-                        
-                        // Get both formatted date and relative time
-                        var pubDate = new Date(pub.publication_date);
-                        var formattedDate = pubDate.toLocaleDateString('en-US', { 
-                            year: 'numeric', 
-                            month: 'long', 
-                            day: 'numeric' 
-                        });
-                        var relativeTime = formatRelativeTime(pub.publication_date);
-                        
-                        // Create HTML content
-                        var html = '<div class="publication-details">';
-                        
-                        // Add image if available
-                        if (pub.image_url) {
-                            html += '<div class="publication-image text-center" style="margin-bottom: 20px;">';
-                            html += '<img src="' + pub.image_url + '" alt="' + pub.title + '" class="img-responsive" style="max-height: 300px; margin: 0 auto;">';
-                            html += '</div>';
-                        }
-                        
-                        // Add publication details
-                        html += '<h2>' + pub.title + '</h2>';
-                        html += '<div class="meta" style="margin-bottom: 20px; color: #666; font-size: 14px;">';
-                        html += '<span><i class="fa fa-user"></i> ' + pub.author + '</span> | ';
-                        html += '<span title="' + formattedDate + '"><i class="fa fa-calendar"></i> ' + relativeTime + '</span>';
-                        html += '</div>';
-                        
-                        // Add description with proper formatting
-                        html += '<div class="publication-content" style="line-height: 1.6;">';
-                        // Convert newlines to <br> tags and make URLs clickable
-                        var description = pub.description.replace(/\n/g, '<br>');
-                        description = description.replace(/(https?:\/\/[^\s]+)/g, function(url) {
-                            return '<a href="' + url + '" target="_blank">' + url + '</a>';
-                        });
-                        html += description;
-                        html += '</div>';
-                        
-                        // Add document link if available
-                        if (pub.document_url) {
-                            html += '<div class="document-link" style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee;">';
-                            html += '<a href="' + pub.document_url + '" class="btn btn-primary" target="_blank">';
-                            html += '<i class="fa fa-download"></i> Download Full Document';
-                            html += '</a>';
-                            html += '</div>';
-                        }
-                        
-                        html += '</div>'; // Close publication-details
-                        
-                        $('#publicationDetails').html(html);
-                        
-                        // Update download button
-                        if (pub.document_url) {
-                            $('#downloadBtn').attr('href', pub.document_url).show();
-                        } else {
-                            $('#downloadBtn').hide();
-                        }
-                    } else {
-                        $('#publicationDetails').html('<div class="alert alert-danger">Error loading publication details. Please try again later.</div>');
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error loading publication:', error);
-                    $('#publicationDetails').html('<div class="alert alert-danger">Error loading publication details. Please try again later.</div>');
-                }
-            });
-        });
+    function stopAutoScroll() {
+        if (autoScrollInterval) {
+            clearInterval(autoScrollInterval);
+            autoScrollInterval = null;
+        }
+    }
+    
+    // Initialize auto-scroll
+    startAutoScroll();
+    
+    // Pause auto-scroll on hover
+    const carouselContainer = document.querySelector('.publications-carousel');
+    if (carouselContainer) {
+        carouselContainer.addEventListener('mouseenter', stopAutoScroll);
+        carouselContainer.addEventListener('mouseleave', startAutoScroll);
+    }
+
+    // Handle window resize
+    window.addEventListener('resize', () => {
+        const oldItemsPerView = itemsPerView;
+        updateItemsPerView();
+        // Recalculate position to maintain the first visible item
+        if (oldItemsPerView !== itemsPerView) {
+            currentPosition = Math.floor((currentPosition * oldItemsPerView) / itemsPerView);
+            moveCarousel();
+        }
     });
-    </script>
+
+    // Initial setup
+    updateItemsPerView();
+
+    // Fetch publications from API
+    fetch('https://www.zumis.ac.tz/academic/data/api/getAllPublications')
+        .then(response => response.json())
+        .then(data => {
+            publications = Array.isArray(data) ? data : [];
+            
+            if (publications.length === 0) {
+                track.innerHTML = `
+                    <div class="col-12 text-center">
+                        <p>No publications available at the moment.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Create and append publication cards
+            track.innerHTML = publications.map(pub => createPublicationCard(pub)).join('');
+            
+            // Reset position and restart auto-scroll after loading new content
+            currentPosition = 0;
+            moveCarousel();
+            startAutoScroll();
+        })
+        .catch(error => {
+            console.error('Error loading publications:', error);
+            track.innerHTML = `
+                <div class="col-12 text-center text-danger">
+                    <p>Failed to load publications. Please try again later.</p>
+                </div>
+            `;
+        });
+});
+</script>
     <style>
+      /* Publications Section */
+      /* Publications Carousel */
+.publications-carousel {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    padding: 20px 15px 40px;
+    margin-bottom: 20px;
+}
+
+.publications-track {
+    display: flex;
+    transition: transform 0.5s ease;
+    padding: 10px 0;
+    width: 100%;
+    flex-wrap: nowrap;
+}
+
+.publication-card {
+flex: 0 0 calc(100% / var(--items-per-view, 1));
+padding: 0 10px;
+box-sizing: border-box;
+transition: transform 0.3s ease;
+}
+
+.publication-card:hover {
+transform: translateY(-5px);
+}
+
+.carousel-nav {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.carousel-nav button {
+    background: #004225;
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    margin: 0 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.carousel-nav button:hover {
+    background: #003319;
+}
+
+.carousel-nav button:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+    .publication-card {
+        flex: 0 0 calc(100% / var(--items-per-view, 2));
+    }
+}
+
+@media (max-width: 576px) {
+    .publication-card {
+        flex: 0 0 100%;
+    }
+}
+.pubs {
+    padding: 60px 0;
+    background-color: #f8f9fa;
+}
+
+.publication-card .card {
+    height: 100%;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    margin: 0 5px;
+    height: 100%;
+}
+
+.publication-card .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.publication-card .card:hover img {
+    transform: scale(1.05);
+}
+
+.pubs .card-img-top {
+    border-bottom: 1px solid #eee;
+}
+
+.pubs .btn-primary {
+    background-color: #004225;
+    border-color: #004225;
+}
+
+.pubs .btn-primary:hover {
+    background-color: #003319;
+    border-color: #003319;
+}
     .featured-course {
         height: 400px; /* Fixed height for all cards */
         display: flex;

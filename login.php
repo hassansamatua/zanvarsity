@@ -6,18 +6,7 @@
  * and manages user sessions.
  */
 
-// Start session with secure settings
-if (session_status() === PHP_SESSION_NONE) {
-    ini_set('session.cookie_httponly', 1);
-    ini_set('session.use_only_cookies', 1);
-    ini_set('session.cookie_secure', isset($_SERVER['HTTPS']));
-    session_start();
-}
-if (!isset($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-}
-
-// Include necessary files
+// Include necessary files first
 require_once __DIR__ . '/includes/auth_functions.php';
 require_once __DIR__ . '/includes/database.php';
 
@@ -26,14 +15,32 @@ $redirect_url = '/c/zanvarsity/html/my-account.php';
 
 // Handle POST request
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Verify CSRF token
+    // Ensure session is started and has a CSRF token
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    
+    // Generate CSRF token if not exists
+    if (!isset($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    
     // Verify CSRF token with detailed error logging
-if (!isset($_POST['csrf_token']) || !isset($_SESSION['csrf_token']) || 
-    !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
-    error_log('CSRF token validation failed. Session token: ' . ($_SESSION['csrf_token'] ?? 'not set') . ', POST token: ' . ($_POST['csrf_token'] ?? 'not set'));
-    header('Location: /c/zanvarsity/html/sign-in.php?error=invalid_csrf');
-    exit();
-}
+    if (!isset($_POST['csrf_token']) || !isset($_SESSION['csrf_token']) || 
+        !hash_equals((string)$_SESSION['csrf_token'], (string)$_POST['csrf_token'])) {
+        
+        error_log('CSRF token validation failed. ' . 
+                 'Session token: ' . ($_SESSION['csrf_token'] ?? 'not set') . ', ' .
+                 'POST token: ' . ($_POST['csrf_token'] ?? 'not set') . ', ' . 
+                 'Session ID: ' . (session_id() ?: 'no session'));
+        
+        // Regenerate CSRF token for next attempt
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        
+        // Redirect back to login with error
+        header('Location: /c/zanvarsity/html/sign-in.php?error=invalid_csrf');
+        exit();
+    }
     // Validate required fields
     if (empty($_POST['email']) || empty($_POST['password'])) {
         header("Location: /c/zanvarsity/html/login.php?error=empty_fields");
@@ -58,25 +65,37 @@ if (!isset($_POST['csrf_token']) || !isset($_SESSION['csrf_token']) ||
     $user = authenticate_user($email, $password);
     
     if ($user) {
-        // Authentication successful - set session variables
+        // Regenerate session ID to prevent session fixation
+        session_regenerate_id(true);
+        
+        // Set session variables
         $_SESSION['user_id'] = $user['id'];
-        $_SESSION['user_email'] = $user['email'];
+        $_SESSION['email'] = $user['email']; // Make sure this matches the session key used in my-account.php
         
         // Set user role with proper validation
-        $allowed_roles = ['student', 'instructor', 'admin', 'super_admin'];
+        $allowed_roles = ['student', 'instructor', 'admin', 'super_admin', 'dean'];
         $_SESSION['role'] = in_array(strtolower($user['role'] ?? 'student'), $allowed_roles) 
             ? strtolower($user['role']) 
             : 'student';
+            
+        // Set user's name and other profile information
+        $_SESSION['first_name'] = isset($user['first_name']) ? htmlspecialchars($user['first_name'], ENT_QUOTES, 'UTF-8') : '';
+        $_SESSION['last_name'] = isset($user['last_name']) ? htmlspecialchars($user['last_name'], ENT_QUOTES, 'UTF-8') : '';
         
-        // Set user's name if available
-        if (isset($user['first_name'])) {
-            $_SESSION['first_name'] = htmlspecialchars($user['first_name'], ENT_QUOTES, 'UTF-8');
-            if (isset($user['last_name'])) {
-                $_SESSION['last_name'] = htmlspecialchars($user['last_name'], ENT_QUOTES, 'UTF-8');
-                $_SESSION['full_name'] = $_SESSION['first_name'] . ' ' . $_SESSION['last_name'];
-            } else {
-                $_SESSION['full_name'] = $_SESSION['first_name'];
-            }
+        // Set profile image if available
+        if (!empty($user['profile_image'])) {
+            $_SESSION['profile_image'] = $user['profile_image'];
+        } else {
+            // Default avatar if no profile image is set
+            $_SESSION['profile_image'] = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiNkZGQiLz48dGV4dCB4PSI1MCIgeT0iNTAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgYWxpZ25tZW50LWJhc2VsaW5lPSJtaWRkbGUiIGZpbGw9IiYjNjY2OyI+QXZhdGFyPC90ZXh0Pjwvc3ZnPg';
+        }
+        
+        // Set last activity time
+        $_SESSION['last_activity'] = time();
+        if (!empty($_SESSION['last_name'])) {
+            $_SESSION['full_name'] = $_SESSION['first_name'] . ' ' . $_SESSION['last_name'];
+        } else {
+            $_SESSION['full_name'] = $_SESSION['first_name'];
         }
         
         // Set last login time
@@ -93,11 +112,11 @@ if (!isset($_POST['csrf_token']) || !isset($_SESSION['csrf_token']) ||
             $_SESSION['role'],
             $_SERVER['REMOTE_ADDR'] ?? 'unknown'
         ));
-        // After successful login in login.php, before redirecting:
-$_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        // Generate new CSRF token after successful login
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
         
-        // Clear the CSRF token after successful login
-        unset($_SESSION['csrf_token']);
+        // Log successful login
+        error_log("User logged in successfully: " . $user['email']);
         
         // Always redirect to my-account.php first
         $redirect = '/c/zanvarsity/html/my-account.php';
@@ -140,12 +159,12 @@ $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
         // Random delay to prevent timing attacks
         usleep(rand(200000, 1000000)); // 0.2 - 1 second delay
         
-        header("Location: /c/zanvarsity/html/login.php?error=invalid_credentials&email=" . urlencode($email));
+        header("Location: /c/zanvarsity/html/sign-in.php?error=invalid_credentials&email=" . urlencode($email));
         exit();
     }
 } else {
     // If not a POST request, redirect to login page
-    header("Location: /c/zanvarsity/html/login.php");
+    header("Location: /c/zanvarsity/html/sign-in.php");
     exit();
 }
 ?>

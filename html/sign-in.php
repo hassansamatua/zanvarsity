@@ -1,6 +1,11 @@
 <?php
 // Start session and include necessary files at the very top
 if (session_status() === PHP_SESSION_NONE) {
+    // Session security settings
+    ini_set('session.cookie_httponly', 1);
+    ini_set('session.use_only_cookies', 1);
+    ini_set('session.cookie_secure', isset($_SERVER['HTTPS']));
+    session_name('zanvarsity_session');
     session_start();
 }
 
@@ -11,11 +16,11 @@ require_once __DIR__ . '/../includes/auth_functions.php';
 $page_title = 'Sign In | Zanvarsity';
 $page_heading = 'Welcome Back!';
 
-// Include header
-include 'includes/about_header.php';
-
-// Redirect if already logged in
-redirect_if_logged_in();
+// Check if user is already logged in
+if (is_logged_in()) {
+    header('Location: /c/zanvarsity/html/my-account.php');
+    exit();
+}
 
 // Display error messages if any
 $error = '';
@@ -33,8 +38,14 @@ if (isset($_GET['error'])) {
         case 'login_required':
             $error = 'Please log in to access that page';
             break;
+        case 'invalid_csrf':
+            $error = 'Invalid security token. Please try again.';
+            break;
     }
 }
+
+// Include header after setting all variables
+include 'includes/about_header.php';
 ?>
 
 <!-- Add this style block in the head -->
@@ -210,13 +221,8 @@ body {
                 </div>
                 <?php endif; ?>
                 
-                <form id="loginForm" method="post" action="/c/zanvarsity/login.php" onsubmit="return handleLogin(event)">
-    <input type="hidden" name="csrf_token" value="<?php 
-        if (!isset($_SESSION['csrf_token'])) {
-            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-        }
-        echo $_SESSION['csrf_token']; 
-    ?>"> 
+                <form id="loginForm" method="post" action="/c/zanvarsity/login.php">
+    <?php echo csrf_token_field(); ?>
                     <div class="form-group">
                         <label for="email">Email Address</label>
                         <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
@@ -241,11 +247,11 @@ body {
     </div>
 </div>
 
-<?php include 'includes/about_footer.php'; ?>
-
-<!-- JavaScript -->
-<script src="assets/js/jquery-3.6.0.min.js"></script>
-<script src="assets/js/bootstrap.bundle.min.js"></script>
+<?php 
+// Include footer
+$hide_page_content_div = true; // Tell the footer not to close the page-content div
+include 'includes/about_footer.php'; 
+?>
 <script>
 function handleLogin(event) {
     // Basic client-side validation

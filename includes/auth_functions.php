@@ -357,10 +357,52 @@ function require_admin() {
     }
 }
 
-// Security-related session initialization
-if (empty($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+/**
+ * Generate a new CSRF token and store it in the session
+ * 
+ * @return string The generated CSRF token
+ */
+function generate_csrf_token() {
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
 }
+
+/**
+ * Get the current CSRF token, generating a new one if needed
+ * 
+ * @return string The current CSRF token
+ */
+function get_csrf_token() {
+    return generate_csrf_token();
+}
+
+/**
+ * Validate a CSRF token
+ * 
+ * @param string $token The token to validate
+ * @return bool True if the token is valid, false otherwise
+ */
+function validate_csrf_token($token) {
+    if (empty($_SESSION['csrf_token']) || empty($token)) {
+        return false;
+    }
+    return hash_equals((string)$_SESSION['csrf_token'], (string)$token);
+}
+
+/**
+ * Generate a CSRF token HTML input field
+ * 
+ * @return string HTML input field with the CSRF token
+ */
+function csrf_token_field() {
+    $token = get_csrf_token();
+    return '<input type="hidden" name="csrf_token" value="' . htmlspecialchars($token, ENT_QUOTES, 'UTF-8') . '">';
+}
+
+// Initialize CSRF token if not set
+generate_csrf_token();
 
 // Set last activity time for session timeout
 if (!isset($_SESSION['last_activity'])) {
@@ -374,21 +416,6 @@ if (!isset($_SESSION['created'])) {
     // Regenerate session ID every 30 minutes
     session_regenerate_id(true);
     $_SESSION['created'] = time();
-}
-
-// Function to validate CSRF token
-function validate_csrf_token($token) {
-    if (!isset($_SESSION['csrf_token']) || empty($token)) {
-        return false;
-    }
-    return hash_equals($_SESSION['csrf_token'], $token);
-}
-
-// Function to get CSRF token HTML input
-function csrf_token_field() {
-    return '<input type="hidden" name="csrf_token" value="' . 
-           htmlspecialchars($_SESSION['csrf_token'] ?? '', ENT_QUOTES, 'UTF-8') . 
-           '">';
 }
 
 // Function to securely destroy session

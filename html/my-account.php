@@ -28,10 +28,18 @@ $is_dean = ($user_role === 'dean');
 
 // Handle profile update
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile']) && $user_id) {
-    $first_name = $_POST['first_name'] ?? '';
-    $last_name = $_POST['last_name'] ?? '';
-    $phone = $_POST['phone'] ?? '';
-    $bio = $_POST['bio'] ?? '';
+    // Sanitize input
+    $first_name = trim(htmlspecialchars($_POST['first_name'] ?? ''));
+    $last_name = trim(htmlspecialchars($_POST['last_name'] ?? ''));
+    $phone = trim(htmlspecialchars($_POST['phone'] ?? ''));
+    $bio = trim(htmlspecialchars($_POST['bio'] ?? ''));
+    
+    // Validate required fields
+    if (empty($first_name) || empty($last_name)) {
+        $_SESSION['error'] = "First name and last name are required.";
+        header("Location: my-account.php?tab=profile");
+        exit();
+    }
     
     // Get current user data
     $user = [];
@@ -435,8 +443,8 @@ if (isset($conn)) {
             <?php endif; ?>
             <li><a href="?tab=messages" class="<?php echo (isset($_GET['tab']) && $_GET['tab'] === 'messages') ? 'active' : ''; ?>"><i class="fa fa-envelope"></i> Messages</a></li>
             <li><a href="?tab=settings" class="<?php echo (isset($_GET['tab']) && $_GET['tab'] === 'settings') ? 'active' : ''; ?>"><i class="fa fa-cog"></i> Settings</a></li>
-            <?php if ($is_admin): ?>
-            <li><a href="/c/zanvarsity/html/admin/admin-panel.php"><i class="fa fa-lock"></i> Admin Panel</a></li>
+            <?php if ($is_admin || $is_dean): ?>
+            <li><a href="manage_content.php"><i class="fa fa-edit"></i> Manage Content</a></li>
             <?php endif; ?>
             <li><a href="logout.php"><i class="fa fa-sign-out"></i> Logout</a></li>
           </ul>
@@ -445,151 +453,11 @@ if (isset($conn)) {
 
       <!-- Main Content -->
       <div class="col-lg-9">
-        <?php if (isset($_GET['tab']) && $_GET['tab'] === 'manage-users' && $is_admin): ?>
-          <!-- Manage Users Section -->
-          <div class="manage-users">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-              <h2><i class="fa fa-users-cog"></i> Manage Users</h2>
-              <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
-                <i class="fa fa-plus"></i> Add New User
-              </button>
-            </div>
-
-            <?php if (isset($_SESSION['success'])): ?>
-              <div class="alert alert-success"><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></div>
-            <?php endif; ?>
-            
-            <?php if (isset($_SESSION['error'])): ?>
-              <div class="alert alert-danger"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
-            <?php endif; ?>
-
-            <div class="card">
-              <div class="card-body">
-                <div class="table-responsive">
-                  <table class="table table-hover">
-                    <thead class="table-light">
-                      <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <?php
-                      $sql = "SELECT id, first_name, last_name, email, role, is_active FROM users ORDER BY created_at DESC";
-                      $result = $conn->query($sql);
-                      
-                      if ($result && $result->num_rows > 0) {
-                          while ($user = $result->fetch_assoc()) {
-                              $is_current_user = ($user['id'] == $_SESSION['user_id']);
-                              ?>
-                              <tr>
-                                <td>#<?php echo $user['id']; ?></td>
-                                <td><?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?></td>
-                                <td><?php echo htmlspecialchars($user['email']); ?></td>
-                                <td>
-                                  <?php if ($is_current_user): ?>
-                                    <?php echo ucfirst($user['role']); ?>
-                                  <?php else: ?>
-                                    <form method="post" class="d-inline" onchange="this.submit()">
-                                      <input type="hidden" name="action" value="update_role">
-                                      <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
-                                      <select name="new_role" class="form-select form-select-sm" style="width: auto;">
-                                        <option value="student" <?php echo $user['role'] === 'student' ? 'selected' : ''; ?>>Student</option>
-                                        <option value="lecturer" <?php echo $user['role'] === 'lecturer' ? 'selected' : ''; ?>>Lecturer</option>
-                                        <option value="admin" <?php echo $user['role'] === 'admin' ? 'selected' : ''; ?>>Admin</option>
-                                      </select>
-                                    </form>
-                                  <?php endif; ?>
-                                </td>
-                                <td>
-                                  <span class="badge <?php echo $user['is_active'] ? 'bg-success' : 'bg-secondary'; ?>">
-                                    <?php echo $user['is_active'] ? 'Active' : 'Inactive'; ?>
-                                  </span>
-                                </td>
-                                <td>
-                                  <div class="btn-group">
-                                    <a href="?tab=edit-user&id=<?php echo $user['id']; ?>" class="btn btn-sm btn-info" title="Edit">
-                                      <i class="fa fa-edit"></i>
-                                    </a>
-                                    <?php if (!$is_current_user): ?>
-                                      <form method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this user?')">
-                                        <input type="hidden" name="action" value="delete_user">
-                                        <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
-                                        <button type="submit" class="btn btn-sm btn-danger" title="Delete">
-                                          <i class="fa fa-trash"></i>
-                                        </button>
-                                      </form>
-                                    <?php endif; ?>
-                                  </div>
-                                </td>
-                              </tr>
-                              <?php
-                          }
-                      } else {
-                          echo '<tr><td colspan="6" class="text-center">No users found</td></tr>';
-                      }
-                      ?>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Add User Modal -->
-          <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="addUserModalLabel">Add New User</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form method="post" action="">
-                  <div class="modal-body">
-                    <input type="hidden" name="action" value="add_user">
-                    <div class="mb-3">
-                      <label for="firstName" class="form-label">First Name</label>
-                      <input type="text" class="form-control" id="firstName" name="first_name" required>
-                    </div>
-                    <div class="mb-3">
-                      <label for="lastName" class="form-label">Last Name</label>
-                      <input type="text" class="form-control" id="lastName" name="last_name" required>
-                    </div>
-                    <div class="mb-3">
-                      <label for="email" class="form-label">Email</label>
-                      <input type="email" class="form-control" id="email" name="email" required>
-                    </div>
-                    <div class="mb-3">
-                      <label for="password" class="form-label">Password</label>
-                      <input type="password" class="form-control" id="password" name="password" required>
-                    </div>
-                    <div class="mb-3">
-                      <label for="role" class="form-label">Role</label>
-                      <select class="form-select" id="role" name="role" required>
-                        <option value="student">Student</option>
-                        <option value="lecturer">Lecturer</option>
-                        <option value="admin">Admin</option>
-                      </select>
-                    </div>
-                    <div class="form-check mb-3">
-                      <input class="form-check-input" type="checkbox" id="isActive" name="is_active" value="1" checked>
-                      <label class="form-check-label" for="isActive">
-                        Active
-                      </label>
-                    </div>
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Add User</button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
+        <?php if (isset($_GET['tab']) && $_GET['tab'] === 'manage-content' && ($is_admin || $is_dean)): ?>
+          <script>
+            // Direct redirect to manage_content.php
+            window.location.href = 'manage_content.php';
+          </script>
 
         <?php elseif (isset($_GET['tab']) && $_GET['tab'] === 'profile'): ?>
           <!-- Profile Section -->
@@ -603,24 +471,36 @@ if (isset($conn)) {
                 <div class="row">
                   <div class="col-md-4 text-center">
                     <div class="profile-image-large mb-3">
-                      <img src="<?php echo !empty($user['profile_image']) ? $user['profile_image'] : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiNkZGQiLz48dGV4dCB4PSI1MCIgeT0iNTAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgYWxpZ25tZW50LWJhc2VsaW5lPSJtaWRkbGUiIGZpbGw9IiYjNjY2OyI+QXZhdGFyPC90ZXh0Pjwvc3ZnPg'; ?>" alt="Profile Image" style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover;">
+                      <img id="profile-preview" src="<?php echo !empty($user['profile_image']) ? $user['profile_image'] : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiNkZGQiLz48dGV4dCB4PSI1MCIgeT0iNTAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgYWxpZ25tZW50LWJhc2VsaW5lPSJtaWRkbGUiIGZpbGw9IiYjNjY2OyI+QXZhdGFyPC90ZXh0Pjwvc3ZnPg'; ?>" alt="Profile Image" style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover;">
                     </div>
-                    <button class="btn btn-primary">Change Photo</button>
+                    <div class="mb-3">
+                      <label for="profile_image" class="form-label">Change Profile Picture</label>
+                      <input type="file" class="form-control" id="profile_image" name="profile_image" accept="image/*">
+                      <div class="form-text">Max file size: 2MB. Allowed formats: JPG, PNG, GIF</div>
+                    </div>
                   </div>
                   <div class="col-md-8">
-                    <form>
+                    <?php if (isset($_SESSION['error'])): ?>
+                      <div class="alert alert-danger"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
+                    <?php endif; ?>
+                    <?php if (isset($_SESSION['success'])): ?>
+                      <div class="alert alert-success"><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></div>
+                    <?php endif; ?>
+                    
+                    <form method="POST" action="" enctype="multipart/form-data" id="profileForm">
+                      <input type="hidden" name="update_profile" value="1">
                       <div class="row">
                         <div class="col-md-6 mb-3">
                           <label class="form-label">First Name</label>
-                          <input type="text" class="form-control" value="<?php echo htmlspecialchars($user['first_name'] ?? ''); ?>" readonly>
+                          <input type="text" class="form-control" id="first_name" name="first_name" value="<?php echo htmlspecialchars($user['first_name'] ?? ''); ?>">
                         </div>
                         <div class="col-md-6 mb-3">
                           <label class="form-label">Last Name</label>
-                          <input type="text" class="form-control" value="<?php echo htmlspecialchars($user['last_name'] ?? ''); ?>" readonly>
+                          <input type="text" class="form-control" id="last_name" name="last_name" value="<?php echo htmlspecialchars($user['last_name'] ?? ''); ?>">
                         </div>
                         <div class="col-md-12 mb-3">
                           <label class="form-label">Email</label>
-                          <input type="email" class="form-control" value="<?php echo htmlspecialchars($user['email'] ?? ''); ?>" readonly>
+                          <input type="email" class="form-control" value="<?php echo htmlspecialchars($user_email); ?>" readonly>
                         </div>
                         <div class="col-md-6 mb-3">
                           <label class="form-label">Role</label>
@@ -628,10 +508,68 @@ if (isset($conn)) {
                         </div>
                         <div class="col-md-6 mb-3">
                           <label class="form-label">Phone</label>
-                          <input type="text" class="form-control" value="<?php echo htmlspecialchars($user['phone'] ?? 'Not provided'); ?>" readonly>
+                          <input type="tel" class="form-control" id="phone" name="phone" value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>">
                         </div>
                       </div>
-                      <button type="button" class="btn btn-success">Edit Profile</button>
+                      <div class="mb-3">
+                        <label for="bio" class="form-label">Bio</label>
+                        <textarea class="form-control" id="bio" name="bio" rows="3"><?php echo htmlspecialchars($user['bio'] ?? ''); ?></textarea>
+                      </div>
+                      
+                      <button type="submit" class="btn btn-primary">Save Changes</button>
+                      
+                      <script>
+                      // Profile picture preview
+                      document.getElementById('profile_image')?.addEventListener('change', function(e) {
+                          const file = e.target.files[0];
+                          if (file) {
+                              // Check file size (max 2MB)
+                              if (file.size > 2 * 1024 * 1024) {
+                                  alert('File size must be less than 2MB');
+                                  this.value = '';
+                                  return;
+                              }
+                              
+                              // Check file type
+                              const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+                              if (!validTypes.includes(file.type)) {
+                                  alert('Only JPG, PNG, and GIF files are allowed');
+                                  this.value = '';
+                                  return;
+                              }
+                              
+                              // Create preview
+                              const reader = new FileReader();
+                              reader.onload = function(e) {
+                                  const preview = document.getElementById('profile-preview');
+                                  if (preview) {
+                                      preview.src = e.target.result;
+                                      
+                                      // Also update the sidebar image if it exists
+                                      const sidebarImg = document.querySelector('.sidebar .profile-image img');
+                                      if (sidebarImg) {
+                                          sidebarImg.src = e.target.result;
+                                      }
+                                  }
+                              }
+                              reader.readAsDataURL(file);
+                          }
+                      });
+                      
+                      // Form validation
+                      document.getElementById('profileForm')?.addEventListener('submit', function(e) {
+                          const firstName = document.getElementById('first_name')?.value.trim();
+                          const lastName = document.getElementById('last_name')?.value.trim();
+                          
+                          if (!firstName || !lastName) {
+                              e.preventDefault();
+                              alert('First name and last name are required');
+                              return false;
+                          }
+                          
+                          return true;
+                      });
+                      </script>
                     </form>
                   </div>
                 </div>
