@@ -221,7 +221,7 @@ body {
                 </div>
                 <?php endif; ?>
                 
-                <form id="loginForm" method="post" action="/c/zanvarsity/login.php">
+                <form id="loginForm" method="post" action="/c/zanvarsity/html/process-login.php">
     <?php echo csrf_token_field(); ?>
                     <div class="form-group">
                         <label for="email">Email Address</label>

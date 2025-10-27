@@ -1,28 +1,78 @@
 <?php
-// Start session if not already started
+// Set session configuration before starting
+ini_set('session.cookie_httponly', 1);
+ini_set('session.use_only_cookies', 1);
+ini_set('session.cookie_secure', isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on');
+ini_set('session.cookie_samesite', 'Lax');
+ini_set('session.cookie_path', '/');
+
+// Set session name and start session
+session_name('zanvarsity_session');
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Debug: Check what tab is being requested
-$current_tab = $_GET['tab'] ?? 'dashboard';
-error_log("My-account.php - Current tab: " . $current_tab);
+// Debug: Log session status
+error_log('my-account.php - Session ID: ' . (session_id() ?: 'none'));
+error_log('my-account.php - Session status: ' . session_status());
+error_log('my-account.php - Session data: ' . print_r($_SESSION, true));
 
-// Define root path - point to zanvarsity directory
-define('ROOT_PATH', dirname(dirname(dirname(__DIR__))));
+// Define base path
+$base_path = '/c/zanvarsity/html';
 
 // Include necessary files
-require_once ROOT_PATH . '/zanvarsity/includes/auth_functions.php';
-require_once ROOT_PATH . '/zanvarsity/includes/database.php';
+require_once __DIR__ . '/../includes/auth_functions.php';
+require_once __DIR__ . '/../includes/database.php';
+
+// Add JavaScript functions at the top level to ensure they're available globally
+echo '<script>
+// User Management Functions - Moved to bottom of file
+</script>';
 
 // Check if user is logged in
-require_login();
+if (!is_logged_in()) {
+    // Get the current URL for redirection after login
+    $current_url = $_SERVER['REQUEST_URI'];
+    
+    // Debug: Log the redirect attempt
+    error_log('my-account.php - User not logged in, redirecting to login');
+    error_log('my-account.php - Current URL: ' . $current_url);
+    
+    // Build login URL with redirect
+    $login_url = $base_path . '/register-sign-in.php?error=login_required';
+    
+    // Only add redirect parameter if not already going to login page
+    if (strpos($current_url, 'register-sign-in.php') === false) {
+        $login_url .= '&redirect=' . urlencode($current_url);
+    }
+    
+    // Clear any output buffers
+    while (ob_get_level()) {
+        ob_end_clean();
+    }
+    
+    // Set cache control headers
+    header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+    header('Cache-Control: post-check=0, pre-check=0', false);
+    header('Pragma: no-cache');
+    
+    // Perform the redirect
+    header('Location: ' . $login_url, true, 302);
+    exit();
+}
 
 // Get user information from session
 $user_id = $_SESSION['user_id'] ?? null;
-$user_email = $_SESSION['email'] ?? 'Guest';
+$user_email = $_SESSION['user_email'] ?? 'Guest';
 $user_name = $_SESSION['first_name'] ?? 'User';
-$user_role = $_SESSION['role'] ?? 'student';
+$user_role = $_SESSION['user_role'] ?? 'student';
+
+// Debug: Log user info
+error_log('my-account.php - User Info:');
+error_log('- User ID: ' . $user_id);
+error_log('- Email: ' . $user_email);
+error_log('- Name: ' . $user_name);
+error_log('- Role: ' . $user_role);
 $is_admin = in_array($user_role, ['admin', 'super_admin']);
 $is_dean = ($user_role === 'dean');
 
@@ -53,23 +103,148 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile']) && 
     }
     
     // Handle file upload
-    $profile_image = $user['profile_image'] ?? 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiNkZGQiLz48dGV4dCB4PSI1MCIgeT0iNTAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgYWxpZ25tZW50LWJhc2VsaW5lPSJtaWRkbGUiIGZpbGw9IiYjNjY2OyI+QXZhdGFyPC90ZXh0Pjwvc3ZnPg';
+    $default_avatar = '/c/zanvarsity/html/assets/img/avatar-placeholder.png';
+    $profile_image = !empty($user['profile_image']) ? $user['profile_image'] : $default_avatar;
     
-    if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === UPLOAD_ERR_OK) {
-        $upload_dir = __DIR__ . '/uploads/profiles/';
-        if (!file_exists($upload_dir)) {
-            mkdir($upload_dir, 0755, true);
+    // Define upload directories
+    $base_upload_dir = __DIR__ . '/uploads/profiles/';
+    $web_upload_dir = '/c/zanvarsity/html/uploads/profiles/';
+    
+    // Ensure the uploads directory exists with proper permissions
+    if (!file_exists($base_upload_dir)) {
+        if (!mkdir($base_upload_dir, 0755, true)) {
+            error_log("Failed to create directory: " . $base_upload_dir);
+            $_SESSION['error'] = "Failed to create upload directory";
+        } else {
+            // Set directory permissions
+            chmod($base_upload_dir, 0755);
+            // Create an index.html file to prevent directory listing
+            file_put_contents($base_upload_dir . 'index.html', '<!-- Directory access forbidden -->');
+        }
+    }
+    
+    // Check if remove profile image is checked
+    if (isset($_POST['remove_profile_image']) && $_POST['remove_profile_image'] == '1') {
+        // Remove the current profile image
+        if (!empty($user['profile_image']) && $user['profile_image'] !== $default_avatar) {
+            $old_image_path = str_replace('/c/zanvarsity/html', $_SERVER['DOCUMENT_ROOT'], $user['profile_image']);
+            if (file_exists($old_image_path)) {
+                @unlink($old_image_path);
+            }
+            $profile_image = $default_avatar;
+            $update_image = true;
+        }
+    } 
+    // Handle file upload if a new file was provided
+    elseif (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === UPLOAD_ERR_OK) {
+        // Debug log
+        error_log("Starting file upload process");
+        error_log("Uploaded file info: " . print_r($_FILES['profile_image'], true));
+        
+        // Ensure directories exist
+        if (!file_exists($base_upload_dir)) {
+            mkdir($base_upload_dir, 0755, true);
+        }
+        
+        error_log("Base upload dir: $base_upload_dir");
+        error_log("Web upload dir: $web_upload_dir");
+        
+        // Create upload directory if it doesn't exist
+        if (!file_exists($base_upload_dir)) {
+            if (!mkdir($base_upload_dir, 0755, true)) {
+                error_log("Failed to create directory: " . $base_upload_dir);
+                $_SESSION['error'] = "Failed to create upload directory";
+                header("Location: my-account.php?tab=profile");
+                exit();
+            }
+            // Set directory permissions
+            chmod($base_upload_dir, 0755);
         }
         
         $file_extension = strtolower(pathinfo($_FILES['profile_image']['name'], PATHINFO_EXTENSION));
         $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif'];
         
         if (in_array($file_extension, $allowed_extensions)) {
-            $new_filename = 'profile_' . $user_id . '_' . time() . '.' . $file_extension;
-            $target_path = $upload_dir . $new_filename;
+            // Delete old profile image if it exists and is not the default avatar
+            if (!empty($user['profile_image']) && $user['profile_image'] !== $default_avatar) {
+                $old_image_path = strpos($user['profile_image'], $web_upload_dir) === 0 ? 
+                    str_replace($web_upload_dir, $base_upload_dir, $user['profile_image']) : 
+                    $base_upload_dir . basename($user['profile_image']);
+                
+                if (file_exists($old_image_path) && is_writable($old_image_path)) {
+                    @unlink($old_image_path);
+                }
+            }
             
+            // Generate a unique filename
+            $new_filename = 'profile_' . $user_id . '_' . time() . '.' . $file_extension;
+            $target_path = $base_upload_dir . $new_filename;
+            $web_path = $web_upload_dir . $new_filename;
+            
+            // Debug information
+            error_log("Attempting to move uploaded file to: " . $target_path);
+            error_log("Temporary file: " . $_FILES['profile_image']['tmp_name']);
+            error_log("File size: " . $_FILES['profile_image']['size']);
+            
+            error_log("Attempting to move uploaded file to: $target_path");
             if (move_uploaded_file($_FILES['profile_image']['tmp_name'], $target_path)) {
-                $profile_image = 'uploads/profiles/' . $new_filename;
+                error_log("File moved successfully to: $target_path");
+                
+                // Verify the file was actually moved
+                if (file_exists($target_path)) {
+                    error_log("Target file exists, setting permissions");
+                    // Set proper permissions
+                    if (chmod($target_path, 0644)) {
+                        error_log("File permissions set successfully");
+                    } else {
+                        error_log("Failed to set file permissions");
+                    }
+                    
+                    // Store the full web path in the database
+                    $profile_image = $web_path;
+                    
+                    // Log the path for debugging
+                    error_log("Profile image path to save in DB: $profile_image");
+                    error_log("Target file exists: " . (file_exists($target_path) ? 'Yes' : 'No'));
+                    error_log("File size: " . filesize($target_path) . " bytes");
+                    
+                    // Update the user's profile image in the database
+                    $update_sql = "UPDATE users SET profile_image = ? WHERE id = ?";
+                    if ($update_stmt = $conn->prepare($update_sql)) {
+                        $update_stmt->bind_param("si", $profile_image, $user_id);
+                        if ($update_stmt->execute()) {
+                            error_log("Successfully updated profile image in database");
+                            
+                            // Update the current user's profile image in session
+                            if (isset($_SESSION['user'])) {
+                                $_SESSION['user']['profile_image'] = $profile_image;
+                            }
+                            
+                            // Also update the $user array for immediate display
+                            $user['profile_image'] = $profile_image;
+                            
+                            // Set success message
+                            $_SESSION['success'] = "Profile picture updated successfully!";
+                        } else {
+                            error_log("Failed to update profile image in database: " . $update_stmt->error);
+                            $_SESSION['error'] = "Failed to update profile image in database: " . $update_stmt->error;
+                            header("Location: my-account.php?tab=profile");
+                            exit();
+                        }
+                        $update_stmt->close();
+                    } else {
+                        $error = $conn->error;
+                        error_log("Failed to prepare update statement: $error");
+                        $_SESSION['error'] = "Database error: $error";
+                        header("Location: my-account.php?tab=profile");
+                        exit();
+                    }
+                } else {
+                    error_log("File move succeeded but target file doesn't exist: " . $target_path);
+                    $_SESSION['error'] = "Failed to save uploaded file";
+                    header("Location: my-account.php?tab=profile");
+                    exit();
+                }
             }
         } else {
             $_SESSION['error'] = "Invalid file type. Only JPG, JPEG, PNG & GIF files are allowed.";
@@ -427,7 +602,51 @@ if (isset($conn)) {
         <div class="sidebar">
           <div class="profile-card">
             <div class="profile-image">
-             <img src="<?php echo !empty($user['profile_image']) ? $user['profile_image'] : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiNkZGQiLz48dGV4dCB4PSI1MCIgeT0iNTAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgYWxpZ25tZW50LWJhc2VsaW5lPSJtaWRkbGUiIGZpbGw9IiYjNjY2OyI+QXZhdGFyPC90ZXh0Pjwvc3ZnPg'; ?>" alt="Profile Image" id="sidebar-profile-img">
+                <?php 
+                // Define default avatar as data URI
+                $default_avatar = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiNkZGQiLz48dGV4dCB4PSI1MCIgeT0iNTAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgYWxpZ25tZW50LWJhc2VsaW5lPSJtaWRkbGUiIGZpbGw9IiYjNjY2OyI+QXZhdGFyPC90ZXh0Pjwvc3ZnPg';
+                
+                // Initialize profile image with default
+                $profile_img = $default_avatar;
+                
+                // If user has a profile image set
+                if (!empty($user['profile_image'])) {
+                    $user_image = $user['profile_image'];
+                    
+                    // Check if the image exists at the given path
+                    $server_path = str_replace('/c/zanvarsity/html', $_SERVER['DOCUMENT_ROOT'], $user_image);
+                    
+                    if (file_exists($server_path)) {
+                        $profile_img = $user_image . '?v=' . filemtime($server_path);
+                    } else {
+                        // Try alternative path resolution
+                        $alt_path = __DIR__ . str_replace('/c/zanvarsity/html', '', $user_image);
+                        if (file_exists($alt_path)) {
+                            $profile_img = $user_image . '?v=' . filemtime($alt_path);
+                        } else {
+                            // Fall back to default avatar if image not found
+                            error_log("Profile image not found: " . $server_path);
+                            $profile_img = $default_avatar;
+                        }
+                    }
+                        
+                    // Ensure the path is accessible from the web root
+                    if (strpos($profile_img, 'http') !== 0 && strpos($profile_img, 'data:image/') !== 0) {
+                        // If the path doesn't start with /c/zanvarsity/html, add it
+                        if (strpos($profile_img, '/c/zanvarsity/html/') !== 0) {
+                            $profile_img = '/c/zanvarsity/html' . $profile_img;
+                        }
+                        
+                        // Add cache buster
+                        $profile_img .= (strpos($profile_img, '?') === false ? '?' : '&') . 'v=' . time();
+                    }
+                }
+                ?>
+                <img src="<?php echo htmlspecialchars($profile_img); ?>" 
+                     alt="Profile Image" 
+                     id="sidebar-profile-img" 
+                     style="width: 100px; height: 100px; object-fit: cover; border-radius: 50%;" 
+                     onerror="this.src='<?php echo htmlspecialchars($default_avatar); ?>';">
             </div>
             <h3 class="profile-name"><?php echo htmlspecialchars($user_name); ?></h3>
             <div class="profile-role"><?php echo ucfirst(htmlspecialchars($user_role)); ?></div>
@@ -436,6 +655,7 @@ if (isset($conn)) {
             <li><a href="?tab=dashboard" class="<?php echo (!isset($_GET['tab']) || $_GET['tab'] === 'dashboard') ? 'active' : ''; ?>"><i class="fa fa-tachometer"></i> Dashboard</a></li>
             <li><a href="?tab=profile" class="<?php echo (isset($_GET['tab']) && $_GET['tab'] === 'profile') ? 'active' : ''; ?>"><i class="fa fa-user"></i> My Profile</a></li>
             <?php if ($is_admin): ?>
+            <li><a href="?tab=manage-users" class="<?php echo (isset($_GET['tab']) && $_GET['tab'] === 'manage-users') ? 'active' : ''; ?>"><i class="fa fa-users"></i> Manage Users</a></li>
             <li><a href="admin/users.php" class="<?php echo (basename(dirname($_SERVER['PHP_SELF'])) === 'admin' && basename($_SERVER['PHP_SELF']) === 'users.php') ? 'active' : ''; ?>"><i class="fa fa-users"></i> Manage Users</a></li>
             <?php endif; ?>
             <?php if ($is_dean): ?>
@@ -443,7 +663,7 @@ if (isset($conn)) {
             <?php endif; ?>
             <li><a href="?tab=messages" class="<?php echo (isset($_GET['tab']) && $_GET['tab'] === 'messages') ? 'active' : ''; ?>"><i class="fa fa-envelope"></i> Messages</a></li>
             <li><a href="?tab=settings" class="<?php echo (isset($_GET['tab']) && $_GET['tab'] === 'settings') ? 'active' : ''; ?>"><i class="fa fa-cog"></i> Settings</a></li>
-            <?php if ($is_admin || $is_dean): ?>
+            <?php if ($is_admin): ?>
             <li><a href="manage_content.php"><i class="fa fa-edit"></i> Manage Content</a></li>
             <?php endif; ?>
             <li><a href="logout.php"><i class="fa fa-sign-out"></i> Logout</a></li>
@@ -470,25 +690,79 @@ if (isset($conn)) {
               <div class="card-body">
                 <div class="row">
                   <div class="col-md-4 text-center">
-                    <div class="profile-image-large mb-3">
-                      <img id="profile-preview" src="<?php echo !empty($user['profile_image']) ? $user['profile_image'] : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiNkZGQiLz48dGV4dCB4PSI1MCIgeT0iNTAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgYWxpZ25tZW50LWJhc2VsaW5lPSJtaWRkbGUiIGZpbGw9IiYjNjY2OyI+QXZhdGFyPC90ZXh0Pjwvc3ZnPg'; ?>" alt="Profile Image" style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover;">
-                    </div>
-                    <div class="mb-3">
-                      <label for="profile_image" class="form-label">Change Profile Picture</label>
-                      <input type="file" class="form-control" id="profile_image" name="profile_image" accept="image/*">
-                      <div class="form-text">Max file size: 2MB. Allowed formats: JPG, PNG, GIF</div>
-                    </div>
-                  </div>
-                  <div class="col-md-8">
-                    <?php if (isset($_SESSION['error'])): ?>
-                      <div class="alert alert-danger"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
-                    <?php endif; ?>
-                    <?php if (isset($_SESSION['success'])): ?>
-                      <div class="alert alert-success"><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></div>
-                    <?php endif; ?>
-                    
-                    <form method="POST" action="" enctype="multipart/form-data" id="profileForm">
+                    <form method="POST" action="" enctype="multipart/form-data" id="profileForm" onsubmit="return validateForm()">
                       <input type="hidden" name="update_profile" value="1">
+                      <?php echo csrf_token_field(); ?>
+                      <div class="profile-image-large mb-3">
+                        <?php 
+                        // Define default avatar as data URI
+                        $default_avatar = '/c/zanvarsity/html/assets/img/avatar-placeholder.png';
+                        
+                        // Initialize profile image with default
+                        $profile_img = $default_avatar;
+                        
+                        // If user has a profile image set
+                        if (!empty($user['profile_image'])) {
+                            $user_image = $user['profile_image'];
+                            
+                            // Check if the image exists at the given path
+                            $server_path = str_replace('/c/zanvarsity/html', $_SERVER['DOCUMENT_ROOT'], $user_image);
+                            
+                            if (file_exists($server_path)) {
+                                $profile_img = $user_image . '?v=' . filemtime($server_path);
+                            } else {
+                                // Try alternative path resolution
+                                $alt_path = __DIR__ . str_replace('/c/zanvarsity/html', '', $user_image);
+                                if (file_exists($alt_path)) {
+                                    $profile_img = $user_image . '?v=' . filemtime($alt_path);
+                                } else {
+                                    // Fall back to default avatar if image not found
+                                    error_log("Profile image not found: " . $server_path);
+                                    $profile_img = $default_avatar;
+                                }
+                            }
+                            
+                            // Ensure the path is accessible from the web root
+                            if (strpos($profile_img, 'http') !== 0 && strpos($profile_img, 'data:image/') !== 0) {
+                                // If the path doesn't start with /c/zanvarsity/html, add it
+                                if (strpos($profile_img, '/c/zanvarsity/html/') !== 0) {
+                                    $profile_img = '/c/zanvarsity/html' . ltrim($profile_img, '/');
+                                }
+                                
+                                // Add cache buster if not already present
+                                if (strpos($profile_img, '?') === false) {
+                                    $profile_img .= '?v=' . time();
+                                }
+                            }
+                        }
+                        ?>
+                        <img id="profile-preview" 
+                             src="<?php echo htmlspecialchars($profile_img); ?>" 
+                             alt="Profile Image" 
+                             style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover;" 
+                             onerror="this.src='<?php echo htmlspecialchars($default_avatar); ?>';">
+                      </div>
+                      <div class="mb-3">
+                        <label for="profile_image" class="form-label">Change Profile Picture</label>
+                        <input type="file" class="form-control" id="profile_image" name="profile_image" accept="image/jpeg, image/png, image/gif" onchange="previewImage(this)">
+                        <div class="form-text">Max file size: 2MB. Allowed formats: JPG, PNG, GIF</div>
+                        <?php if (!empty($user['profile_image']) && $user['profile_image'] !== $default_avatar): ?>
+                        <div class="form-check mt-2">
+                          <input class="form-check-input" type="checkbox" name="remove_profile_image" id="remove_profile_image" value="1">
+                          <label class="form-check-label" for="remove_profile_image">
+                            Remove profile picture
+                          </label>
+                        </div>
+                        <?php endif; ?>
+                      </div>
+                    </div>
+                    <div class="col-md-8">
+                      <?php if (isset($_SESSION['error'])): ?>
+                        <div class="alert alert-danger"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
+                      <?php endif; ?>
+                      <?php if (isset($_SESSION['success'])): ?>
+                        <div class="alert alert-success"><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></div>
+                      <?php endif; ?>
                       <div class="row">
                         <div class="col-md-6 mb-3">
                           <label class="form-label">First Name</label>
@@ -541,36 +815,87 @@ if (isset($conn)) {
                               // Create preview
                               const reader = new FileReader();
                               reader.onload = function(e) {
+                                  // Update main profile preview
                                   const preview = document.getElementById('profile-preview');
                                   if (preview) {
                                       preview.src = e.target.result;
-                                      
-                                      // Also update the sidebar image if it exists
-                                      const sidebarImg = document.querySelector('.sidebar .profile-image img');
-                                      if (sidebarImg) {
-                                          sidebarImg.src = e.target.result;
-                                      }
                                   }
-                              }
+                                  
+                                  // Update sidebar image
+                                  const sidebarImg = document.querySelector('.profile-image img');
+                                  if (sidebarImg) {
+                                      sidebarImg.src = e.target.result;
+                                  }
+                              };
                               reader.readAsDataURL(file);
                           }
                       });
                       
                       // Form validation
-                      document.getElementById('profileForm')?.addEventListener('submit', function(e) {
+                      function validateForm() {
                           const firstName = document.getElementById('first_name')?.value.trim();
                           const lastName = document.getElementById('last_name')?.value.trim();
+                          const fileInput = document.getElementById('profile_image');
+                          const removeCheckbox = document.getElementById('remove_profile_image');
                           
+                          // Basic validation
                           if (!firstName || !lastName) {
-                              e.preventDefault();
                               alert('First name and last name are required');
                               return false;
                           }
                           
+                          // Show loading state
+                          const submitBtn = document.querySelector('button[type="submit"]');
+                          if (submitBtn) {
+                              submitBtn.disabled = true;
+                              submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...';
+                          }
+                          
+                          // File validation if a file is selected
+                          if (fileInput.files.length > 0 && !removeCheckbox?.checked) {
+                              const file = fileInput.files[0];
+                              const fileSize = file.size / 1024 / 1024; // in MB
+                              const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+                              
+                              if (fileSize > 2) {
+                                  alert('File size must be less than 2MB');
+                                  if (submitBtn) submitBtn.disabled = false;
+                                  return false;
+                              }
+                              
+                              if (!validTypes.includes(file.type)) {
+                                  alert('Only JPG, PNG, and GIF files are allowed');
+                                  if (submitBtn) submitBtn.disabled = false;
+                                  return false;
+                              }
+                          }
+                          
                           return true;
-                      });
+                      }
+                      
+                      function previewImage(input) {
+                          const preview = document.getElementById('profile-preview');
+                          const file = input.files[0];
+                          
+                          if (file) {
+                              const reader = new FileReader();
+                              
+                              reader.onload = function(e) {
+                                  preview.src = e.target.result;
+                              }
+                              
+                              reader.readAsDataURL(file);
+                          }
+                      }
                       </script>
-                    </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
                   </div>
                 </div>
               </div>
@@ -635,6 +960,183 @@ if (isset($conn)) {
                     <button class="btn btn-warning mb-2 d-block">Change Password</button>
                     <button class="btn btn-info mb-2 d-block">Two-Factor Authentication</button>
                     <button class="btn btn-secondary d-block">Download Data</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        <?php elseif (isset($_GET['tab']) && $_GET['tab'] === 'manage-users' && $is_admin): ?>
+          <!-- Manage Users Section -->
+          <div class="manage-users-section">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h2><i class="fa fa-users"></i> Manage Users</h2>
+              <button type="button" class="btn btn-primary" id="addNewUserBtn">
+                <i class="fa fa-plus"></i> Add New User
+              </button>
+            </div>
+            
+            <?php if (isset($_SESSION['error'])): ?>
+              <div class="alert alert-danger"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
+            <?php endif; ?>
+            
+            <?php if (isset($_SESSION['success'])): ?>
+              <div class="alert alert-success"><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></div>
+            <?php endif; ?>
+            
+            <div class="card">
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <?php
+                      // Get all users except the current admin
+                      $users = [];
+                      $query = "SELECT id, first_name, last_name, email, role, status FROM users WHERE id != ? ORDER BY role, first_name";
+                      if ($stmt = $conn->prepare($query)) {
+                          $stmt->bind_param("i", $user_id);
+                          if ($stmt->execute()) {
+                              $result = $stmt->get_result();
+                              while ($row = $result->fetch_assoc()) {
+                                  $users[] = $row;
+                              }
+                          }
+                          $stmt->close();
+                      }
+                      
+                      foreach ($users as $user): 
+                          $full_name = htmlspecialchars($user['first_name'] . ' ' . $user['last_name']);
+                          $email = htmlspecialchars($user['email']);
+                          $role = ucfirst($user['role']);
+                          $status = $user['status'] ? 'Active' : 'Inactive';
+                          $status_class = $user['status'] ? 'success' : 'secondary';
+                      ?>
+                      <tr>
+                        <td><?php echo $full_name; ?></td>
+                        <td><?php echo $email; ?></td>
+                        <td><?php echo $role; ?></td>
+                        <td><span class="badge bg-<?php echo $status_class; ?>"><?php echo $status; ?></span></td>
+                        <td class="text-nowrap">
+                          <button type="button" class="btn btn-sm btn-outline-primary me-2 edit-user-btn" 
+                            data-id="<?php echo $user['id']; ?>"
+                            data-firstname="<?php echo htmlspecialchars($user['first_name'], ENT_QUOTES); ?>"
+                            data-lastname="<?php echo htmlspecialchars($user['last_name'], ENT_QUOTES); ?>"
+                            data-email="<?php echo htmlspecialchars($user['email'], ENT_QUOTES); ?>"
+                            data-role="<?php echo htmlspecialchars($user['role'], ENT_QUOTES); ?>"
+                            data-status="<?php echo $user['status'] ? '1' : '0'; ?>"
+                            title="Edit User">
+                            <i class="fa fa-edit"></i> Edit
+                          </button>
+                          <button class="btn btn-sm btn-outline-danger delete-user-btn" 
+                            data-id="<?php echo $user['id']; ?>"
+                            data-name="<?php echo htmlspecialchars($full_name, ENT_QUOTES); ?>"
+                            title="Delete User">
+                            <i class="fa fa-trash"></i> Delete
+                          </button>
+                        </td>
+                      </tr>
+                      <?php endforeach; ?>
+                      <?php if (empty($users)): ?>
+                      <tr>
+                        <td colspan="5" class="text-center">No users found.</td>
+                      </tr>
+                      <?php endif; ?>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Add/Edit User Modal -->
+            <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <form id="userForm" method="POST" action="">
+                    <input type="hidden" name="action" id="userAction" value="">
+                    <input type="hidden" name="user_id" id="userId" value="">
+                    
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="userModalTitle">Add New User</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      <div class="mb-3">
+                        <label for="firstName" class="form-label">First Name</label>
+                        <input type="text" class="form-control" id="firstName" name="first_name" required>
+                      </div>
+                      <div class="mb-3">
+                        <label for="lastName" class="form-label">Last Name</label>
+                        <input type="text" class="form-control" id="lastName" name="last_name" required>
+                      </div>
+                      <div class="mb-3">
+                        <label for="userEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="userEmail" name="email" required>
+                      </div>
+                      <div class="mb-3">
+                        <label for="userRole" class="form-label">Role</label>
+                        <select class="form-select" id="userRole" name="role" required>
+                          <option value="student">Student</option>
+                          <option value="lecturer">Lecturer</option>
+                          <option value="dean">Dean</option>
+                          <option value="admin">Administrator</option>
+                        </select>
+                      </div>
+                      <div class="mb-3">
+                        <div class="form-check form-switch">
+                          <input class="form-check-input" type="checkbox" id="userStatus" name="is_active" value="1" checked>
+                          <label class="form-check-label" for="userStatus">Active</label>
+                        </div>
+                      </div>
+                      <div id="passwordFields">
+                        <div class="mb-3">
+                          <label for="userPassword" class="form-label">Password</label>
+                          <input type="password" class="form-control" id="userPassword" name="password" autocomplete="new-password">
+                          <div class="form-text">Leave blank to keep current password (when editing)</div>
+                        </div>
+                        <div class="mb-3">
+                          <label for="confirmPassword" class="form-label">Confirm Password</label>
+                          <input type="password" class="form-control" id="confirmPassword" name="confirm_password" autocomplete="new-password">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                      <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Delete Confirmation Modal -->
+            <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <p>Are you sure you want to delete <strong id="deleteUserName"></strong>?</p>
+                    <p class="text-danger">This action cannot be undone.</p>
+                  </div>
+                  <div class="modal-footer">
+                    <form id="deleteForm" method="POST" action="">
+                      <?php echo csrf_token_field(); ?>
+                      <input type="hidden" name="action" value="delete">
+                      <input type="hidden" name="user_id" id="deleteUserId" value="">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                      <button type="submit" class="btn btn-danger">Delete User</button>
+                    </form>
                   </div>
                 </div>
               </div>
@@ -1061,61 +1563,250 @@ const defaultImg = '<?php echo !empty($user['profile_image']) ? $user['profile_i
 <div class="container-fluid p-0">
   <?php include 'includes/about_footer.php'; ?>
 </div>
-<!-- JavaScript -->
-<script src="assets/js/jquery-2.1.0.min.js"></script>
-<script src="assets/bootstrap/js/bootstrap.min.js"></script>
-<!-- Popper.js is required for Bootstrap tooltips -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-<!-- Initialize Bootstrap tooltips -->
+
+<!-- JavaScript Libraries -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- User Management JavaScript -->
 <script>
-  // Make sure jQuery is loaded before executing scripts
-  jQuery(document).ready(function($) {
+// Make sure these functions are available globally
+window.editUser = function(id, firstName, lastName, email, role, status) {
+    try {
+        console.log('editUser called with:', {id, firstName, lastName, email, role, status});
+        const modalElement = document.getElementById('userModal');
+        if (!modalElement) {
+            console.error('User modal element not found');
+            return false;
+        }
+        
+        const modal = new bootstrap.Modal(modalElement);
+        
+        // Set form action and title
+        const title = id ? 'Edit User' : 'Add New User';
+        document.getElementById('userModalTitle').textContent = title;
+        document.getElementById('userAction').value = id ? 'update' : 'add';
+        document.getElementById('userId').value = id || '';
+        
+        // Fill the form
+        document.getElementById('firstName').value = firstName || '';
+        document.getElementById('lastName').value = lastName || '';
+        document.getElementById('userEmail').value = email || '';
+        document.getElementById('userRole').value = role || 'student';
+        document.getElementById('userStatus').checked = status == 1;
+        
+        // Show/hide password fields
+        const passwordFields = document.getElementById('passwordFields');
+        if (passwordFields) {
+            passwordFields.style.display = id ? 'none' : 'block';
+        }
+        
+        // Show the modal
+        console.log('Showing user modal');
+        modal.show();
+    } catch (error) {
+        console.error('Error in editUser:', error);
+        alert('An error occurred while loading the user form. Please check the console for details.');
+    }
+    return false;
+};
+
+window.confirmDelete = function(userId, userName) {
+    console.log('confirmDelete called with:', {userId, userName});
+    try {
+        const modalElement = document.getElementById('deleteModal');
+        if (!modalElement) {
+            console.error('Delete modal element not found');
+            return false;
+        }
+        
+        const modal = new bootstrap.Modal(modalElement);
+        const nameElement = document.getElementById('deleteUserName');
+        const idElement = document.getElementById('deleteUserId');
+        
+        if (!nameElement || !idElement) {
+            console.error('Required elements not found in delete modal');
+            return false;
+        }
+        
+        nameElement.textContent = userName;
+        idElement.value = userId;
+        console.log('Showing delete confirmation modal');
+        modal.show();
+    } catch (error) {
+        console.error('Error in confirmDelete:', error);
+        if (confirm('Are you sure you want to delete user: ' + userName + '?')) {
+            // Fallback if modal fails
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = window.location.href.split('?')[0];
+            
+            const actionInput = document.createElement('input');
+            actionInput.type = 'hidden';
+            actionInput.name = 'action';
+            actionInput.value = 'delete';
+            
+            const userIdInput = document.createElement('input');
+            userIdInput.type = 'hidden';
+            userIdInput.name = 'user_id';
+            userIdInput.value = userId;
+            
+            // Add CSRF token if exists
+            const csrfToken = document.querySelector('input[name="csrf_token"]');
+            
+            form.appendChild(actionInput);
+            form.appendChild(userIdInput);
+            if (csrfToken) {
+                form.appendChild(csrfToken.cloneNode());
+            }
+            
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+    return false;
+};
+
+// Initialize when document is ready
+$(document).ready(function() {
+    console.log('Document ready');
+    
     // Initialize tooltips
     $('[data-toggle="tooltip"]').tooltip();
 
-    // Add active class to current nav item
-    const currentPage = window.location.pathname.split('/').pop() || 'index.php';
-    $('.sidebar-menu a').each(function() {
-      if ($(this).attr('href') === currentPage) {
-        $(this).addClass('active');
-      }
-    });
-
-    // Tab navigation is handled by PHP URL parameters, not JavaScript
-    // The sidebar navigation works with page reloads using ?tab=name parameters
+    // Handle tab-based navigation
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentTab = urlParams.get('tab') || 'dashboard';
+    console.log('Setting up sidebar active states for tab:', currentTab);
     
-    // Faculty content management functions
-    function editContent(contentType) {
-        alert('Edit ' + contentType + ' content functionality will be implemented here.');
-        // This would open a modal or redirect to an edit page
-        // Example: window.location.href = '?tab=edit-content&type=' + contentType;
+    // Remove all active classes first
+    $('.sidebar-menu a').removeClass('active');
+    
+    // Add active class to current tab
+    $(`.sidebar-menu a[href*="tab=${currentTab}"]`).addClass('active');
+    
+    // If no tab-specific link found, activate dashboard
+    if ($('.sidebar-menu a.active').length === 0) {
+        $('.sidebar-menu a[href*="tab=dashboard"]').addClass('active');
     }
     
-    function showAddContentModal() {
-        alert('Add new content functionality will be implemented here.');
-        // This would show a modal for adding new content types
+    // Handle form submission
+    const userForm = document.getElementById('userForm');
+    if (userForm) {
+        userForm.addEventListener('submit', function(e) {
+            const firstName = document.getElementById('firstName')?.value?.trim();
+            const lastName = document.getElementById('lastName')?.value?.trim();
+            const email = document.getElementById('userEmail')?.value?.trim();
+            const password = document.getElementById('userPassword')?.value;
+            const confirmPassword = document.getElementById('confirmPassword')?.value;
+            const isAdd = document.getElementById('userAction')?.value === 'add';
+            
+            if (!firstName || !lastName || !email) {
+                e.preventDefault();
+                alert('Please fill in all required fields');
+                return false;
+            }
+            
+            if (isAdd && (!password || !confirmPassword)) {
+                e.preventDefault();
+                alert('Please enter and confirm the password for new users');
+                return false;
+            }
+            
+            if (password && password !== confirmPassword) {
+                e.preventDefault();
+                alert('Passwords do not match');
+                return false;
+            }
+            
+            if (isAdd && password && password.length < 8) {
+                e.preventDefault();
+                alert('Password must be at least 8 characters long');
+                return false;
+            }
+            
+            return true;
+        });
+    }
+    
+    // Initialize add user button
+    const addUserBtn = document.querySelector('.btn-primary[onclick*="addUser"], .btn-primary[onclick*="editUser"]');
+    if (addUserBtn) {
+        addUserBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            editUser(0, '', '', '', 'student', 1);
+        });
     }
     
     // Handle smooth scrolling for anchor links
-    $('a[href^="#"]').on('click', function(e) {
-      const href = $(this).attr('href');
-      if (href === '#') return;
-      
-      e.preventDefault();
-      const target = href.split('?')[0];
-      const $target = $(target);
-      if ($target.length) {
-        $('html, body').stop().animate({
-          'scrollTop': $target.offset().top
-        }, 900, 'swing', function() {
-          window.location.hash = target;
-        });
-      }
+    $('a[href^="#"]').not('[href^="#tab-"]').on('click', function(e) {
+        const href = $(this).attr('href');
+        if (href === '#' || href.startsWith('#')) {
+            e.preventDefault();
+            const $target = $(href);
+            if ($target.length) {
+                $('html, body').stop().animate({
+                    'scrollTop': $target.offset().top
+                }, 900, 'swing');
+                window.location.hash = href;
+            }
+        }
     });
-  });
-</script>
-<script>
-  $(document).ready(function() {
+    
+        // Handle add new user button click
+    $('#addNewUserBtn').on('click', function() {
+        editUser(0, '', '', '', 'student', 1);
+        return false;
+    });
+
+    // Handle edit user button clicks
+    $(document).on('click', '.edit-user-btn', function() {
+        const $btn = $(this);
+        editUser(
+            $btn.data('id'),
+            $btn.data('firstname'),
+            $btn.data('lastname'),
+            $btn.data('email'),
+            $btn.data('role'),
+            $btn.data('status')
+        );
+        return false;
+    });
+
+    // Handle delete user button clicks
+    $(document).on('click', '.delete-user-btn', function() {
+        const $btn = $(this);
+        confirmDelete($btn.data('id'), $btn.data('name'));
+        return false;
+    });
+    
+    // Initialize the delete form handler
+    const deleteForm = document.getElementById('deleteForm');
+    if (deleteForm) {
+        deleteForm.addEventListener('submit', function(e) {
+            if (!confirm('Are you sure you want to delete this user?')) {
+                e.preventDefault();
+                return false;
+            }
+            return true;
+        });
+    }
+    
+    // Faculty content management functions
+    window.editContent = function(contentType) {
+        alert('Edit ' + contentType + ' content functionality will be implemented here.');
+        // This would open a modal or redirect to an edit page
+        // Example: window.location.href = '?tab=edit-content&type=' + contentType;
+    };
+    
+    window.showAddContentModal = function() {
+        alert('Add new content functionality will be implemented here.');
+        // This would show a modal for adding new content types
+    };
+});
+
+// Initialize when document is ready
+$(document).ready(function() {
     // Initialize tooltips
     $('[data-toggle="tooltip"]').tooltip();
 
@@ -1169,7 +1860,213 @@ const defaultImg = '<?php echo !empty($user['profile_image']) ? $user['profile_i
         window.location.hash = target;
       });
     });
-  });
+});
+
+// Handle form submission
+const userForm = document.getElementById('userForm');
+if (userForm) {
+    userForm.addEventListener('submit', function(e) {
+        // Basic form validation
+        const firstName = document.getElementById('firstName').value.trim();
+        const lastName = document.getElementById('lastName').value.trim();
+        const email = document.getElementById('userEmail').value.trim();
+        const password = document.getElementById('userPassword')?.value;
+        const confirmPassword = document.getElementById('confirmPassword')?.value;
+        const isAdd = document.getElementById('userAction').value === 'add';
+        
+        if (!firstName || !lastName || !email) {
+            e.preventDefault();
+            alert('Please fill in all required fields');
+            return false;
+        }
+        
+        if (isAdd && (!password || !confirmPassword)) {
+            e.preventDefault();
+            alert('Please enter and confirm the password for new users');
+            return false;
+        }
+        
+        if (password && password !== confirmPassword) {
+            e.preventDefault();
+            alert('Passwords do not match');
+            return false;
+        }
+        
+        // Check password strength for new users
+        if (isAdd && password && password.length < 8) {
+            e.preventDefault();
+            alert('Password must be at least 8 characters long');
+            return false;
+        }
+        
+        return true;
+    });
+}
+
+// Faculty content management functions
+function editContent(contentType) {
+    alert('Edit ' + contentType + ' content functionality will be implemented here.');
+    // This would open a modal or redirect to an edit page
+    // Example: window.location.href = '?tab=edit-content&type=' + contentType;
+}
+
+function showAddContentModal() {
+    alert('Add new content functionality will be implemented here.');
+    // This would show a modal for adding new content types
+}
+
+// Handle smooth scrolling for anchor links
+$('a[href^="#"]').on('click', function(e) {
+  const href = $(this).attr('href');
+  if (href === '#') return;
+  
+  e.preventDefault();
+  const target = href.split('?')[0];
+  const $target = $(target);
+  if ($target.length) {
+    $('html, body').stop().animate({
+      'scrollTop': $target.offset().top
+    }, 900, 'swing', function() {
+      window.location.hash = target;
+    });
+          
+          // Set form action and title
+          const title = id ? 'Edit User' : 'Add New User';
+          document.getElementById('userModalTitle').textContent = title;
+          document.getElementById('userAction').value = id ? 'update' : 'add';
+          document.getElementById('userId').value = id || '';
+          
+          // Fill the form
+          document.getElementById('firstName').value = firstName || '';
+          document.getElementById('lastName').value = lastName || '';
+          document.getElementById('userEmail').value = email || '';
+          document.getElementById('userRole').value = role || 'student';
+          document.getElementById('userStatus').checked = status == 1;
+          
+          // Show/hide password fields
+          const passwordFields = document.getElementById('passwordFields');
+          if (passwordFields) {
+              passwordFields.style.display = id ? 'none' : 'block';
+          }
+          
+          // Show the modal
+          modal.show();
+      } catch (error) {
+          console.error('Error in editUser:', error);
+      }
+      return false;
+  }
+
+ function confirmDelete(userId, userName) {
+    console.log('=== confirmDelete called ===');
+    console.log('userId:', userId, 'userName:', userName);
+    
+    // Check if Bootstrap is loaded
+    if (typeof bootstrap === 'undefined' || !bootstrap.Modal) {
+        console.error('Bootstrap Modal not found!');
+        alert('Error: Required libraries not loaded. Please refresh the page.');
+        return false;
+    }
+    
+    // Get modal element
+    const deleteModal = document.getElementById('deleteModal');
+    console.log('deleteModal element:', deleteModal);
+    
+    if (!deleteModal) {
+        console.error('Error: Could not find delete modal element');
+        alert('Error: Could not initialize delete confirmation. Please try again.');
+        return false;
+    }
+    
+    // Initialize modal
+    try {
+        const modal = new bootstrap.Modal(deleteModal);
+        console.log('Modal initialized:', modal);
+        
+        // Set user data
+        const nameElement = document.getElementById('deleteUserName');
+        const idElement = document.getElementById('deleteUserId');
+        console.log('Name element:', nameElement, 'ID element:', idElement);
+        
+        if (nameElement) {
+            nameElement.textContent = userName;
+            console.log('Set user name to:', userName);
+        } else {
+            console.warn('Could not find deleteUserName element');
+        }
+        
+        if (idElement) {
+            idElement.value = userId;
+            console.log('Set user ID to:', userId);
+        } else {
+            console.warn('Could not find deleteUserId element');
+        }
+        
+        // Show modal
+        console.log('Showing modal...');
+        modal.show();
+        console.log('Modal should be visible now');
+        
+        // Add debug event listeners
+        deleteModal.addEventListener('shown.bs.modal', function() {
+            console.log('Modal shown event fired');
+        });
+        
+        return false;
+        
+    } catch (error) {
+        console.error('Error in confirmDelete:', error);
+        console.error('Error details:', {
+            name: error.name,
+            message: error.message,
+            stack: error.stack
+        });
+        
+        // Fallback confirmation
+        if (confirm('Error showing delete confirmation. Are you sure you want to delete user: ' + userName + '?')) {
+            console.log('User confirmed deletion via fallback');
+            
+            // Create form
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = window.location.href.split('?')[0];
+            
+            // Add CSRF token if exists
+            const csrfToken = document.querySelector('input[name="csrf_token"]');
+            if (csrfToken) {
+                const csrfClone = csrfToken.cloneNode();
+                csrfClone.name = 'csrf_token';
+                form.appendChild(csrfClone);
+            }
+            
+            // Add action
+            const actionInput = document.createElement('input');
+            actionInput.type = 'hidden';
+            actionInput.name = 'action';
+            actionInput.value = 'delete';
+            
+            // Add user ID
+            const userIdInput = document.createElement('input');
+            userIdInput.type = 'hidden';
+            userIdInput.name = 'user_id';
+            userIdInput.value = userId;
+            
+            console.log('Form data prepared:', {
+                action: 'delete',
+                user_id: userId,
+                hasCsrf: !!csrfToken
+            });
+            
+            // Submit form
+            form.appendChild(actionInput);
+            form.appendChild(userIdInput);
+            document.body.appendChild(form);
+            console.log('Submitting delete form...');
+            form.submit();
+        }
+        return false;
+    }
+}
 </script>
 </body>
 </html>

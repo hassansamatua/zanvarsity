@@ -240,16 +240,53 @@ function authenticate_user($email, $password) {
  * 
  * @return bool True if user is logged in, false otherwise
  */
+/**
+ * Check if user is logged in and session is valid
+ * 
+ * @return bool True if user is logged in, false otherwise
+ */
 function is_logged_in() {
-    // Check if session is active and user is authenticated
+    // Initialize session if not already started
+    if (session_status() === PHP_SESSION_NONE) {
+        ini_set('session.cookie_httponly', 1);
+        ini_set('session.use_only_cookies', 1);
+        ini_set('session.cookie_secure', isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on');
+        ini_set('session.cookie_samesite', 'Lax');
+        ini_set('session.cookie_path', '/');
+        session_name('zanvarsity_session');
+        session_start();
+    }
+    
+    // Debug: Log session status and data
+    error_log('is_logged_in() called');
+    error_log('Session ID: ' . session_id());
+    error_log('Session status: ' . session_status());
+    error_log('Session data: ' . print_r($_SESSION, true));
+    
+    // Check if session is active
     if (session_status() !== PHP_SESSION_ACTIVE) {
+        error_log('Session is not active');
+        return false;
+    }
+    
+    // Check if user is authenticated
+    if (!isset($_SESSION['user_id'], $_SESSION['user_email'])) {
+        error_log('User session variables not set');
         return false;
     }
     
     // Check for session timeout (30 minutes of inactivity)
     $timeout = 1800; // 30 minutes in seconds
-    if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) > $timeout) {
+    if (!isset($_SESSION['last_activity'])) {
+        error_log('No last_activity in session');
+        return false;
+    }
+    
+    $inactive = time() - $_SESSION['last_activity'];
+    if ($inactive > $timeout) {
         // Session has expired
+        error_log('Session expired - last activity: ' . date('Y-m-d H:i:s', $_SESSION['last_activity']) . 
+                 ' (' . $inactive . ' seconds ago)');
         session_unset();
         session_destroy();
         return false;
@@ -258,16 +295,16 @@ function is_logged_in() {
     // Update last activity time
     $_SESSION['last_activity'] = time();
     
-    // Check if user is authenticated
-    if (!isset($_SESSION['user_id'], $_SESSION['user_email'])) {
-        return false;
-    }
-    
-    // Additional security: Verify session against database
+    // Additional security: Verify session against database if enabled
     if (defined('VERIFY_SESSION_AGAINST_DB') && VERIFY_SESSION_AGAINST_DB === true) {
-        return verify_session_integrity();
+        $is_valid = verify_session_integrity();
+        if (!$is_valid) {
+            error_log('Session integrity check failed');
+            return false;
+        }
     }
     
+    error_log('User is logged in: ' . $_SESSION['user_email']);
     return true;
 }
 
@@ -307,10 +344,78 @@ function verify_session_integrity() {
 }
 
 // Function to require login
+/**
+ * Require user to be logged in
+ * Redirects to login page if user is not authenticated
+ */
 function require_login() {
+    // Debug: Log session status at the start
+    error_log('require_login() called');
+    error_log('Session ID: ' . (session_id() ?: 'none'));
+    error_log('Session status: ' . session_status());
+    
+    if (session_status() === PHP_SESSION_NONE) {
+        // If session isn't started, start it with proper configuration
+        ini_set('session.cookie_httponly', 1);
+        ini_set('session.use_only_cookies', 1);
+        ini_set('session.cookie_secure', isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on');
+        ini_set('session.cookie_samesite', 'Lax');
+        ini_set('session.cookie_path', '/');
+        session_name('zanvarsity_session');
+        session_start();
+    }
+    
+    // Debug: Log session data
+    error_log('Session data: ' . print_r($_SESSION, true));
+    
     if (!is_logged_in()) {
-        $login_url = '/c/zanvarsity/html/login.php?error=login_required';
-        header("Location: $login_url");
+        // Get the current URL for redirection after login
+        $current_url = $_SERVER['REQUEST_URI'];
+        
+        // Debug: Log the current URL and server variables
+        error_log('Current URL: ' . $current_url);
+        error_log('SCRIPT_NAME: ' . ($_SERVER['SCRIPT_NAME'] ?? 'not set'));
+        error_log('PHP_SELF: ' . ($_SERVER['PHP_SELF'] ?? 'not set'));
+        error_log('REQUEST_URI: ' . ($_SERVER['REQUEST_URI'] ?? 'not set'));
+        
+        // Set the base path
+        $base_path = '/c/zanvarsity/html';
+        $login_url = $base_path . '/register-sign-in.php?error=login_required';
+        
+        // Add the current URL as a redirect parameter if it's not already a login page
+        $is_login_page = (strpos($current_url, 'register-sign-in.php') !== false) || 
+                         (strpos($current_url, 'register-sign-in.html') !== false) ||
+                         (strpos($current_url, 'sign-in.php') !== false);
+        
+        if (!$is_login_page) {
+            // Make sure the current URL is relative to the base path
+            $relative_url = str_replace($base_path, '', $current_url);
+            $login_url .= '&redirect=' . urlencode(ltrim($relative_url, '/'));
+        }
+        
+        // Ensure we don't have double slashes
+        $login_url = str_replace('//', '/', $login_url);
+        
+        // Build absolute URL
+        $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https://' : 'http://';
+        $host = $_SERVER['HTTP_HOST'];
+        $absolute_url = rtrim($protocol . $host, '/') . '/' . ltrim($login_url, '/');
+        
+        // Debug: Log the redirect URL
+        error_log('Redirecting to: ' . $absolute_url);
+        
+        // Clear output buffers
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+        
+        // Set cache control headers
+        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+        header('Cache-Control: post-check=0, pre-check=0', false);
+        header('Pragma: no-cache');
+        
+        // Perform the redirect
+        header('Location: ' . $absolute_url, true, 302);
         exit();
     }
 }
