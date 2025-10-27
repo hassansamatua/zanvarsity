@@ -1672,7 +1672,7 @@ $(document).ready(function() {
     console.log('Document ready');
     
     // Initialize tooltips
-    $('[data-toggle="tooltip"]').tooltip();
+    $('[data-bs-toggle="tooltip"]').tooltip();
 
     // Handle tab-based navigation
     const urlParams = new URLSearchParams(window.location.search);
@@ -1748,14 +1748,6 @@ $(document).ready(function() {
                 $('html, body').stop().animate({
                     'scrollTop': $target.offset().top
                 }, 900, 'swing');
-                window.location.hash = href;
-            }
-        }
-    });
-    
-        // Handle add new user button click
-    $('#addNewUserBtn').on('click', function() {
-        editUser(0, '', '', '', 'student', 1);
         return false;
     });
 
@@ -1930,32 +1922,51 @@ $('a[href^="#"]').on('click', function(e) {
       window.location.hash = target;
     });
           
-          // Set form action and title
-          const title = id ? 'Edit User' : 'Add New User';
-          document.getElementById('userModalTitle').textContent = title;
-          document.getElementById('userAction').value = id ? 'update' : 'add';
-          document.getElementById('userId').value = id || '';
-          
-          // Fill the form
-          document.getElementById('firstName').value = firstName || '';
-          document.getElementById('lastName').value = lastName || '';
-          document.getElementById('userEmail').value = email || '';
-          document.getElementById('userRole').value = role || 'student';
-          document.getElementById('userStatus').checked = status == 1;
-          
-          // Show/hide password fields
-          const passwordFields = document.getElementById('passwordFields');
-          if (passwordFields) {
-              passwordFields.style.display = id ? 'none' : 'block';
-          }
-          
-          // Show the modal
-          modal.show();
-      } catch (error) {
-          console.error('Error in editUser:', error);
-      }
-      return false;
-  }
+    window.location.hash = target;
+  });
+}
+
+// User Management Functions
+window.editUser = function(id, firstName = '', lastName = '', email = '', role = 'student', status = 0) {
+    try {
+        console.log('editUser called with:', {id, firstName, lastName, email, role, status});
+        const modalElement = document.getElementById('userModal');
+        if (!modalElement) {
+            console.error('Error: Could not find user modal element');
+            return false;
+        }
+
+        const modal = new bootstrap.Modal(modalElement);
+        
+        // Set form action and title
+        const title = id ? 'Edit User' : 'Add New User';
+        document.getElementById('userModalTitle').textContent = title;
+        document.getElementById('userAction').value = id ? 'update' : 'add';
+        document.getElementById('userId').value = id || '';
+        
+        // Fill the form
+        document.getElementById('firstName').value = firstName || '';
+        document.getElementById('lastName').value = lastName || '';
+        document.getElementById('userEmail').value = email || '';
+        document.getElementById('userRole').value = role || 'student';
+        document.getElementById('userStatus').checked = status == 1;
+        
+        // Show/hide password fields
+        const passwordFields = document.getElementById('passwordFields');
+        if (passwordFields) {
+            passwordFields.style.display = id ? 'none' : 'block';
+        }
+        
+        // Show the modal
+        console.log('Showing user modal...');
+        modal.show();
+        return false;
+    } catch (error) {
+        console.error('Error in editUser:', error);
+        alert('Error initializing user form. Please try again.');
+        return false;
+    }
+};
 
  function confirmDelete(userId, userName) {
     console.log('=== confirmDelete called ===');

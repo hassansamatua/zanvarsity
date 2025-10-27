@@ -354,7 +354,14 @@ if (strpos($current_dir, '/admin') !== false) {
                         </li> -->
                         <li<?php echo (basename($_SERVER['PHP_SELF']) == 'register-sign-in.php' || basename($_SERVER['PHP_SELF']) == 'my-account.php') ? ' class="active"' : ''; ?>>
                             <a href="register-sign-in.php" style="color: #fff; transition: color 0.3s ease; padding: 15px 20px; display: block;">
-                                <?php echo is_logged_in() ? 'My Account' : 'Login / Register'; ?>
+                                <?php 
+                                // Only check login status if auth functions are available
+                                if (function_exists('is_logged_in') && is_logged_in()) {
+                                    echo 'My Account';
+                                } else {
+                                    echo 'Login / Register';
+                                }
+                                ?>
                             </a>
                         </li>
                         <li<?php 
