@@ -24,8 +24,12 @@ if (strpos($current_dir, '/admin') !== false) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="Zanvarsity">
     <meta name="description" content="<?php echo isset($page_description) ? $page_description : 'Zanvarsity - Empowering Education, Enriching Lives' ?>">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https: fonts.googleapis.com; font-src 'self' https: data: fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https:; frame-src 'self' https:; media-src 'self' https:; object-src 'none';">
 
-    <link href='http://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
+    <!-- CSRF Token for AJAX requests -->
+    <meta name="csrf-token" content="<?php echo $_SESSION['csrf_token'] ?? ''; ?>">
+
+    <link href='https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap' rel='stylesheet' type='text/css'>
     <link href="<?php echo $asset_path; ?>assets/css/font-awesome.css" rel="stylesheet" type="text/css">
     <link rel="stylesheet" href="<?php echo $asset_path; ?>assets/bootstrap/css/bootstrap.css" type="text/css">
     <link rel="stylesheet" href="<?php echo $asset_path; ?>assets/css/selectize.css" type="text/css">
@@ -36,6 +40,9 @@ if (strpos($current_dir, '/admin') !== false) {
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script src="<?php echo $asset_path; ?>js/event-management.js"></script>
     
     <!-- Page-specific CSS -->
     <?php if (isset($page_css)): ?>

@@ -3,6 +3,84 @@
 ini_set('session.cookie_httponly', 1);
 ini_set('session.use_only_cookies', 1);
 ini_set('session.cookie_secure', isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on');
+
+// Handle Add/Edit Event Form Submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add_event') {
+    // Verify CSRF token
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        $_SESSION['error'] = 'Invalid CSRF token';
+        header('Location: ' . $_SERVER['HTTP_REFERER']);
+        exit;
+    }
+
+    try {
+        // Required fields
+        $title = trim($_POST['title'] ?? '');
+        $start_date = $_POST['start_date'] ?? '';
+        
+        if (empty($title) || empty($start_date)) {
+            throw new Exception('Title and start date are required');
+        }
+
+        // Optional fields
+        $description = trim($_POST['description'] ?? '');
+        $location = trim($_POST['location'] ?? '');
+        $end_date = !empty($_POST['end_date']) ? $_POST['end_date'] : null;
+
+        // Handle file upload
+        $image_path = null;
+        if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+            $upload_dir = __DIR__ . '/uploads/events/';
+            if (!file_exists($upload_dir)) {
+                mkdir($upload_dir, 0777, true);
+            }
+
+            $file_extension = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
+            $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif'];
+            
+            if (!in_array($file_extension, $allowed_extensions)) {
+                throw new Exception('Only JPG, JPEG, PNG & GIF files are allowed.');
+            }
+
+            $file_name = uniqid() . '.' . $file_extension;
+            $target_file = $upload_dir . $file_name;
+
+            if (move_uploaded_file($_FILES['image']['tmp_name'], $target_file)) {
+                $image_path = '/c/zanvarsity/html/uploads/events/' . $file_name;
+            } else {
+                throw new Exception('Failed to upload image.');
+            }
+        }
+
+        // Insert into database
+        $stmt = $conn->prepare("INSERT INTO events (title, description, location, start_date, end_date, image_url, created_at) 
+                              VALUES (?, ?, ?, ?, ?, ?, NOW())");
+        
+        $stmt->bind_param("ssssss", 
+            $title, 
+            $description, 
+            $location, 
+            $start_date, 
+            $end_date, 
+            $image_path
+        );
+
+        if ($stmt->execute()) {
+            $_SESSION['success'] = 'Event added successfully!';
+        } else {
+            throw new Exception('Failed to add event to database.');
+        }
+
+        // Redirect back to the events tab
+        header('Location: ' . strtok($_SERVER['HTTP_REFERER'], '?') . '?tab=manage-events');
+        exit;
+
+    } catch (Exception $e) {
+        $_SESSION['error'] = 'Error: ' . $e->getMessage();
+        header('Location: ' . $_SERVER['HTTP_REFERER']);
+        exit;
+    }
+}
 ini_set('session.cookie_samesite', 'Lax');
 ini_set('session.cookie_path', '/');
 
@@ -350,7 +428,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $is_admin) {
                 exit();
             }
             
-            $valid_roles = ['student', 'lecturer', 'admin'];
+            $valid_roles = ['student', 'dean', 'admin'];
             if (in_array($new_role, $valid_roles)) {
                 $sql = "UPDATE users SET role = ? WHERE id = ?";
                 if ($stmt = $conn->prepare($sql)) {
@@ -656,15 +734,15 @@ if (isset($conn)) {
             <li><a href="?tab=profile" class="<?php echo (isset($_GET['tab']) && $_GET['tab'] === 'profile') ? 'active' : ''; ?>"><i class="fa fa-user"></i> My Profile</a></li>
             <?php if ($is_admin): ?>
             <li><a href="?tab=manage-users" class="<?php echo (isset($_GET['tab']) && $_GET['tab'] === 'manage-users') ? 'active' : ''; ?>"><i class="fa fa-users"></i> Manage Users</a></li>
-            <li><a href="admin/users.php" class="<?php echo (basename(dirname($_SERVER['PHP_SELF'])) === 'admin' && basename($_SERVER['PHP_SELF']) === 'users.php') ? 'active' : ''; ?>"><i class="fa fa-users"></i> Manage Users</a></li>
+        
             <?php endif; ?>
             <?php if ($is_dean): ?>
             <li><a href="?tab=faculty-content" class="<?php echo (isset($_GET['tab']) && $_GET['tab'] === 'faculty-content') ? 'active' : ''; ?>"><i class="fa fa-graduation-cap"></i> Faculty Content</a></li>
             <?php endif; ?>
             <li><a href="?tab=messages" class="<?php echo (isset($_GET['tab']) && $_GET['tab'] === 'messages') ? 'active' : ''; ?>"><i class="fa fa-envelope"></i> Messages</a></li>
             <li><a href="?tab=settings" class="<?php echo (isset($_GET['tab']) && $_GET['tab'] === 'settings') ? 'active' : ''; ?>"><i class="fa fa-cog"></i> Settings</a></li>
-            <?php if ($is_admin): ?>
-            <li><a href="manage_content.php"><i class="fa fa-edit"></i> Manage Content</a></li>
+            <?php if ($is_admin || $is_dean): ?>
+            <li><a href="?tab=manage-content" class="<?php echo (isset($_GET['tab']) && $_GET['tab'] === 'manage-content') ? 'active' : ''; ?>"><i class="fa fa-edit"></i> Manage Content</a></li>
             <?php endif; ?>
             <li><a href="logout.php"><i class="fa fa-sign-out"></i> Logout</a></li>
           </ul>
@@ -673,11 +751,483 @@ if (isset($conn)) {
 
       <!-- Main Content -->
       <div class="col-lg-9">
-        <?php if (isset($_GET['tab']) && $_GET['tab'] === 'manage-content' && ($is_admin || $is_dean)): ?>
+        <?php if (isset($_GET['tab']) && $_GET['tab'] === 'manage-events' && ($is_admin || $is_dean)): ?>
+          <!-- Manage Events Section -->
+          <div class="manage-events-section">
+            <div class="page-title">
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class='bx bx-calendar-event me-2'></i>Manage Events</h2>
+                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addEventModal">
+                  <i class='bx bx-plus-circle'></i> Add New Event
+                </button>
+              </div>
+            </div>
+            
+            <?php if (isset($_SESSION['success'])): ?>
+              <div class="alert alert-success"><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></div>
+            <?php endif; ?>
+            
+            <?php if (isset($_SESSION['error'])): ?>
+              <div class="alert alert-danger"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
+            <?php endif; ?>
+            
+            <!-- Events Grid -->
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <div class="events-grid">
+                  <?php
+                  // Fetch events from database
+                  $events = [];
+                  $query = "SELECT * FROM events ORDER BY start_date DESC";
+                  if ($result = $conn->query($query)) {
+                      while ($row = $result->fetch_assoc()) {
+                          $events[] = $row;
+                      }
+                  }
+                  
+                  if (!empty($events)): 
+                  ?>
+                    <div class="row">
+                      <?php foreach ($events as $event): 
+                        // Format date
+                        $start_date = new DateTime($event['start_date']);
+                        $end_date = !empty($event['end_date']) ? new DateTime($event['end_date']) : null;
+                        $date_display = $start_date->format('M d, Y');
+                        
+                        if ($end_date && $start_date != $end_date) {
+                            $date_display .= ' - ' . $end_date->format('M d, Y');
+                        }
+                        
+                        // Handle image
+                        $default_image = '/c/zanvarsity/html/assets/img/no-image-available.jpg';
+                        $image_url = $default_image; // Default to no-image-available
+                        
+                        // Check if image_url exists in the database
+                        if (!empty($event['image_url'])) {
+                            $db_image = $event['image_url'];
+                            $filename = basename($db_image);
+                            
+                            // Try direct path first
+                            $direct_path = 'c:/xampp/htdocs/c/zanvarsity/html/uploads/events/' . $filename;
+                            $web_path = '/c/zanvarsity/html/uploads/events/' . $filename;
+                            
+                            if (file_exists($direct_path)) {
+                                $image_url = $web_path;
+                            } 
+                            // Try with just the numeric part of the filename
+                            else if (preg_match('/(\d+)_/', $filename, $matches)) {
+                                $numeric_part = $matches[1];
+                                $matching_files = glob('c:/xampp/htdocs/c/zanvarsity/html/uploads/events/' . $numeric_part . '_*');
+                                if (!empty($matching_files)) {
+                                    $found_file = basename($matching_files[0]);
+                                    $image_url = '/c/zanvarsity/html/uploads/events/' . $found_file;
+                                }
+                            }
+                            
+                            // Debug output (temporary)
+                            // echo "<!-- Debug - DB Image: " . htmlspecialchars($db_image) . " -->\n";
+                            // echo "<!-- Debug - Filename: " . htmlspecialchars($filename) . " -->\n";
+                            // echo "<!-- Debug - Final URL: " . htmlspecialchars($image_url) . " -->\n";
+                        }
+                      ?>
+                      <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="event-card card h-100 shadow-sm">
+                          <div class="position-relative" style="height: 200px; overflow: hidden;">
+                            <!-- Event Image -->
+                            <img src="<?php echo $image_url; ?>" class="card-img-top h-100 w-100" alt="<?php echo htmlspecialchars($event['title']); ?>" style="object-fit: cover;">
+                            
+                            <!-- Event Date Badge -->
+                            <div class="position-absolute top-2 end-2 bg-primary text-white rounded p-2 text-center" style="width: 50px;">
+                              <div class="fw-bold"><?php echo $start_date->format('d'); ?></div>
+                              <div class="small"><?php echo $start_date->format('M'); ?></div>
+                            </div>
+                            
+                            <!-- Hover effect for the image -->
+                            <div class="position-absolute top-0 start-0 w-100 h-100" style="background: rgba(0,0,0,0.5); opacity: 0; transition: opacity 0.3s ease;">
+                            </div>
+                          </div>
+                          
+                          <div class="card-body">
+                            <h5 class="card-title text-truncate" title="<?php echo htmlspecialchars($event['title']); ?>">
+                              <?php echo htmlspecialchars($event['title']); ?>
+                            </h5>
+                            
+                            <?php if (!empty($event['location'])): ?>
+                              <p class="card-text text-muted mb-2 small">
+                                <i class='bx bx-map'></i> <?php echo htmlspecialchars($event['location']); ?>
+                              </p>
+                            <?php endif; ?>
+                            
+                            <?php if (!empty($event['description'])): ?>
+                              <p class="card-text small text-muted">
+                                <?php 
+                                $desc = strip_tags($event['description']);
+                                echo strlen($desc) > 80 ? substr($desc, 0, 80) . '...' : $desc;
+                                ?>
+                              </p>
+                            <?php endif; ?>
+                            
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                              <span class="badge bg-light text-dark d-flex align-items-center">
+                                <i class='bx bx-time me-1'></i>
+                                <?php 
+                                echo $start_date->format('g:i A');
+                                if ($end_date) {
+                                    echo ' - ' . $end_date->format('g:i A');
+                                }
+                                ?>
+                              </span>
+                              <div class="btn-group" style="box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                                <a href="#" class="btn btn-sm btn-outline-primary px-3 d-flex align-items-center">
+                                  <i class='bx bx-show me-1'></i> View
+                                </a>
+                                <button class="btn btn-sm btn-outline-warning edit-event px-3" data-id="<?php echo $event['id']; ?>" title="Edit" style="border-left: 1px solid rgba(0,0,0,0.1);">
+                                  <i class='bx bx-edit-alt'></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger delete-event px-3" data-id="<?php echo $event['id']; ?>" title="Delete" style="border-left: 1px solid rgba(0,0,0,0.1);">
+                                  <i class='bx bx-trash'></i>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <?php endforeach; ?>
+                    </div>
+                  <?php else: ?>
+                    <div class="col-12 text-center py-5">
+                      <i class='bx bx-calendar-x' style="font-size: 3rem; color: #6c757d; margin-bottom: 15px;"></i>
+                      <h4>No events found</h4>
+                      <p>Get started by adding your first event.</p>
+                      <button class="btn btn-success mt-2" data-toggle="modal" data-target="#addEventModal">
+                        <i class='bx bx-plus-circle'></i> Add Event
+                      </button>
+                    </div>
+                  <?php endif; ?>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Edit Event Modal -->
+          <div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+              <div class="modal-content">
+                <div class="modal-header bg-warning text-white">
+                  <h5 class="modal-title" id="editEventModalLabel">Edit Event</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="editEventForm" method="POST" enctype="multipart/form-data">
+                  <input type="hidden" name="action" value="update_event">
+                  <input type="hidden" name="id" id="editEventId">
+                  <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                  
+                  <div class="modal-body">
+                    <div class="form-group">
+                      <label for="editEventTitle">Event Title <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" id="editEventTitle" name="title" required>
+                    </div>
+                    
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label for="editStartDate">Start Date <span class="text-danger">*</span></label>
+                          <input type="datetime-local" class="form-control" id="editStartDate" name="start_date" required>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label for="editEndDate">End Date (Optional)</label>
+                          <input type="datetime-local" class="form-control" id="editEndDate" name="end_date">
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div class="form-group">
+                      <label for="editEventLocation">Location</label>
+                      <input type="text" class="form-control" id="editEventLocation" name="location">
+                    </div>
+                    
+                    <div class="form-group">
+                      <label for="editEventImage">Event Image</label>
+                      <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="editEventImage" name="image" accept="image/*">
+                        <label class="custom-file-label" for="editEventImage">Choose file</label>
+                      </div>
+                      <small class="form-text text-muted">Leave blank to keep current image</small>
+                    </div>
+                    
+                    <div class="form-group">
+                      <label for="editEventDescription">Description</label>
+                      <textarea class="form-control" id="editEventDescription" name="description" rows="5"></textarea>
+                    </div>
+                  </div>
+                  
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning">Update Event</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Add Event Modal -->
+          <div class="modal fade" id="addEventModal" tabindex="-1" role="dialog" aria-labelledby="addEventModalLabel">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="addEventModalLabel">Add New Event</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <form id="eventForm" action="?tab=manage-events" method="POST" enctype="multipart/form-data">
+                  <input type="hidden" name="action" value="add_event">
+                  <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                  
+                  <div class="modal-body">
+                    <div class="form-group">
+                      <label for="eventTitle">Event Title <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" id="eventTitle" name="title" required>
+                    </div>
+                    
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label for="startDate">Start Date <span class="text-danger">*</span></label>
+                          <input type="datetime-local" class="form-control" id="startDate" name="start_date" required>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label for="endDate">End Date (Optional)</label>
+                          <input type="datetime-local" class="form-control" id="endDate" name="end_date">
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div class="form-group">
+                      <label for="eventLocation">Location</label>
+                      <input type="text" class="form-control" id="eventLocation" name="location">
+                    </div>
+                    
+                    <div class="form-group">
+                      <label for="eventImage">Event Image</label>
+                      <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="eventImage" name="image" accept="image/*">
+                        <label class="custom-file-label" for="eventImage">Choose file</label>
+                      </div>
+                      <small class="form-text text-muted">Recommended size: 1200x600px</small>
+                    </div>
+                    
+                    <div class="form-group">
+                      <label for="eventDescription">Description</label>
+                      <textarea class="form-control" id="eventDescription" name="description" rows="5"></textarea>
+                    </div>
+                  </div>
+                  
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Save Event</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!-- Delete Confirmation Modal -->
+          <div class="modal fade" id="deleteEventModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Confirm Delete</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <p>Are you sure you want to delete this event? This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                  <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <style>
+            /* Event Card Hover Effects */
+            .event-card {
+              transition: transform 0.3s ease, box-shadow 0.3s ease;
+              overflow: hidden;
+            }
+            .event-card:hover {
+              transform: translateY(-5px);
+              box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+            }
+            .event-card .position-relative:hover .position-absolute {
+              opacity: 1 !important;
+            }
+            .event-card .btn-circle {
+              width: 40px;
+              height: 40px;
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            }
+            .event-card .card-title {
+              font-weight: 600;
+              margin-bottom: 0.75rem;
+            }
+            .event-card .card-text {
+              font-size: 0.9rem;
+              color: #6c757d;
+            }
+            .event-card .badge {
+              font-weight: 500;
+              padding: 0.35em 0.65em;
+            }
+          </style>
+          
+          <!-- Event Management JavaScript is now in /c/zanvarsity/html/js/event-management.js -->
+          <script src="/c/zanvarsity/html/js/event-management.js"></script>
           <script>
-            // Direct redirect to manage_content.php
-            window.location.href = 'manage_content.php';
+          // Debug: Log when the script is loaded
+          console.log('Event management script loaded');
           </script>
+
+        <?php elseif (isset($_GET['tab']) && $_GET['tab'] === 'manage-content' && ($is_admin || $is_dean)): ?>
+          <!-- Manage Content Section -->
+          <div class="manage-content-section">
+            <div class="page-title">
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class='bx bxs-dashboard me-2'></i>Content Management Dashboard</h2>
+              </div>
+            </div>
+            
+            <?php if (isset($_SESSION['success'])): ?>
+              <div class="alert alert-success"><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></div>
+            <?php endif; ?>
+            
+            <?php if (isset($_SESSION['error'])): ?>
+              <div class="alert alert-danger"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
+            <?php endif; ?>
+            
+            <div class="row">
+              <!-- Events Management -->
+              <div class="col-md-4 col-sm-6">
+                <div class="dashboard-card card h-100">
+                  <div class="card-body text-center">
+                    <div class="card-icon">
+                      <i class='bx bx-calendar-event'></i>
+                    </div>
+                    <h5 class="card-title">Events Management</h5>
+                    <p class="card-text">Manage university events, workshops, and important dates.</p>
+                  </div>
+                  <div class="card-footer text-center">
+                    <a href="?tab=manage-events" class="btn btn-success btn-sm">
+                      <i class='bx bx-edit me-1'></i> Manage Events
+                    </a>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Announcements -->
+              <div class="col-md-4 col-sm-6">
+                <div class="dashboard-card card h-100">
+                  <div class="card-body text-center">
+                    <div class="card-icon">
+                      <i class='bx bx-megaphone'></i>
+                    </div>
+                    <h5 class="card-title">Announcements</h5>
+                    <p class="card-text">Create and manage important university announcements.</p>
+                  </div>
+                  <div class="card-footer text-center">
+                    <a href="?tab=manage-announcements" class="btn btn-success btn-sm">
+                      <i class='bx bx-edit me-1'></i> Manage Announcements
+                    </a>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Publications -->
+              <div class="col-md-4 col-sm-6">
+                <div class="dashboard-card card h-100">
+                  <div class="card-body text-center">
+                    <div class="card-icon">
+                      <i class='bx bx-book-open'></i>
+                    </div>
+                    <h5 class="card-title">Publications</h5>
+                    <p class="card-text">Manage research papers, articles, and publications.</p>
+                  </div>
+                  <div class="card-footer text-center">
+                    <a href="?tab=manage-publications" class="btn btn-success btn-sm">
+                      <i class='bx bx-edit me-1'></i> Manage Publications
+                    </a>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Downloads -->
+              <div class="col-md-4 col-sm-6">
+                <div class="dashboard-card card h-100">
+                  <div class="card-body text-center">
+                    <div class="card-icon">
+                      <i class='bx bx-download'></i>
+                    </div>
+                    <h5 class="card-title">Downloads</h5>
+                    <p class="card-text">Manage downloadable resources and documents.</p>
+                  </div>
+                  <div class="card-footer text-center">
+                    <a href="?tab=manage-downloads" class="btn btn-success btn-sm">
+                      <i class='bx bx-edit me-1'></i> Manage Downloads
+                    </a>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Staff Management -->
+              <div class="col-md-4 col-sm-6">
+                <div class="dashboard-card card h-100">
+                  <div class="card-body text-center">
+                    <div class="card-icon">
+                      <i class='bx bx-group'></i>
+                    </div>
+                    <h5 class="card-title">Staff Management</h5>
+                    <p class="card-text">Manage faculty and staff information and profiles.</p>
+                  </div>
+                  <div class="card-footer text-center">
+                    <a href="?tab=manage-staff" class="btn btn-success btn-sm">
+                      <i class='bx bx-edit me-1'></i> Manage Staff
+                    </a>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Programs & Courses -->
+              <div class="col-md-4 col-sm-6">
+                <div class="dashboard-card card h-100">
+                  <div class="card-body text-center">
+                    <div class="card-icon">
+                      <i class='bx bx-book-alt'></i>
+                    </div>
+                    <h5 class="card-title">Programs & Courses</h5>
+                    <p class="card-text">Manage academic programs and course offerings.</p>
+                  </div>
+                  <div class="card-footer text-center">
+                    <a href="?tab=manage-programs" class="btn btn-success btn-sm">
+                      <i class='bx bx-edit me-1'></i> Manage Programs
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Add any additional sections here if needed -->
+          </div>
 
         <?php elseif (isset($_GET['tab']) && $_GET['tab'] === 'profile'): ?>
           <!-- Profile Section -->
@@ -888,7 +1438,46 @@ if (isset($conn)) {
                           }
                       }
                       </script>
-                      </div>
+                      <style>
+                        /* Hover effects for action buttons */
+                        .event-card .btn-group {
+                          border-radius: 6px;
+                          overflow: hidden;
+                        }
+                        .event-card .btn-group .btn {
+                          transition: all 0.2s ease;
+                          padding: 0.25rem 0.75rem;
+                          line-height: 1.5;
+                        }
+                        .event-card .btn-outline-primary {
+                          border-color: #0d6efd;
+                          color: #0d6efd;
+                        }
+                        .event-card .btn-outline-primary:hover {
+                          background-color: #0d6efd;
+                          color: #fff !important;
+                        }
+                        .event-card .btn-outline-warning {
+                          border-color: #ffc107;
+                          color: #ffc107;
+                        }
+                        .event-card .btn-outline-warning:hover {
+                          background-color: #ffc107;
+                          color: #000 !important;
+                        }
+                        .event-card .btn-outline-danger {
+                          border-color: #dc3545;
+                          color: #dc3545;
+                        }
+                        .event-card .btn-outline-danger:hover {
+                          background-color: #dc3545;
+                          color: #fff !important;
+                        }
+                        .event-card .btn i {
+                          font-size: 1rem;
+                          line-height: 1;
+                        }
+                      </style>
                     </div>
                   </div>
                 </div>
@@ -1143,6 +1732,339 @@ if (isset($conn)) {
             </div>
           </div>
 
+        <?php elseif (isset($_GET['tab']) && $_GET['tab'] === 'manage-content' && ($is_admin || $is_dean)): ?>
+          <!-- Manage Content Section -->
+          <div class="manage-content-section">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h2><i class="fa fa-edit"></i> Manage Content</h2>
+              <button type="button" class="btn btn-primary" id="addNewContentBtn">
+                <i class="fa fa-plus"></i> Add New Content
+              </button>
+            </div>
+            
+            <?php if (isset($_SESSION['error'])): ?>
+              <div class="alert alert-danger"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
+            <?php endif; ?>
+            
+            <?php if (isset($_SESSION['success'])): ?>
+              <div class="alert alert-success"><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></div>
+            <?php endif; ?>
+            
+            <div class="card">
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>Title</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Last Updated</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <?php
+                      // Get content based on user role
+                      $content = [];
+                      $query = "SELECT id, title, type, status, updated_at FROM content ";
+                      
+                      if ($is_dean && !$is_admin) {
+                        $query .= " WHERE created_by = ? ";
+                      }
+                      
+                      $query .= " ORDER BY updated_at DESC";
+                      
+                      if ($stmt = $conn->prepare($query)) {
+                        if ($is_dean && !$is_admin) {
+                          $stmt->bind_param("i", $user_id);
+                        }
+                        
+                        if ($stmt->execute()) {
+                          $result = $stmt->get_result();
+                          while ($row = $result->fetch_assoc()) {
+                            $content[] = $row;
+                          }
+                        }
+                        $stmt->close();
+                      }
+                      
+                      foreach ($content as $item): 
+                          $status_class = $item['status'] === 'published' ? 'success' : 'secondary';
+                          $status_text = ucfirst($item['status']);
+                          $last_updated = date('M d, Y', strtotime($item['updated_at']));
+                      ?>
+                      <tr>
+                        <td><?php echo htmlspecialchars($item['title']); ?></td>
+                        <td><?php echo ucfirst(htmlspecialchars($item['type'])); ?></td>
+                        <td><span class="badge bg-<?php echo $status_class; ?>"><?php echo $status_text; ?></span></td>
+                        <td><?php echo $last_updated; ?></td>
+                        <td class="text-nowrap">
+                          <button type="button" class="btn btn-sm btn-outline-primary me-2 edit-content-btn" 
+                            data-id="<?php echo $item['id']; ?>"
+                            data-title="<?php echo htmlspecialchars($item['title'], ENT_QUOTES); ?>"
+                            data-type="<?php echo htmlspecialchars($item['type'], ENT_QUOTES); ?>"
+                            data-status="<?php echo $item['status']; ?>"
+                            title="Edit Content">
+                            <i class="fa fa-edit"></i> Edit
+                          </button>
+                          <button class="btn btn-sm btn-outline-danger delete-content-btn" 
+                            data-id="<?php echo $item['id']; ?>"
+                            data-title="<?php echo htmlspecialchars($item['title'], ENT_QUOTES); ?>"
+                            title="Delete Content">
+                            <i class="fa fa-trash"></i> Delete
+                          </button>
+                        </td>
+                      </tr>
+                      <?php endforeach; ?>
+                      <?php if (empty($content)): ?>
+                      <tr>
+                        <td colspan="5" class="text-center">No content found. Click 'Add New Content' to get started.</td>
+                      </tr>
+                      <?php endif; ?>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Add/Edit Content Modal -->
+            <div class="modal fade" id="contentModal" tabindex="-1" aria-labelledby="contentModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                  <form id="contentForm" method="POST" action="">
+                    <input type="hidden" name="action" id="contentAction" value="">
+                    <input type="hidden" name="content_id" id="contentId" value="">
+                    
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="contentModalTitle">Add New Content</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      <div class="row">
+                        <div class="col-md-8">
+                          <div class="mb-3">
+                            <label for="contentTitle" class="form-label">Title</label>
+                            <input type="text" class="form-control" id="contentTitle" name="title" required>
+                          </div>
+                        </div>
+                        <div class="col-md-4">
+                          <div class="mb-3">
+                            <label for="contentType" class="form-label">Type</label>
+                            <select class="form-select" id="contentType" name="type" required>
+                              <option value="article">Article</option>
+                              <option value="page">Page</option>
+                              <option value="news">News</option>
+                              <option value="event">Event</option>
+                              <?php if ($is_admin): ?>
+                              <option value="announcement">Announcement</option>
+                              <?php endif; ?>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div class="mb-3">
+                        <label for="contentBody" class="form-label">Content</label>
+                        <textarea class="form-control" id="contentBody" name="content" rows="10" required></textarea>
+                      </div>
+                      
+                      <div class="row">
+                        <div class="col-md-6">
+                          <div class="mb-3">
+                            <label for="contentStatus" class="form-label">Status</label>
+                            <select class="form-select" id="contentStatus" name="status" required>
+                              <option value="draft">Draft</option>
+                              <option value="published">Published</option>
+                              <?php if ($is_admin): ?>
+                              <option value="archived">Archived</option>
+                              <?php endif; ?>
+                            </select>
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <div class="mb-3">
+                            <label for="featuredImage" class="form-label">Featured Image</label>
+                            <input type="file" class="form-control" id="featuredImage" name="featured_image" accept="image/*">
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div class="mb-3">
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox" id="allowComments" name="allow_comments" value="1" checked>
+                          <label class="form-check-label" for="allowComments">
+                            Allow Comments
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                      <button type="submit" class="btn btn-primary">Save Content</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Delete Confirmation Modal -->
+            <div class="modal fade" id="deleteContentModal" tabindex="-1" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <p>Are you sure you want to delete <strong id="deleteContentTitle"></strong>?</p>
+                    <p class="text-danger">This action cannot be undone.</p>
+                  </div>
+                  <div class="modal-footer">
+                    <form id="deleteContentForm" method="POST" action="">
+                      <?php echo csrf_token_field(); ?>
+                      <input type="hidden" name="action" value="delete_content">
+                      <input type="hidden" name="content_id" id="deleteContentId" value="">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                      <button type="submit" class="btn btn-danger">Delete Content</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <script>
+            // Initialize DataTable for content management
+            $(document).ready(function() {
+                // Initialize tooltips
+                $('[data-toggle="tooltip"]').tooltip();
+                
+                // Initialize Summernote for rich text editing
+                $('#contentBody').summernote({
+                    height: 200,
+                    toolbar: [
+                        ['style', ['style']],
+                        ['font', ['bold', 'italic', 'underline', 'clear']],
+                        ['fontname', ['fontname']],
+                        ['color', ['color']],
+                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['height', ['height']],
+                        ['table', ['table']],
+                        ['insert', ['link', 'picture', 'video']],
+                        ['view', ['fullscreen', 'codeview', 'help']]
+                    ]
+                });
+                
+                // Handle add new content button
+                $('#addNewContentBtn').click(function() {
+                    $('#contentForm')[0].reset();
+                    $('#contentModalTitle').text('Add New Content');
+                    $('#contentAction').val('add_content');
+                    $('#contentId').val('');
+                    $('#contentModal').modal('show');
+                });
+                
+                // Handle edit content button
+                $('.edit-content-btn').click(function() {
+                    const id = $(this).data('id');
+                    const title = $(this).data('title');
+                    const type = $(this).data('type');
+                    const status = $(this).data('status');
+                    
+                    // In a real implementation, you would fetch the content via AJAX
+                    // For now, we'll just populate the form with the available data
+                    $('#contentTitle').val(title);
+                    $('#contentType').val(type);
+                    $('#contentStatus').val(status);
+                    
+                    // Set form action
+                    $('#contentModalTitle').text('Edit Content');
+                    $('#contentAction').val('update_content');
+                    $('#contentId').val(id);
+                    
+                    // Show the modal
+                    $('#contentModal').modal('show');
+                });
+                
+                // Handle delete content button
+                $('.delete-content-btn').click(function() {
+                    const id = $(this).data('id');
+                    const title = $(this).data('title');
+                    
+                    $('#deleteContentId').val(id);
+                    $('#deleteContentTitle').text(title);
+                    $('#deleteContentForm').attr('action', '?tab=manage-content');
+                    $('#deleteContentModal').modal('show');
+                });
+                
+                // Handle form submission
+                $('#contentForm').on('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Get the form data
+                    const formData = new FormData(this);
+                    const action = $('#contentAction').val();
+                    
+                    // Add CSRF token
+                    formData.append('<?php echo csrf_token_name(); ?>', '<?php echo csrf_token(); ?>');
+                    
+                    // Submit the form via AJAX
+                    $.ajax({
+                        url: 'handle_content.php',
+                        type: 'POST',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function(response) {
+                            try {
+                                const result = JSON.parse(response);
+                                if (result.success) {
+                                    // Show success message and reload the page
+                                    showAlert('success', result.message || 'Operation completed successfully.');
+                                    setTimeout(function() {
+                                        window.location.reload();
+                                    }, 1500);
+                                } else {
+                                    // Show error message
+                                    showAlert('danger', result.message || 'An error occurred. Please try again.');
+                                }
+                            } catch (e) {
+                                console.error('Error parsing response:', e);
+                                showAlert('danger', 'An error occurred while processing the response.');
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('AJAX Error:', status, error);
+                            showAlert('danger', 'An error occurred. Please try again.');
+                        }
+                    });
+                });
+                
+                // Helper function to show alerts
+                function showAlert(type, message) {
+                    const alertHtml = `
+                        <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                            ${message}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>`;
+                    
+                    // Remove any existing alerts
+                    $('.alert-dismissible').remove();
+                    
+                    // Add the new alert at the top of the content section
+                    $('.manage-content-section').prepend(alertHtml);
+                    
+                    // Auto-hide after 5 seconds
+                    setTimeout(function() {
+                        $('.alert-dismissible').fadeOut('slow', function() {
+                            $(this).remove();
+                        });
+                    }, 5000);
+                }
+            });
+            </script>
+          </div>
+          
         <?php elseif (isset($_GET['tab']) && $_GET['tab'] === 'faculty-content' && $is_dean): ?>
           <!-- Faculty Content Management Section -->
           <div class="faculty-content-section">
@@ -1368,17 +2290,24 @@ if (isset($conn)) {
                 <h5>Quick Actions</h5>
               </div>
               <div class="card-body">
-                <a href="?tab=profile" class="btn btn-primary btn-block mb-2">
-                  <i class="fa fa-user"></i> Edit Profile
-                </a>
-                <?php if ($is_admin): ?>
-                <a href="admin/users.php" class="btn btn-success btn-block mb-2">
-                  <i class="fa fa-users"></i> Manage Users
-                </a>
-                <?php endif; ?>
-                <a href="?tab=settings" class="btn btn-info btn-block">
-                  <i class="fa fa-cog"></i> Settings
-                </a>
+                <div class="d-grid gap-2">
+                  <a href="?tab=profile" class="btn btn-outline-primary text-start">
+                    <i class="fa fa-user me-2"></i> Edit Profile
+                  </a>
+                  <?php if ($is_admin || $is_dean): ?>
+                  <a href="?tab=manage-content" class="btn btn-outline-success text-start <?php echo $active_tab === 'manage-content' ? 'active' : ''; ?>">
+                    <i class="fa fa-edit me-2"></i> Manage Content
+                  </a>
+                  <?php endif; ?>
+                  <?php if ($is_admin): ?>
+                  <a href="?tab=manage-users" class="btn btn-outline-secondary text-start <?php echo $active_tab === 'manage-users' ? 'active' : ''; ?>">
+                    <i class="fa fa-users me-2"></i> Manage Users
+                  </a>
+                  <?php endif; ?>
+                  <a href="?tab=settings" class="btn btn-outline-info text-start">
+                    <i class="fa fa-cog me-2"></i> Settings
+                  </a>
+                </div>
               </div>
             </div>
           </div>
@@ -1739,7 +2668,7 @@ $(document).ready(function() {
     }
     
     // Handle smooth scrolling for anchor links
-    $('a[href^="#"]').not('[href^="#tab-"]').on('click', function(e) {
+    $('a[href^="#"]').not('.direct-link').on('click', function(e) {
         const href = $(this).attr('href');
         if (href === '#' || href.startsWith('#')) {
             e.preventDefault();
@@ -1828,8 +2757,8 @@ $(document).ready(function() {
         const href = this.getAttribute('href');
         console.log('Sidebar link clicked:', href);
         
-        // If it's a tab link (starts with ?tab=), let it navigate normally
-        if (href && href.startsWith('?tab=')) {
+        // If it's a tab link (starts with ?tab=) or a direct link, let it navigate normally
+        if ((href && href.startsWith('?tab=')) || this.classList.contains('direct-link')) {
           console.log('Navigating to tab:', href);
           // Let the default navigation happen
           return true;
@@ -1839,8 +2768,11 @@ $(document).ready(function() {
     
     // Active class management is now handled above with jQuery
 
-    // Add smooth scrolling (but not for tab links)
-    $('a[href^="#"]').on('click', function(e) {
+    // Add smooth scrolling (but not for tab links or direct links)
+    $('a[href^="#"]').not('.direct-link').on('click', function(e) {
+      const href = $(this).attr('href');
+     // Add smooth scrolling (but not for tab links or direct links)
+    $('a[href^="#"]').not('.direct-link').on('click', function(e) {
       e.preventDefault();
       const target = this.getAttribute('href');
       if (target === '#') return;

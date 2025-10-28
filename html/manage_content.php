@@ -219,19 +219,139 @@ include 'includes/about_header.php';
 
           <div class="row">
             <!-- Events Management -->
-            <div class="col-md-4 col-sm-6">
-              <div class="dashboard-card card h-100">
-                <div class="card-body text-center">
-                  <div class="card-icon">
-                    <i class='bx bx-calendar-event'></i>
+            <div class="col-md-4 col-sm-6 mb-4">
+              <a href="manage_events.php" class="text-decoration-none">
+                <div class="dashboard-card card h-100">
+                  <div class="card-body text-center">
+                    <div class="card-icon text-primary">
+                      <i class='bx bx-calendar-event'></i>
+                    </div>
+                    <h4 class="card-title">Manage Events</h4>
+                    <p class="card-text text-muted">Create, edit, and manage university events and activities</p>
                   </div>
-                  <h5 class="card-title">Events Management</h5>
-                  <p class="card-text">Manage university events, workshops, and important dates.</p>
                 </div>
-                <div class="card-footer text-center">
-                  <a href="manage_events.php" class="btn btn-success btn-sm">
-                    <i class='bx bx-edit me-1'></i> Manage Events
-                  </a>
+              </a>
+            </div>
+
+            <!-- Announcements Management -->
+            <div class="col-md-4 col-sm-6 mb-4">
+              <a href="manage_announcements.php" class="text-decoration-none">
+                <div class="dashboard-card card h-100">
+                  <div class="card-body text-center">
+                    <div class="card-icon text-success">
+                      <i class='bx bx-bullhorn'></i>
+                    </div>
+                    <h4 class="card-title">Manage Announcements</h4>
+                    <p class="card-text text-muted">Post and manage important university announcements</p>
+                  </div>
+                </div>
+              </a>
+            </div>
+
+            <!-- Publications Management -->
+            <div class="col-md-4 col-sm-6 mb-4">
+              <a href="manage_publications.php" class="text-decoration-none">
+                <div class="dashboard-card card h-100">
+                  <div class="card-body text-center">
+                    <div class="card-icon text-info">
+                      <i class='bx bx-book-open'></i>
+                    </div>
+                    <h4 class="card-title">Manage Publications</h4>
+                    <p class="card-text text-muted">Manage research papers and publications</p>
+                  </div>
+                </div>
+              </a>
+            </div>
+
+            <!-- Staff Management -->
+            <div class="col-md-4 col-sm-6 mb-4">
+              <a href="manage_staff.php" class="text-decoration-none">
+                <div class="dashboard-card card h-100">
+                  <div class="card-body text-center">
+                    <div class="card-icon text-warning">
+                      <i class='bx bx-user-pin'></i>
+                    </div>
+                    <h4 class="card-title">Manage Staff</h4>
+                    <p class="card-text text-muted">Manage university staff members and their profiles</p>
+                  </div>
+                </div>
+              </a>
+            </div>
+
+            <!-- VC Notice Management -->
+            <div class="col-md-4 col-sm-6 mb-4">
+              <a href="manage_vc_notice.php" class="text-decoration-none">
+                <div class="dashboard-card card h-100">
+                  <div class="card-body text-center">
+                    <div class="card-icon text-danger">
+                      <i class='bx bx-news'></i>
+                    </div>
+                    <h4 class="card-title">VC Notices</h4>
+                    <p class="card-text text-muted">Manage notices from the Vice Chancellor's office</p>
+                  </div>
+                </div>
+              </a>
+            </div>
+
+            <!-- Faculty Management -->
+            <div class="col-md-4 col-sm-6 mb-4">
+              <a href="manage_faculties.php" class="text-decoration-none">
+                <div class="dashboard-card card h-100">
+                  <div class="card-body text-center">
+                    <div class="card-icon text-primary">
+                      <i class='bx bx-buildings'></i>
+                    </div>
+                    <h4 class="card-title">Manage Faculties</h4>
+                    <p class="card-text text-muted">Manage university faculties and departments</p>
+                  </div>
+                </div>
+              </a>
+            </div>
+
+            <!-- Downloads Management -->
+            <div class="col-md-4 col-sm-6 mb-4">
+              <a href="manage_downloads.php" class="text-decoration-none">
+                <div class="dashboard-card card h-100">
+                  <div class="card-body text-center">
+                    <div class="card-icon text-success">
+                      <i class='bx bx-download'></i>
+                    </div>
+                    <h4 class="card-title">Manage Downloads</h4>
+                    <p class="card-text text-muted">Manage downloadable files and resources</p>
+                  </div>
+                </div>
+              </a>
+            </div>
+
+            <!-- Departments Management -->
+            <div class="col-md-4 col-sm-6 mb-4">
+              <a href="manage_departments.php" class="text-decoration-none">
+                <div class="dashboard-card card h-100">
+                  <div class="card-body text-center">
+                    <div class="card-icon text-info">
+                      <i class='bx bx-list-ul'></i>
+                    </div>
+                    <h4 class="card-title">Manage Departments</h4>
+                    <p class="card-text text-muted">Manage academic departments and programs</p>
+                  </div>
+                </div>
+              </a>
+            </div>
+
+            <!-- Programmes Management -->
+            <div class="col-md-4 col-sm-6 mb-4">
+              <a href="manage_programmes.php" class="text-decoration-none">
+                <div class="dashboard-card card h-100">
+                  <div class="card-body text-center">
+                    <div class="card-icon text-warning">
+                      <i class='bx bx-book-content'></i>
+                    </div>
+                    <h4 class="card-title">Manage Programmes</h4>
+                    <p class="card-text text-muted">Manage academic programs and courses</p>
+                  </div>
+                </div>
+              </a>
+            </div>
                 </div>
               </div>
             </div>
