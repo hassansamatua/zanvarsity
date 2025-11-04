@@ -1190,3 +1190,29 @@
 (
 )
 
+[04-Nov-2025 12:06:13 Europe/Berlin] require_login() called
+[04-Nov-2025 12:06:13 Europe/Berlin] Session ID: beru2f3a7tr3o35plrjsv1pnka
+[04-Nov-2025 12:06:13 Europe/Berlin] Session status: 2
+[04-Nov-2025 12:06:13 Europe/Berlin] Session data: Array
+(
+    [csrf_token] => 5fd17784cbb29c5bd91a93097e4c6bb83190c3a70e58b0c8d011bb80060ad39e
+    [last_activity] => 1762253610
+    [created] => 1762253610
+)
+
+[04-Nov-2025 12:06:13 Europe/Berlin] is_logged_in() called
+[04-Nov-2025 12:06:13 Europe/Berlin] Session ID: beru2f3a7tr3o35plrjsv1pnka
+[04-Nov-2025 12:06:13 Europe/Berlin] Session status: 2
+[04-Nov-2025 12:06:13 Europe/Berlin] Session data: Array
+(
+    [csrf_token] => 5fd17784cbb29c5bd91a93097e4c6bb83190c3a70e58b0c8d011bb80060ad39e
+    [last_activity] => 1762253610
+    [created] => 1762253610
+)
+
+[04-Nov-2025 12:06:13 Europe/Berlin] User session variables not set
+[04-Nov-2025 12:06:13 Europe/Berlin] Current URL: /c/zanvarsity/html/manage_announcements.php
+[04-Nov-2025 12:06:13 Europe/Berlin] SCRIPT_NAME: /c/zanvarsity/html/manage_announcements.php
+[04-Nov-2025 12:06:13 Europe/Berlin] PHP_SELF: /c/zanvarsity/html/manage_announcements.php
+[04-Nov-2025 12:06:13 Europe/Berlin] REQUEST_URI: /c/zanvarsity/html/manage_announcements.php
+[04-Nov-2025 12:06:13 Europe/Berlin] Redirecting to: http://localhost/c/zanvarsity/html/register-sign-in.php?error=login_required&redirect=manage_announcements.php

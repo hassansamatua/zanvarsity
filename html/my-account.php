@@ -742,7 +742,23 @@ if (isset($conn)) {
             <li><a href="?tab=messages" class="<?php echo (isset($_GET['tab']) && $_GET['tab'] === 'messages') ? 'active' : ''; ?>"><i class="fa fa-envelope"></i> Messages</a></li>
             <li><a href="?tab=settings" class="<?php echo (isset($_GET['tab']) && $_GET['tab'] === 'settings') ? 'active' : ''; ?>"><i class="fa fa-cog"></i> Settings</a></li>
             <?php if ($is_admin || $is_dean): ?>
-            <li><a href="?tab=manage-content" class="<?php echo (isset($_GET['tab']) && $_GET['tab'] === 'manage-content') ? 'active' : ''; ?>"><i class="fa fa-edit"></i> Manage Content</a></li>
+            <li class="has-submenu">
+                <a href="#" class="<?php echo (isset($_GET['tab']) && in_array($_GET['tab'], ['manage-content', 'manage-announcements', 'manage-publications', 'manage-users', 'faculty-content'])) ? 'active' : ''; ?>">
+                    <i class="fa fa-cogs"></i> Manage
+                    <i class="fa fa-chevron-down float-end"></i>
+                </a>
+                <ul class="submenu">
+                    <?php if ($is_admin): ?>
+                    <li><a href="?tab=manage-users" class="<?php echo (isset($_GET['tab']) && $_GET['tab'] === 'manage-users') ? 'active' : ''; ?>"><i class="fa fa-users"></i> Users</a></li>
+                    <?php endif; ?>
+                    <li><a href="?tab=manage-content" class="<?php echo (isset($_GET['tab']) && $_GET['tab'] === 'manage-content') ? 'active' : ''; ?>"><i class="fa fa-edit"></i> Content</a></li>
+                    <li><a href="?tab=manage-announcements" class="<?php echo (isset($_GET['tab']) && $_GET['tab'] === 'manage-announcements') ? 'active' : ''; ?>"><i class="fa fa-bullhorn"></i> Announcements</a></li>
+                    <li><a href="?tab=manage-publications" class="<?php echo (isset($_GET['tab']) && $_GET['tab'] === 'manage-publications') ? 'active' : ''; ?>"><i class="fa fa-file-text"></i> Publications</a></li>
+                    <?php if ($is_dean): ?>
+                    <li><a href="?tab=faculty-content" class="<?php echo (isset($_GET['tab']) && $_GET['tab'] === 'faculty-content') ? 'active' : ''; ?>"><i class="fa fa-graduation-cap"></i> Faculty Content</a></li>
+                    <?php endif; ?>
+                </ul>
+            </li>
             <?php endif; ?>
             <li><a href="logout.php"><i class="fa fa-sign-out"></i> Logout</a></li>
           </ul>
@@ -757,7 +773,7 @@ if (isset($conn)) {
             <div class="page-title">
               <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2><i class='bx bx-calendar-event me-2'></i>Manage Events</h2>
-                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addEventModal">
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addEventModal">
                   <i class='bx bx-plus-circle'></i> Add New Event
                 </button>
               </div>
@@ -2179,6 +2195,424 @@ if (isset($conn)) {
             </div>
           </div>
 
+        <?php elseif (isset($_GET['tab']) && $_GET['tab'] === 'manage-announcements' && ($is_admin || $is_dean)): ?>
+          <!-- Manage Announcements Section -->
+          <div class="manage-announcements-section">
+            <div class="page-title">
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class='bx bx-megaphone me-2'></i>Manage Announcements</h2>
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addAnnouncementModal">
+                  <i class='bx bx-plus'></i> Add New Announcement
+                </button>
+              </div>
+            </div>
+            
+            <?php if (isset($_SESSION['success'])): ?>
+              <div class="alert alert-success"><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></div>
+            <?php endif; ?>
+            
+            <?php if (isset($_SESSION['error'])): ?>
+              <div class="alert alert-danger"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
+            <?php endif; ?>
+            
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>Title</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Important</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <?php
+                      // Fetch announcements from database
+                      $announcements = [];
+                      $query = "SELECT * FROM announcements ORDER BY start_date DESC";
+                      $result = $conn->query($query);
+                      
+                      if ($result && $result->num_rows > 0):
+                        while ($row = $result->fetch_assoc()):
+                          $announcements[] = $row;
+                        endwhile;
+                      endif;
+                      
+                      if (!empty($announcements)): 
+                        foreach ($announcements as $announcement): 
+                          $start_date = new DateTime($announcement['start_date']);
+                          $end_date = !empty($announcement['end_date']) ? new DateTime($announcement['end_date']) : null;
+                      ?>
+                        <tr>
+                          <td>
+                            <?php echo htmlspecialchars($announcement['title']); ?>
+                            <?php if ($announcement['attachment_url']): ?>
+                              <i class="bi bi-paperclip ms-1" title="Has attachment"></i>
+                            <?php endif; ?>
+                          </td>
+                          <td><?php echo $start_date->format('M j, Y'); ?></td>
+                          <td><?php echo $end_date ? $end_date->format('M j, Y') : 'N/A'; ?></td>
+                          <td>
+                            <?php if ($announcement['is_important']): ?>
+                              <span class="badge bg-danger">Important</span>
+                            <?php else: ?>
+                              <span class="text-muted">-</span>
+                            <?php endif; ?>
+                          </td>
+                          <td>
+                            <span class="badge bg-<?php echo $announcement['status'] === 'active' ? 'success' : 'secondary'; ?>">
+                              <?php echo ucfirst($announcement['status']); ?>
+                            </span>
+                          </td>
+                          <td>
+                            <button class="btn btn-sm btn-info edit-announcement" 
+                                    data-id="<?php echo $announcement['id']; ?>"
+                                    data-title="<?php echo htmlspecialchars($announcement['title']); ?>"
+                                    data-content="<?php echo htmlspecialchars($announcement['content']); ?>"
+                                    data-start-date="<?php echo $start_date->format('Y-m-d'); ?>"
+                                    data-end-date="<?php echo $end_date ? $end_date->format('Y-m-d') : ''; ?>"
+                                    data-is-important="<?php echo $announcement['is_important']; ?>"
+                                    data-status="<?php echo $announcement['status']; ?>"
+                                    data-attachment-name="<?php echo htmlspecialchars($announcement['attachment_name'] ?? ''); ?>"
+                                    data-attachment-url="<?php echo htmlspecialchars($announcement['attachment_url'] ?? ''); ?>">
+                              <i class="bi bi-pencil"></i> Edit
+                            </button>
+                            <button class="btn btn-sm btn-danger delete-announcement" 
+                                    data-id="<?php echo $announcement['id']; ?>"
+                                    data-title="<?php echo htmlspecialchars($announcement['title']); ?>">
+                              <i class="bi bi-trash"></i> Delete
+                            </button>
+                          </td>
+                        </tr>
+                      <?php 
+                        endforeach; 
+                      else: 
+                      ?>
+                        <tr>
+                          <td colspan="6" class="text-center py-4">
+                            <i class='bx bx-megaphone-off' style="font-size: 3rem; color: #6c757d; margin-bottom: 15px;"></i>
+                            <h4>No announcements found</h4>
+                            <p>Get started by adding your first announcement.</p>
+                          </td>
+                        </tr>
+                      <?php endif; ?>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Add/Edit Announcement Modal -->
+          <div class="modal fade" id="announcementModal" tabindex="-1" aria-labelledby="announcementModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="announcementModalLabel">Add New Announcement</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="announcementForm" method="POST" enctype="multipart/form-data">
+                  <input type="hidden" name="action" id="announcementAction" value="add_announcement">
+                  <input type="hidden" name="announcement_id" id="announcementId">
+                  <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?? ''; ?>">
+                  
+                  <div class="modal-body">
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="mb-3">
+                          <label for="title" class="form-label">Title <span class="text-danger">*</span></label>
+                          <input type="text" class="form-control" id="title" name="title" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                          <label for="content" class="form-label">Content <span class="text-danger">*</span></label>
+                          <textarea class="form-control" id="content" name="content" rows="5" required></textarea>
+                        </div>
+                        
+                        <div class="row">
+                          <div class="col-md-6">
+                            <div class="mb-3">
+                              <label for="start_date" class="form-label">Start Date <span class="text-danger">*</span></label>
+                              <input type="date" class="form-control" id="start_date" name="start_date" required>
+                            </div>
+                          </div>
+                          <div class="col-md-6">
+                            <div class="mb-3">
+                              <label for="end_date" class="form-label">End Date (Optional)</label>
+                              <input type="date" class="form-control" id="end_date" name="end_date">
+                              <div class="form-text">Leave empty if the announcement has no end date</div>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div class="row">
+                          <div class="col-md-6">
+                            <div class="mb-3">
+                              <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="is_important" name="is_important" value="1">
+                                <label class="form-check-label" for="is_important">Mark as Important</label>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-md-6">
+                            <div class="mb-3">
+                              <label for="status" class="form-label">Status</label>
+                              <select class="form-select" id="status" name="status">
+                                <option value="active" selected>Active</option>
+                                <option value="inactive">Inactive</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                          <label for="attachment" class="form-label">Attachment (Optional)</label>
+                          <input type="file" class="form-control" id="attachment" name="attachment">
+                          <div class="form-text">Allowed file types: PDF, DOC, DOCX, JPG, JPEG, PNG, GIF (Max: 5MB)</div>
+                          <div id="currentAttachment" class="mt-2" style="display: none;">
+                            <span class="text-muted">Current: </span>
+                            <a href="#" id="attachmentLink" target="_blank"></a>
+                            <button type="button" class="btn btn-sm btn-outline-danger ms-2" id="removeAttachment">
+                              <i class="bi bi-trash"></i> Remove
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Announcement</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Delete Confirmation Modal -->
+          <div class="modal fade" id="deleteAnnouncementModal" tabindex="-1" aria-labelledby="deleteAnnouncementModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="deleteAnnouncementModalLabel">Confirm Delete</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <p>Are you sure you want to delete the announcement "<span id="announcementTitle"></span>"?</p>
+                  <p class="text-danger">This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                  <form id="deleteAnnouncementForm" method="POST">
+                    <input type="hidden" name="action" value="delete_announcement">
+                    <input type="hidden" name="id" id="deleteAnnouncementId">
+                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?? ''; ?>">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <script>
+          $(document).ready(function() {
+              // Set today's date as default for start date
+              const today = new Date().toISOString().split('T')[0];
+              $('#start_date').attr('min', today);
+              
+              // Update end date min date when start date changes
+              $('#start_date').on('change', function() {
+                  $('#end_date').attr('min', $(this).val());
+              });
+              
+              // Handle edit announcement button click
+              $(document).on('click', '.edit-announcement', function() {
+                  const id = $(this).data('id');
+                  const title = $(this).data('title');
+                  const content = $(this).data('content');
+                  const startDate = $(this).data('start-date');
+                  const endDate = $(this).data('end-date');
+                  const isImportant = $(this).data('is-important');
+                  const status = $(this).data('status');
+                  const attachmentName = $(this).data('attachment-name');
+                  const attachmentUrl = $(this).data('attachment-url');
+                  
+                  $('#announcementModalLabel').text('Edit Announcement');
+                  $('#announcementAction').val('update_announcement');
+                  $('#announcementId').val(id);
+                  $('#title').val(title);
+                  $('#content').val(content);
+                  $('#start_date').val(startDate);
+                  $('#end_date').val(endDate || '');
+                  $('#is_important').prop('checked', isImportant == 1);
+                  $('#status').val(status);
+                  
+                  // Handle attachment
+                  if (attachmentUrl) {
+                      $('#currentAttachment').show();
+                      $('#attachmentLink').attr('href', attachmentUrl).text(attachmentName || 'View Attachment');
+                  } else {
+                      $('#currentAttachment').hide();
+                  }
+                  
+                  // Show the modal
+                  const modal = new bootstrap.Modal(document.getElementById('announcementModal'));
+                  modal.show();
+              });
+              
+              // Handle remove attachment button
+              $('#removeAttachment').on('click', function() {
+                  $('#currentAttachment').hide();
+                  $('#attachmentLink').attr('href', '#').text('');
+                  // Add a hidden field to indicate attachment removal
+                  if ($('#removeAttachmentFlag').length === 0) {
+                      $('#announcementForm').append('<input type="hidden" id="removeAttachmentFlag" name="remove_attachment" value="1">');
+                  }
+              });
+              
+              // Handle delete announcement button click
+              $(document).on('click', '.delete-announcement', function() {
+                  const id = $(this).data('id');
+                  const title = $(this).data('title');
+                  
+                  $('#announcementTitle').text(title);
+                  $('#deleteAnnouncementId').val(id);
+                  
+                  const modal = new bootstrap.Modal(document.getElementById('deleteAnnouncementModal'));
+                  modal.show();
+              });
+              
+              // Handle form submission
+              $('#announcementForm').on('submit', function(e) {
+                  e.preventDefault();
+                  
+                  const formData = new FormData(this);
+                  
+                  // Show loading state
+                  const submitBtn = $(this).find('button[type="submit"]');
+                  const originalBtnText = submitBtn.html();
+                  submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...');
+                  
+                  $.ajax({
+                      url: 'manage_announcements.php',
+                      type: 'POST',
+                      data: formData,
+                      processData: false,
+                      contentType: false,
+                      success: function(response) {
+                          try {
+                              const data = typeof response === 'string' ? JSON.parse(response) : response;
+                              
+                              if (data.success) {
+                                  // Show success message and reload the page
+                                  window.location.href = 'my-account.php?tab=manage-announcements&success=' + encodeURIComponent(data.message);
+                              } else {
+                                  // Show error message
+                                  alert(data.message || 'An error occurred. Please try again.');
+                                  submitBtn.prop('disabled', false).html(originalBtnText);
+                              }
+                          } catch (e) {
+                              console.error('Error parsing response:', e, response);
+                              alert('An error occurred while processing the response. Please check the console for details.');
+                              submitBtn.prop('disabled', false).html(originalBtnText);
+                          }
+                      },
+                      error: function(xhr, status, error) {
+                          console.error('AJAX Error:', status, error);
+                          alert('An error occurred while saving the announcement. Please try again.');
+                          submitBtn.prop('disabled', false).html(originalBtnText);
+                      }
+                  });
+              });
+              
+              // Handle delete form submission
+              $('#deleteAnnouncementForm').on('submit', function(e) {
+                  e.preventDefault();
+                  
+                  const formData = $(this).serialize();
+                  const deleteBtn = $(this).find('button[type="submit"]');
+                  const originalBtnText = deleteBtn.html();
+                  
+                  deleteBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Deleting...');
+                  
+                  $.post('manage_announcements.php', formData, function(response) {
+                      try {
+                          const data = typeof response === 'string' ? JSON.parse(response) : response;
+                          
+                          if (data.success) {
+                              // Show success message and reload the page
+                              window.location.href = 'my-account.php?tab=manage-announcements&success=' + encodeURIComponent(data.message);
+                          } else {
+                              // Show error message
+                              alert(data.message || 'An error occurred while deleting the announcement.');
+                              deleteBtn.prop('disabled', false).html(originalBtnText);
+                          }
+                      } catch (e) {
+                          console.error('Error parsing response:', e, response);
+                          alert('An error occurred while processing the response. Please check the console for details.');
+                          deleteBtn.prop('disabled', false).html(originalBtnText);
+                      }
+                  }).fail(function(xhr, status, error) {
+                      console.error('AJAX Error:', status, error);
+                      alert('An error occurred while deleting the announcement. Please try again.');
+                      deleteBtn.prop('disabled', false).html(originalBtnText);
+                  });
+              });
+              
+              // Show success message from URL parameter
+              const urlParams = new URLSearchParams(window.location.search);
+              const successMessage = urlParams.get('success');
+              if (successMessage) {
+                  alert(decodeURIComponent(successMessage));
+                  // Remove the success parameter from URL
+                  const newUrl = window.location.pathname + '?tab=manage-announcements';
+                  window.history.replaceState({}, document.title, newUrl);
+              }
+          });
+          
+          // Function to reset the form when adding a new announcement
+          function resetAnnouncementForm() {
+              $('#announcementForm')[0].reset();
+              $('#announcementModalLabel').text('Add New Announcement');
+              $('#announcementAction').val('add_announcement');
+              $('#announcementId').val('');
+              $('#currentAttachment').hide();
+              $('#attachmentLink').attr('href', '#').text('');
+              $('#removeAttachmentFlag').remove();
+              
+              // Set default start date to today
+              const today = new Date().toISOString().split('T')[0];
+              $('#start_date').val(today);
+          }
+          
+          // Initialize the form when the modal is shown
+          $('#announcementModal').on('show.bs.modal', function (e) {
+              if (!e.relatedTarget) {
+                  resetAnnouncementForm();
+              }
+          });
+          </script>
+
+        <?php elseif (isset($_GET['tab']) && $_GET['tab'] === 'manage-publications' && ($is_admin || $is_dean)): ?>
+          <!-- Include Publications Management Section -->
+          <?php include __DIR__ . '/includes/publications_section.php'; ?>
+          
+        <?php elseif (isset($_GET['tab']) && $_GET['tab'] === 'manage-downloads' && ($is_admin || $is_dean)): ?>
+          <!-- Include Downloads Management Section -->
+          <?php include __DIR__ . '/includes/downloads_section.php'; ?>
+          
+        <?php elseif (isset($_GET['tab']) && $_GET['tab'] === 'manage-staff' && ($is_admin || $is_dean)): ?>
+          <!-- Include Staff Management Section -->
+          <?php include __DIR__ . '/includes/staff_section.php'; ?>
+          
+        <?php elseif (isset($_GET['tab']) && (rtrim($_GET['tab'], '#') === 'manage-programs') && ($is_admin || $is_dean)): ?>
+          <!-- Include Programs Management Section -->
+          <?php include __DIR__ . '/includes/programs_section.php'; ?>
+          
         <?php elseif (isset($_GET['tab']) && $_GET['tab'] === 'dashboard'): ?>
           <!-- Dashboard Section -->
           <div class="dashboard-header">
@@ -2597,6 +3031,7 @@ window.confirmDelete = function(userId, userName) {
 };
 
 // Initialize when document is ready
+// Main document ready function
 $(document).ready(function() {
     console.log('Document ready');
     
@@ -2619,49 +3054,360 @@ $(document).ready(function() {
         $('.sidebar-menu a[href*="tab=dashboard"]').addClass('active');
     }
     
-    // Handle form submission
-    const userForm = document.getElementById('userForm');
-    if (userForm) {
-        userForm.addEventListener('submit', function(e) {
-            const firstName = document.getElementById('firstName')?.value?.trim();
-            const lastName = document.getElementById('lastName')?.value?.trim();
-            const email = document.getElementById('userEmail')?.value?.trim();
-            const password = document.getElementById('userPassword')?.value;
-            const confirmPassword = document.getElementById('confirmPassword')?.value;
-            const isAdd = document.getElementById('userAction')?.value === 'add';
+    // Handle event form submission
+    $(document).on('submit', '#eventForm', function(e) {
+        e.preventDefault();
+        console.log('Event form submitted');
+        
+        const form = this;
+        const formData = new FormData(form);
+        
+        // Log form data for debugging
+        const formDataObj = {};
+        for (let [key, value] of formData.entries()) {
+            formDataObj[key] = value;
+        }
+        console.log('Form data to be submitted:', formDataObj);
+        
+        // Client-side validation
+        const title = formData.get('title')?.trim();
+        const startDate = formData.get('start_date')?.trim();
+        
+        if (!title || !startDate) {
+            const errorMsg = 'Please fill in all required fields';
+            console.error('Validation error:', errorMsg);
+            showAlert('warning', errorMsg);
+            return false;
+        }
+        
+        // Add CSRF token if not already in form
+        if (!formData.get('csrf_token')) {
+            const csrfToken = $('meta[name="csrf-token"]').attr('content') || 
+                             $('input[name="csrf_token"]').val() ||
+                             $('#eventForm input[name="csrf_token"]').val();
             
-            if (!firstName || !lastName || !email) {
-                e.preventDefault();
-                alert('Please fill in all required fields');
+            console.log('CSRF Token:', csrfToken ? 'Found' : 'Not found');
+            
+            if (csrfToken) {
+                formData.set('csrf_token', csrfToken);
+            } else {
+                const errorMsg = 'Security error: CSRF token not found. Please refresh the page and try again.';
+                console.error(errorMsg);
+                showAlert('danger', errorMsg);
                 return false;
             }
+        }
+        
+        // Show loading state
+        const submitBtn = $(form).find('button[type="submit"]');
+        const originalBtnText = submitBtn.html();
+        submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...');
+        
+        // Log the request being sent
+        console.log('Sending request to handle_event.php');
+        
+        // Submit form via AJAX
+        fetch('handle_event.php', {
+            method: 'POST',
+            body: formData,
+            credentials: 'same-origin' // Include cookies in the request
+        })
+        .then(async response => {
+            const responseText = await response.text();
+            console.log('Raw server response:', responseText);
             
-            if (isAdd && (!password || !confirmPassword)) {
-                e.preventDefault();
-                alert('Please enter and confirm the password for new users');
-                return false;
+            try {
+                return JSON.parse(responseText);
+            } catch (e) {
+                console.error('Failed to parse JSON response:', e);
+                throw new Error('Invalid server response: ' + responseText.substring(0, 200));
+            }
+        })
+        .then(data => {
+            console.log('Parsed server response:', data);
+            
+            if (data && data.success) {
+                // Close the modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('addEventModal'));
+                if (modal) {
+                    modal.hide();
+                    console.log('Modal closed');
+                }
+                
+                // Show success message
+                const successMsg = data.message || 'Event saved successfully';
+                console.log('Success:', successMsg);
+                showAlert('success', successMsg);
+                
+                // Reset form
+                form.reset();
+                
+                // Refresh the page to show the new event
+                console.log('Refreshing page to show new event...');
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                const errorMsg = data && data.message ? data.message : 'Failed to save event';
+                console.error('Server error:', errorMsg);
+                throw new Error(errorMsg);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            
+            let errorMessage = 'An error occurred while saving the event';
+            
+            // Try to extract a meaningful error message
+            if (error.message) {
+                try {
+                    const errorData = JSON.parse(error.message);
+                    errorMessage = errorData.message || error.message;
+                } catch (e) {
+                    errorMessage = error.message || errorMessage;
+                }
             }
             
-            if (password && password !== confirmPassword) {
-                e.preventDefault();
-                alert('Passwords do not match');
-                return false;
-            }
+            // Show error message to user
+            showAlert('danger', errorMessage);
             
-            if (isAdd && password && password.length < 8) {
-                e.preventDefault();
-                alert('Password must be at least 8 characters long');
-                return false;
+            // Log detailed error to console
+            if (error.stack) {
+                console.error('Error stack:', error.stack);
             }
-            
-            return true;
+        })
+        .finally(() => {
+            submitBtn.prop('disabled', false).html(originalBtnText);
+            console.log('Form submission completed');
         });
+        
+        return false;
+    });
+    
+    // Handle user form submission
+    $(document).on('submit', '#userForm', function(e) {
+        e.preventDefault();
+        
+        const form = this;
+        const formData = new FormData(form);
+        const action = formData.get('action');
+        const isAdd = action === 'add_user';
+        const password = formData.get('password');
+        const confirmPassword = document.getElementById('confirmPassword')?.value;
+        
+        // Client-side validation
+        if (!formData.get('first_name')?.trim() || !formData.get('last_name')?.trim() || !formData.get('email')?.trim()) {
+            alert('Please fill in all required fields');
+            return false;
+        }
+        
+        if (isAdd && !password) {
+            alert('Please enter a password for new users');
+            return false;
+        }
+        
+        if (password && password !== confirmPassword) {
+            alert('Passwords do not match');
+            return false;
+        }
+        
+        if (password && password.length < 8) {
+            alert('Password must be at least 8 characters long');
+            return false;
+        }
+        
+        // Add CSRF token if not already in form
+        if (!formData.get('csrf_token')) {
+            const csrfToken = $('input[name="csrf_token"]').val();
+            if (csrfToken) {
+                formData.append('csrf_token', csrfToken);
+            }
+        }
+        
+        // Show loading state
+        const submitBtn = $(form).find('button[type="submit"]');
+        const originalBtnText = submitBtn.html();
+        submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...');
+        
+        // Submit form via AJAX
+        fetch('handle_user.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Close the modal and refresh the page
+                const modal = bootstrap.Modal.getInstance(document.getElementById('userModal'));
+                if (modal) modal.hide();
+                // Show success message and reload
+                showAlert('success', data.message || 'Operation completed successfully');
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                showAlert('danger', data.message || 'An error occurred');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('danger', 'An error occurred while processing your request');
+        })
+        .finally(() => {
+            submitBtn.prop('disabled', false).html(originalBtnText);
+        });
+        
+        return false;
+    });
+    
+    // Handle delete form submission
+    $(document).on('submit', '#deleteForm', function(e) {
+        e.preventDefault();
+        
+        if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+            return false;
+        }
+        
+        const form = this;
+        const formData = new FormData(form);
+        
+        // Add CSRF token if not already in form
+        if (!formData.get('csrf_token')) {
+            const csrfToken = $('input[name="csrf_token"]').val();
+            if (csrfToken) {
+                formData.append('csrf_token', csrfToken);
+            }
+        }
+        
+        // Show loading state
+        const submitBtn = $(form).find('button[type="submit"]');
+        const originalBtnText = submitBtn.html();
+        submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Deleting...');
+        
+        // Submit form via AJAX
+        fetch('handle_user.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Close the modal and refresh the page
+                const modal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
+                if (modal) modal.hide();
+                // Show success message and reload
+                showAlert('success', data.message || 'User deleted successfully');
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                showAlert('danger', data.message || 'Failed to delete user');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('danger', 'An error occurred while processing your request');
+        })
+        .finally(() => {
+            submitBtn.prop('disabled', false).html(originalBtnText);
+        });
+        
+        return false;
+    });
+    
+    // Helper function to show alerts
+    function showAlert(type, message) {
+        // Remove any existing alerts
+        $('.alert-dismissible').remove();
+        
+        // Create and show new alert
+        const alertHtml = `
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        `;
+        
+        // Add alert to the top of the content area
+        $('.manage-users-section').prepend(alertHtml);
+        
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+            $('.alert-dismissible').fadeOut(500, function() {
+                $(this).remove();
+            });
+        }, 5000);
     }
     
     // Initialize add user button
-    const addUserBtn = document.querySelector('.btn-primary[onclick*="addUser"], .btn-primary[onclick*="editUser"]');
+    const addUserBtn = document.getElementById('addNewUserBtn');
     if (addUserBtn) {
         addUserBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            // Show the user modal for adding a new user
+            const modal = new bootstrap.Modal(document.getElementById('userModal'));
+            document.getElementById('userModalTitle').textContent = 'Add New User';
+            document.getElementById('userAction').value = 'add_user';
+            document.getElementById('userId').value = '';
+            document.getElementById('firstName').value = '';
+            document.getElementById('lastName').value = '';
+            document.getElementById('userEmail').value = '';
+            document.getElementById('userRole').value = 'student';
+            document.getElementById('userStatus').checked = true;
+            // Show password fields for new users
+            document.getElementById('passwordFields').style.display = 'block';
+            // Make password fields required for new users
+            document.getElementById('userPassword').required = true;
+            document.getElementById('confirmPassword').required = true;
+            modal.show();
+        });
+    }
+    
+    // Handle edit user buttons
+    $(document).on('click', '.edit-user-btn', function() {
+        const id = $(this).data('id');
+        const firstName = $(this).data('firstname');
+        const lastName = $(this).data('lastname');
+        const email = $(this).data('email');
+        const role = $(this).data('role');
+        const status = $(this).data('status') === '1';
+        
+        const modal = new bootstrap.Modal(document.getElementById('userModal'));
+        document.getElementById('userModalTitle').textContent = 'Edit User';
+        document.getElementById('userAction').value = 'edit_user';
+        document.getElementById('userId').value = id;
+        document.getElementById('firstName').value = firstName;
+        document.getElementById('lastName').value = lastName;
+        document.getElementById('userEmail').value = email;
+        document.getElementById('userRole').value = role;
+        document.getElementById('userStatus').checked = status;
+        // Show password fields but make them optional
+        document.getElementById('passwordFields').style.display = 'block';
+        document.getElementById('userPassword').required = false;
+        document.getElementById('confirmPassword').required = false;
+        modal.show();
+    });
+    
+    // Handle delete user buttons
+    $(document).on('click', '.delete-user-btn', function() {
+        const id = $(this).data('id');
+        const name = $(this).data('name');
+        
+        // Show the delete confirmation modal
+        document.getElementById('deleteUserId').value = id;
+        document.getElementById('deleteUserName').textContent = name;
+        const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        deleteModal.show();
+    });
+    
+    // Initialize the old add user button if it exists
+    const oldAddUserBtn = document.querySelector('.btn-primary[onclick*="addUser"], .btn-primary[onclick*="editUser"]');
+    if (oldAddUserBtn) {
+        oldAddUserBtn.addEventListener('click', function(e) {
             e.preventDefault();
             editUser(0, '', '', '', 'student', 1);
         });
@@ -2726,12 +3472,7 @@ $(document).ready(function() {
     };
 });
 
-// Initialize when document is ready
-$(document).ready(function() {
-    // Initialize tooltips
-    $('[data-toggle="tooltip"]').tooltip();
-
-    // Handle tab-based navigation instead of page-based
+// This is intentionally left blank to prevent duplicate initialization
     const urlParams = new URLSearchParams(window.location.search);
     const currentTab = urlParams.get('tab') || 'dashboard';
     console.log('Setting up sidebar active states for tab:', currentTab);
@@ -3004,13 +3745,193 @@ window.editUser = function(id, firstName = '', lastName = '', email = '', role =
             form.appendChild(actionInput);
             form.appendChild(userIdInput);
             document.body.appendChild(form);
-            console.log('Submitting delete form...');
-            form.submit();
-        }
-        return false;
     }
-}
+
+    // Faculty content management functions
+    function editContent(contentType) {
+        alert('Edit ' + contentType + ' content functionality will be implemented here.');
+        // This would open a modal or redirect to an edit page
+        // Example: window.location.href = '?tab=edit-content&type=' + contentType;
+    }
+
+    function showAddContentModal() {
+        alert('Add new content functionality will be implemented here.');
+        // This would show a modal for adding new content types
+    }
+
+    // Handle smooth scrolling for anchor links
+    $('a[href^="#"]').on('click', function(e) {
+      const href = $(this).attr('href');
+      if (href === '#') return;
+      
+      e.preventDefault();
+      const target = href.split('?')[0];
+      const $target = $(target);
+      if ($target.length) {
+        $('html, body').stop().animate({
+          'scrollTop': $target.offset().top
+        }, 900, 'swing', function() {
+          window.location.hash = target;
+        });
+　　 　 　 　
+        window.location.hash = target;
+      };
+    }
+
+    // User Management Functions
+    window.editUser = function(id, firstName = '', lastName = '', email = '', role = 'student', status = 0) {
+        try {
+            console.log('editUser called with:', {id, firstName, lastName, email, role, status});
+            const modalElement = document.getElementById('userModal');
+            if (!modalElement) {
+                console.error('Error: Could not find user modal element');
+                return false;
+            }
+
+            const modal = new bootstrap.Modal(modalElement);
+            
+            // Set form action and title
+            const title = id ? 'Edit User' : 'Add New User';
+            document.getElementById('userModalTitle').textContent = title;
+            document.getElementById('userAction').value = id ? 'update' : 'add';
+            document.getElementById('userId').value = id || '';
+            
+            // Fill the form
+            document.getElementById('firstName').value = firstName || '';
+            document.getElementById('lastName').value = lastName || '';
+            document.getElementById('userEmail').value = email || '';
+            document.getElementById('userRole').value = role || 'student';
+            document.getElementById('userStatus').checked = status == 1;
+            
+            // Show/hide password fields
+            const passwordFields = document.getElementById('passwordFields');
+            if (passwordFields) {
+                passwordFields.style.display = id ? 'none' : 'block';
+            }
+            
+            // Show the modal
+            console.log('Showing user modal...');
+            modal.show();
+            return false;
+        } catch (error) {
+            console.error('Error in editUser:', error);
+            alert('Error initializing user form. Please try again.');
+            return false;
+        }
+    };
+
+     function confirmDelete(userId, userName) {
+        console.log('=== confirmDelete called ===');
+        console.log('userId:', userId, 'userName:', userName);
+        
+        // Check if Bootstrap is loaded
+        if (typeof bootstrap === 'undefined' || !bootstrap.Modal) {
+            console.error('Bootstrap Modal not found!');
+            alert('Error: Required libraries not loaded. Please refresh the page.');
+            return false;
+        }
+        
+        // Get modal element
+        const deleteModal = document.getElementById('deleteModal');
+        console.log('deleteModal element:', deleteModal);
+        
+        if (!deleteModal) {
+            console.error('Error: Could not find delete modal element');
+            alert('Error: Could not initialize delete confirmation. Please try again.');
+            return false;
+        }
+        
+        // Initialize modal
+        try {
+            const modal = new bootstrap.Modal(deleteModal);
+            console.log('Modal initialized:', modal);
+            
+            // Set user data
+            const nameElement = document.getElementById('deleteUserName');
+            const idElement = document.getElementById('deleteUserId');
+            console.log('Name element:', nameElement, 'ID element:', idElement);
+            
+            if (nameElement) {
+                nameElement.textContent = userName;
+                console.log('Set user name to:', userName);
+            } else {
+                console.warn('Could not find deleteUserName element');
+            }
+            
+            if (idElement) {
+                idElement.value = userId;
+                console.log('Set user ID to:', userId);
+            } else {
+                console.warn('Could not find deleteUserId element');
+            }
+            
+            // Show modal
+            console.log('Showing modal...');
+            modal.show();
+            console.log('Modal should be visible now');
+            
+            // Add debug event listeners
+            deleteModal.addEventListener('shown.bs.modal', function() {
+                console.log('Modal shown event fired');
+            });
+            
+            return false;
+            
+        } catch (error) {
+            console.error('Error in confirmDelete:', error);
+            console.error('Error details:', {
+                name: error.name,
+                message: error.message,
+                stack: error.stack
+            });
+            
+            // Fallback confirmation
+            if (confirm('Error showing delete confirmation. Are you sure you want to delete user: ' + userName + '?')) {
+                console.log('User confirmed deletion via fallback');
+                
+                // Create form
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = window.location.href.split('?')[0];
+                
+                // Add CSRF token if exists
+                const csrfToken = document.querySelector('input[name="csrf_token"]');
+                if (csrfToken) {
+                    const csrfClone = csrfToken.cloneNode();
+                    csrfClone.name = 'csrf_token';
+                    form.appendChild(csrfClone);
+                }
+                
+                // Add action
+                const actionInput = document.createElement('input');
+                actionInput.type = 'hidden';
+                actionInput.name = 'action';
+                actionInput.value = 'delete';
+                
+                // Add user ID
+                const userIdInput = document.createElement('input');
+                userIdInput.type = 'hidden';
+                userIdInput.name = 'user_id';
+                userIdInput.value = userId;
+                
+                console.log('Form data prepared:', {
+                    action: 'delete',
+                    user_id: userId,
+                    hasCsrf: !!csrfToken
+                });
+                
+                // Submit form
+                form.appendChild(actionInput);
+                form.appendChild(userIdInput);
+                document.body.appendChild(form);
+                console.log('Submitting delete form...');
+                form.submit();
+            }
+            return false;
+        }
+    }
 </script>
+<?php include __DIR__ . '/about_footer.php'; ?>
 </body>
 </html>
 <?php endif; ?>

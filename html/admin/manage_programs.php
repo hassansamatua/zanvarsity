@@ -165,7 +165,7 @@ $programs = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <h1 class="h2"><?php echo $page_title; ?></h1>
                     <div class="btn-toolbar mb-2 mb-md-0">
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProgramModal">
+                        <button type="button" class="btn btn-primary" id="addProgramBtn">
                             <i class="fas fa-plus"></i> Add New Program
                         </button>
                     </div>

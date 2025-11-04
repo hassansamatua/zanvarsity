@@ -31,7 +31,6 @@ if (strpos($current_dir, '/admin') !== false) {
 
     <link href='https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap' rel='stylesheet' type='text/css'>
     <link href="<?php echo $asset_path; ?>assets/css/font-awesome.css" rel="stylesheet" type="text/css">
-    <link rel="stylesheet" href="<?php echo $asset_path; ?>assets/bootstrap/css/bootstrap.css" type="text/css">
     <link rel="stylesheet" href="<?php echo $asset_path; ?>assets/css/selectize.css" type="text/css">
     <link rel="stylesheet" href="<?php echo $asset_path; ?>assets/css/owl.carousel.css" type="text/css">
     <link rel="stylesheet" href="<?php echo $asset_path; ?>assets/css/vanillabox/vanillabox.css" type="text/css">
@@ -39,7 +38,12 @@ if (strpos($current_dir, '/admin') !== false) {
     
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Bootstrap 5 JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <!-- Custom JavaScript -->
     <script src="<?php echo $asset_path; ?>js/event-management.js"></script>

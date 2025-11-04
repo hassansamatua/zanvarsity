@@ -718,15 +718,20 @@ if ($dept_result && $dept_result->num_rows > 0) {
 </div>
 
 <!-- Load all scripts at the end of the body for better performance -->
-<!-- Bootstrap Bundle with Popper -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- DataTables JS -->
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Bootstrap 5.1.3 Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+<!-- DataTables -->
 <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
-
 <!-- SweetAlert2 -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Debug script to check Bootstrap initialization -->
+<script>
+console.log('Bootstrap version:', bootstrap ? bootstrap.Tooltip.VERSION : 'Bootstrap not loaded');
+</script>
 
 <!-- Dependency Checker -->
 <script>
@@ -775,119 +780,86 @@ function checkDependencies() {
     return allLoaded;
 }
 
-// Run checks when the page is fully loaded
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM fully loaded');
-    checkDependencies();
-});
-
-// Also check when window is fully loaded
-window.addEventListener('load', function() {
-    console.log('Window fully loaded');
-    
-    // Initialize the page
+// Safe modal show function
+function showModal(modalId) {
     try {
-        // First check dependencies
-        if (!checkDependencies()) {
-            console.error('Not all dependencies are loaded on window load');
-            return;
+        console.log('Attempting to show modal:', modalId);
+        const modalElement = document.getElementById(modalId);
+        console.log('Modal element found:', !!modalElement);
+        
+        if (!modalElement) {
+            console.error('Modal element not found:', modalId);
+            return false;
         }
         
-        // Then initialize the page
-        initializePage();
-    } catch (error) {
-        console.error('Error during page initialization:', error);
-        showError('An error occurred while initializing the page. Please refresh and try again.');
-    }
-    
-    // One final check after a short delay
-    setTimeout(function() {
-        if (!checkDependencies()) {
-            console.error('Not all dependencies are loaded after timeout');
-        } else {
-            console.log('All dependencies verified after timeout');
+        // Try Bootstrap 5 method first
+        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            const modal = new bootstrap.Modal(modalElement, {
+                backdrop: 'static',
+                keyboard: false
+            });
+            modal.show();
+            return true;
         }
-    }, 1000);
-});
-</script>
+        // Fallback to jQuery method
+        else if (typeof $ !== 'undefined' && $.fn.modal) {
+            $(modalElement).modal({show: true, backdrop: 'static', keyboard: false});
+            return true;
+        }
+        
+        console.error('No modal implementation available');
+        return false;
+    } catch (e) {
+        console.error('Error showing modal:', e);
+        return false;
+    }
+}
 
-<!-- Fix for default avatar -->
-<script>
-    // Set default avatar path
-    const defaultAvatar = '/zanvarsity/html/assets/img/default-avatar.svg';
-</script>
-
-<script>
-// Function to initialize DataTable
+// Initialize DataTable with custom options
 function initializeDataTable() {
     console.log('Initializing DataTable...');
     
     // Check if jQuery is available
     if (typeof jQuery === 'undefined') {
-        console.error('jQuery is not loaded. Cannot initialize DataTable.');
-        showError('jQuery is not loaded. Please refresh the page.');
+        console.error('jQuery is not loaded');
         return null;
     }
     
     // Check if DataTable is available
-    if (typeof $.fn.DataTable === 'undefined') {
-        console.error('DataTable is not loaded. Check if jQuery DataTable script is included.');
-        showError('DataTable library is not loaded. Please refresh the page.');
+    if (typeof jQuery.fn.DataTable === 'undefined') {
+        console.error('DataTables is not loaded');
         return null;
     }
     
-    try {
-        // Check if table exists
-        const $table = $('#staffTable');
-        if ($table.length === 0) {
-            console.error('Table with ID "staffTable" not found');
-            return null;
-        }
-        
-        // Initialize DataTable with error handling
-        return $table.DataTable({
-            responsive: true,
-            columnDefs: [
-                { 
-                    orderable: false, 
-                    targets: [0, 6], // Disable sorting on photo and actions columns
-                    searchable: false // Disable search on photo and actions columns
-                },
-                { 
-                    className: 'align-middle', 
-                    targets: '_all' // Center align all cells
-                }
-            ],
-            order: [[1, 'asc']], // Sort by name by default
-            language: {
-                search: "_INPUT_",
-                searchPlaceholder: "Search staff...",
-                lengthMenu: "Show _MENU_ entries",
-                info: "Showing _START_ to _END_ of _TOTAL_ staff members",
-                infoEmpty: "No staff members found",
-                infoFiltered: "(filtered from _MAX_ total staff)",
-                zeroRecords: "No matching staff members found",
-                paginate: {
-                    first: "First",
-                    last: "Last",
-                    next: "Next",
-                    previous: "Previous"
-                }
-            },
-            dom: "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
-                 "<'row'<'col-sm-12'tr>>" +
-                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
-            initComplete: function() {
-                console.log('DataTable initialization complete');
-            },
-            error: function(error) {
-                console.error('DataTables error:', error);
-                // Show user-friendly error message
-                $('#staffTable').html('<div class="alert alert-danger">An error occurred while loading the staff data. Please refresh the page and try again.</div>');
-            },
-            drawCallback: function() {
-                // Reinitialize tooltips after table redraw
-                const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    // Initialize DataTable with options
+    const dataTable = $('#staffTable').DataTable({
+        responsive: true,
+        order: [[1, 'asc']], // Sort by name by default
+        columnDefs: [
+            { orderable: false, targets: [0, 6] }, // Disable sorting on photo and actions columns
+            { width: '100px', targets: 0 }, // Set width for photo column
+            { width: '150px', targets: 6 }  // Set width for actions column
+        ],
+        language: {
+            search: "Search staff:",
+            lengthMenu: "Show _MENU_ entries",
+            info: "Showing _START_ to _END_ of _TOTAL_ staff members",
+            infoEmpty: "No staff members found",
+            infoFiltered: "(filtered from _MAX_ total entries)"
+        },
+        initComplete: function() {
+            // Add custom filter for department
+            this.api().columns(2).every(function() {
+                const column = this;
+                const select = $('<select class=\"form-select form-select-sm ms-2\" style=\"width: 150px;\"><option value=\"\">All Departments</option></select>')
+                    .appendTo($(column.header()).empty())
+                    .on('change', function() {
+                        const val = $.fn.dataTable.util.escapeRegex($(this).val());
+                        column.search(val ? '^' + val + '$' : '', true, false).draw();
+                    });
+
+                column.data().unique().sort().each(function(d) {
+                    select.append('<option value="' + d + '">' + d + '</option>');
                 tooltipTriggerList.map(function (tooltipTriggerEl) {
                     return new bootstrap.Tooltip(tooltipTriggerEl);
                 });
@@ -1001,7 +973,13 @@ function initializePage() {
         // View staff details
         $(document).on('click', '.view-staff', function() {
             const staffId = $(this).data('id');
-            const modal = new bootstrap.Modal(document.getElementById('viewStaffModal'));
+            if (!showModal('viewStaffModal')) {
+                console.error('Failed to show view staff modal');
+                if (typeof $ !== 'undefined' && $.fn.modal) {
+                    $('#viewStaffModal').modal({show: true, backdrop: 'static', keyboard: false});
+                }
+                return;
+            }
             
             // Show loading state
             $('#staffDetails').html(`
@@ -1108,7 +1086,13 @@ function initializePage() {
         // Edit staff
         $(document).on('click', '.edit-staff', function() {
             const staffId = $(this).data('id');
-            const modal = new bootstrap.Modal(document.getElementById('editStaffModal'));
+            if (!showModal('editStaffModal')) {
+                console.error('Failed to show edit staff modal');
+                if (typeof $ !== 'undefined' && $.fn.modal) {
+                    $('#editStaffModal').modal({show: true, backdrop: 'static', keyboard: false});
+                }
+                return;
+            }
             
             // Show loading state
             $('#editStaffFormContent').html(`
@@ -1287,7 +1271,35 @@ function initializePage() {
         });
         
         // Delete staff
-        const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        const deleteModal = {
+            show: function() {
+                if (!showModal('deleteModal')) {
+                    console.error('Failed to show delete modal');
+                    if (typeof $ !== 'undefined' && $.fn.modal) {
+                        $('#deleteModal').modal({show: true, backdrop: 'static', keyboard: false});
+                    }
+                }
+            },
+            hide: function() {
+                try {
+                    const modalElement = document.getElementById('deleteModal');
+                    if (modalElement) {
+                        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                            const modal = bootstrap.Modal.getInstance(modalElement);
+                            if (modal) modal.hide();
+                            else {
+                                const newModal = new bootstrap.Modal(modalElement);
+                                newModal.hide();
+                            }
+                        } else if (typeof $ !== 'undefined' && $.fn.modal) {
+                            $(modalElement).modal('hide');
+                        }
+                    }
+                } catch (e) {
+                    console.error('Error hiding modal:', e);
+                }
+            }
+        };
         
         $(document).on('click', '.delete-staff', function() {
             const staffId = $(this).data('id');
