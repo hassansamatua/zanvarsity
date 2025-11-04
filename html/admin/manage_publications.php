@@ -966,80 +966,96 @@ switch($user_role) {
 
 <!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    
-<!-- Bootstrap JS Bundle with Popper -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    
+<!-- Bootstrap 5.1.3 Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 <!-- DataTables -->
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css"/>
-<script type="text/javascript" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
-<script>
-    // Wait for jQuery to be ready
-    $(document).ready(function() {
-        // Initialize DataTable
-        const publicationsTable = $('#publicationsTable').DataTable({
-            responsive: true,
-            order: [[3, 'desc']], // Sort by date by default
-            columnDefs: [
-                { orderable: false, targets: [0, 4, 5] }, // Disable sorting on image, featured, and actions columns
-                { searchable: false, targets: [0, 3, 4, 5] } // Disable search on image, date, featured, and actions columns
-            ],
-            language: {
-                search: "Search publications:",
-                zeroRecords: "No matching publications found",
-                info: "Showing _START_ to _END_ of _TOTAL_ publications",
-                infoEmpty: "No publications available",
-                infoFiltered: "(filtered from _MAX_ total publications)",
-                paginate: {
-                    first: "First",
-                    last: "Last",
-                    next: "Next",
-                    previous: "Previous"
-                }
-            },
-            drawCallback: function() {
-                // Reinitialize tooltips after table redraw
-                $('[data-bs-toggle="tooltip"]').tooltip();
-            }
-        });
-
-        // Store the DataTable instance for later use
-        window.publicationsTable = publicationsTable;
-        
-        // Initialize tooltips
-        $('[data-bs-toggle="tooltip"]').tooltip();
-    });
-</script>
-
-<!-- Moment.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<!-- Toastr -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
-
-<!-- Custom JS -->
+<!-- Debug script to check Bootstrap initialization -->
 <script>
-    // Function to show loading state
-    function showLoading(button, text = 'Processing...') {
-        const originalText = button.html();
-        button.prop('disabled', true).html(`
-            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-            <span class="sr-only">${text}</span>
-        `);
-        return originalText;
-    }
-    
-    // Function to reset button state
-    function resetButton(button, originalText) {
-        button.prop('disabled', false).html(originalText);
+console.log('Bootstrap version:', bootstrap ? bootstrap.Tooltip.VERSION : 'Bootstrap not loaded');
+</script>
+
+<!-- Custom script to handle modals and DataTable -->
+<script>
+    // Debug function to check if Bootstrap is loaded properly
+    function checkBootstrap() {
+        console.log('Bootstrap check:', {
+            'bootstrap exists': typeof bootstrap !== 'undefined',
+            'bootstrap.Modal': typeof bootstrap !== 'undefined' ? typeof bootstrap.Modal : 'undefined',
+            'bootstrap.Tooltip': typeof bootstrap !== 'undefined' ? typeof bootstrap.Tooltip : 'undefined',
+            'jQuery.fn.modal': typeof $.fn.modal !== 'undefined' ? 'available' : 'unavailable'
+        });
     }
 
+    // Safe modal show function
+    function showModal(modalId) {
+        try {
+            console.log('Attempting to show modal:', modalId);
+            const modalElement = document.getElementById(modalId);
+            console.log('Modal element found:', !!modalElement);
+            
+            if (!modalElement) {
+                console.error('Modal element not found:', modalId);
+                return false;
+            }
+            
+            // Try Bootstrap 5 method first
+            if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                const modal = new bootstrap.Modal(modalElement, {
+                    backdrop: 'static',
+                    keyboard: false
+                });
+                modal.show();
+                return true;
+            }
+            // Fallback to jQuery method
+            else if (typeof $ !== 'undefined' && $.fn.modal) {
+                $(modalElement).modal({show: true, backdrop: 'static', keyboard: false});
+                return true;
+            }
+            
+            console.error('No modal implementation available');
+            return false;
+        } catch (e) {
+            console.error('Error showing modal:', e);
+            return false;
+        }
+    }
+
+    // Initialize modals and event handlers
     $(document).ready(function() {
+        console.log('Document ready, checking dependencies...');
+        checkBootstrap();
+        
+        // Initialize tooltips
+        try {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+                if (tooltipTriggerEl) {
+                    try {
+                        new bootstrap.Tooltip(tooltipTriggerEl);
+                    } catch (e) {
+                        console.error('Error initializing tooltip:', e);
+                    }
+                }
+            });
+        } catch (e) {
+            console.error('Error initializing tooltips:', e);
+        }
+        
+        // Initialize DataTable
+        const dataTable = $('#publicationsTable').DataTable({
+            responsive: true,
+            order: [[1, 'asc']],
+            columnDefs: [
+                { orderable: false, targets: [0, 5] } // Disable sorting on image and actions columns
+            ]
+        });
+        
         // Handle success/error messages
         <?php if (!empty($_SESSION['success'])): ?>
             Swal.fire({
@@ -1193,7 +1209,12 @@ switch($user_role) {
                             <i class="fa fa-calendar-plus me-1"></i> Added: ${createdAt.toLocaleString()}
                         `);
                         
-                        $('#viewPublicationModal').modal('show');
+                        if (!showModal('viewPublicationModal')) {
+                console.error('Failed to show view publication modal');
+                if (typeof $ !== 'undefined' && $.fn.modal) {
+                    $('#viewPublicationModal').modal({show: true, backdrop: 'static', keyboard: false});
+                }
+            }
                     } else {
                         Swal.fire({
                             icon: 'error',
@@ -1269,7 +1290,12 @@ switch($user_role) {
                         }
                         
                         // Show the edit modal
-                        $('#editPublicationModal').modal('show');
+                        if (!showModal('editPublicationModal')) {
+                console.error('Failed to show edit publication modal');
+                if (typeof $ !== 'undefined' && $.fn.modal) {
+                    $('#editPublicationModal').modal({show: true, backdrop: 'static', keyboard: false});
+                }
+            }
                     } else {
                         Swal.fire({
                             icon: 'error',

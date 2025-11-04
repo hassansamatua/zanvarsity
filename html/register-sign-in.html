@@ -1,0 +1,5 @@
+<?php
+// Redirect to the PHP version of the login page
+header('Location: /c/zanvarsity/html/register-sign-in.php' . (isset($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : ''), true, 301);
+exit();
+?>

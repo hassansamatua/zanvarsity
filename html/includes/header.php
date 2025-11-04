@@ -6,7 +6,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 
 // Set default title if not set
-$pageTitle = isset($pageTitle) ? $pageTitle . ' - Zanvarsity' : 'Zanvarsity';
+$pageTitle = isset($page_title) ? $page_title : (isset($pageTitle) ? $pageTitle . ' - Zanvarsity' : 'Zanvarsity');
 ?>
 
 <!DOCTYPE html>
@@ -18,21 +18,126 @@ $pageTitle = isset($pageTitle) ? $pageTitle . ' - Zanvarsity' : 'Zanvarsity';
 
     <link href='http://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
     <?php 
-    // Set base URL for assets
-    $base_url = isset($_SESSION['base_url']) ? rtrim($_SESSION['base_url'], '/') : '';
-    $assets_url = $base_url . '/assets';
-    ?>
-    <!-- Local CSS Files with Fallbacks -->
-    <?php if (file_exists($_SERVER['DOCUMENT_ROOT'] . $assets_url . '/css/style.css')): ?>
-    <link rel="stylesheet" href="<?php echo $assets_url; ?>/css/style.css" type="text/css">
-    <?php endif; ?>
+    // Determine the correct asset path based on where this file is being included from
+    $current_dir = dirname($_SERVER['PHP_SELF']);
+    $asset_path = '';
     
-    <?php if (file_exists($_SERVER['DOCUMENT_ROOT'] . $assets_url . '/css/admin-theme.css')): ?>
-    <link rel="stylesheet" href="<?php echo $assets_url; ?>/css/admin-theme.css" type="text/css">
-    <?php endif; ?>
+    // If we're in a subdirectory (like admin), we need to go up one level
+    if (strpos($current_dir, '/admin') !== false) {
+        $asset_path = '../';
+    }
+    
+    $assets_url = $asset_path . 'assets';
+    ?>
+    <!-- Local CSS Files -->
+    <link href="<?php echo $assets_url; ?>/css/font-awesome.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="<?php echo $assets_url; ?>/bootstrap/css/bootstrap.css" type="text/css">
+    <link rel="stylesheet" href="<?php echo $assets_url; ?>/css/selectize.css" type="text/css">
+    <link rel="stylesheet" href="<?php echo $assets_url; ?>/css/owl.carousel.css" type="text/css">
+    <link rel="stylesheet" href="<?php echo $assets_url; ?>/css/vanillabox/vanillabox.css" type="text/css">
+    <link rel="stylesheet" href="<?php echo $assets_url; ?>/css/style.css" type="text/css">
+    <link rel="stylesheet" href="<?php echo $assets_url; ?>/css/green-theme.css" type="text/css">
+    
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="<?php echo $assets_url; ?>/img/favicon.ico" type="image/x-icon">
     
     <!-- Additional CSS for admin area -->
     <style>
+    /* Header Layout Styles */
+    .primary-navigation-wrapper .container {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        flex-wrap: nowrap !important;
+    }
+    
+    .navbar-brand {
+        flex-shrink: 0 !important;
+        margin-right: 60px !important;
+        margin-bottom: 0 !important;
+    }
+    
+    .navbar-collapse {
+        display: flex !important;
+        flex: 1 !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+    
+    .nav.navbar-nav {
+        display: flex !important;
+        flex-direction: row !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        list-style: none !important;
+    }
+    
+    .nav.navbar-nav > li {
+        display: inline-block !important;
+        float: none !important;
+        margin: 0 !important;
+        position: relative !important;
+    }
+    
+    .nav.navbar-nav > li > a {
+        display: block !important;
+        padding: 15px 20px !important;
+        color: #fff !important;
+        text-decoration: none !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .nav.navbar-nav > li > a:hover {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        color: #e0f2e9 !important;
+    }
+    
+    /* Disable retina images to prevent 404 errors */
+    img {
+        image-rendering: auto !important;
+    }
+    
+    /* Prevent @2x image loading */
+    @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+        .background img,
+        .navbar-brand img,
+        .logo img {
+            /* Force normal resolution images */
+            image-rendering: auto !important;
+        }
+    }
+    
+    /* Mobile responsive */
+    @media (max-width: 768px) {
+        .primary-navigation-wrapper .container {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+        }
+        
+        .navbar-toggle {
+            display: block !important;
+            margin-left: auto !important;
+        }
+        
+        .navbar-collapse {
+            display: none !important;
+            width: 100% !important;
+        }
+        
+        .navbar-collapse.in {
+            display: block !important;
+        }
+        
+        .nav.navbar-nav {
+            flex-direction: column !important;
+        }
+        
+        .nav.navbar-nav > li {
+            display: block !important;
+            width: 100% !important;
+        }
+    }
+    
     /* Fallback styles if local CSS files are not available */
     body {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -550,71 +655,216 @@ $pageTitle = isset($pageTitle) ? $pageTitle . ' - Zanvarsity' : 'Zanvarsity';
     <!-- JavaScript files will be loaded at the end of the body -->
 
     <title><?php echo htmlspecialchars($pageTitle); ?></title>
+    
+    <!-- Disable retina.js to prevent 404 errors -->
+    <script>
+        window.devicePixelRatio = 1;
+        window.Retina = { 
+            dontAddRetinaClass: true, 
+            checkForChange: function() {},
+            init: function() {}
+        };
+    </script>
 </head>
 
-<body class="page-sub-page <?php echo isset($bodyClass) ? $bodyClass : ''; ?>">
+<body class="page-sub-page page-about">
 <!-- Wrapper -->
 <div class="wrapper">
 <!-- Header -->
 <div class="navigation-wrapper">
-    <div class="secondary-navigation-wrapper">
+    <div class="secondary-navigation-wrapper" style="background-color: #004225;">
         <div class="container">
-            <div class="navigation-contact pull-left">Call Us:  <span class="opacity-70">000-123-456-789</span></div>
-            <ul class="secondary-navigation list-unstyled pull-right">
-                <li><a href="#">Prospective Students</a></li>
-                <li><a href="#">Current Students</a></li>
-                <li><a href="#">Faculty & Staff</a></li>
-                <li><a href="#">Alumni</a></li>
+            <div class="navigation-contact pull-left">Call Us:  <span class="opacity-70">+255 772 601 303</span></div>
+            <ul class="secondary-navigation list-unstyled pull-right" style="margin: 0; padding: 0;">
+                <li><a href="https://zumis.ac.tz/" target="_blank" style="color: #fff; text-decoration: none; transition: color 0.3s ease;"><i class="fa fa-user" style="color: #98FB98; margin-right: 5px;"></i>Zumis Portal</a></li>
+                <li><a href="<?php echo $asset_path; ?>uploads/doc/prospectus.pdf" target="_blank">Prospectus</a></li>
+                <li><a href="<?php echo $asset_path; ?>uploads/doc/almanac-2023.pdf" target="_blank">Almanac</a></li>
+                <li><a href="<?php echo $asset_path; ?>fee-structure.php" target="_blank">Fee Structure</a></li>
+                <li><a href="<?php echo $asset_path; ?>alumni.php" target="_blank">Alumni</a></li>
+                <li><a href="<?php echo $asset_path; ?>sign-in.php" style="color: #fff; text-decoration: none; transition: color 0.3s ease;"><i class="fa fa-sign-in" style="color: #98FB98; margin-right: 5px;"></i>Admin Login</a></li>
             </ul>
         </div>
     </div><!-- /.secondary-navigation -->
-    <div class="primary-navigation-wrapper">
+    <div class="primary-navigation-wrapper" style="background-color: #004225;">
         <header class="navbar" id="top" role="banner">
-            <div class="container">
-                <div class="navbar-header">
-                    <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-                    <div class="navbar-brand nav" id="brand">
-                        <a href="<?php echo $base_url; ?>/index.php">
-                            <img src="<?php echo $assets_url; ?>/img/logo.png" alt="Zanvarsity">
-                        </a>
-                    </div>
+            <div class="container" style="display: flex; align-items: center; justify-content: flex-start;">
+                <!-- Logo on the left -->
+                <div class="navbar-brand" id="brand" style="margin-right: 60px; margin-bottom: 0;">
+                    <a href="<?php echo $asset_path; ?>index.php">
+                        <img src="<?php echo $assets_url; ?>/img/logo11.png" alt="Zanvarsity" style="height: 50px; width: auto;">
+                    </a>
                 </div>
-                <nav class="collapse navbar-collapse bs-navbar-collapse navbar-right" role="navigation">
+                
+                <!-- Mobile menu toggle -->
+                <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse" style="margin-left: auto; display: none; background: transparent; border: 1px solid #fff; padding: 4px 6px;">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar" style="background-color: #fff; display: block; width: 22px; height: 2px; margin: 3px 0;"></span>
+                    <span class="icon-bar" style="background-color: #fff; display: block; width: 22px; height: 2px; margin: 3px 0;"></span>
+                    <span class="icon-bar" style="background-color: #fff; display: block; width: 22px; height: 2px; margin: 3px 0;"></span>
+                </button>
+                
+                <!-- Navigation menu right after logo -->
+                <nav class="navbar-collapse bs-navbar-collapse" role="navigation" style="display: flex; flex: 1;">
                     <ul class="nav navbar-nav">
-                        <li class="<?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? 'active' : ''; ?>">
-                            <a href="index.php">Home</a>
+                        <li<?php echo (basename($_SERVER['PHP_SELF']) == 'index.php') ? ' class="active"' : ''; ?>>
+                            <a href="<?php echo $asset_path; ?>index.php">Home</a>
                         </li>
-                        <li class="<?php echo strpos($_SERVER['PHP_SELF'], 'courses') !== false ? 'active' : ''; ?>">
-                            <a href="courses.php">Courses</a>
+                        <li<?php echo (in_array(basename($_SERVER['PHP_SELF']), ['Background_info.php', 'vision_mission.php', 'board_of_trustees.php', 'principal_officers.php', 'council_board.php', 'senate_board.php', 'about-us.html', 'leadership.php', 'history.php', 'darul_iman.php'])) ? ' class="active"' : ''; ?>>
+                            <a href="#" class="has-child no-link" style="color: #fff; transition: color 0.3s ease; padding: 15px 20px; display: block;">About</a>
+                            <ul class="list-unstyled child-navigation" style="background-color: #004225; border: 1px solid #003319; min-width: 200px;">
+                                <li><a href="<?php echo $asset_path; ?>Background_info.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;">Background Information</a></li>
+                                <li><a href="<?php echo $asset_path; ?>vision_mission.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">Vision & Mission</a></li>
+                                <li><a href="<?php echo $asset_path; ?>board_of_trustees.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">Board of Trustees</a></li>
+                                <li><a href="<?php echo $asset_path; ?>darul_iman.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">Darul Iman (DICA)</a></li>
+                                <li><a href="<?php echo $asset_path; ?>council_board.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">Council Board</a></li>
+                                <li><a href="<?php echo $asset_path; ?>principal_officers.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">Principal Officers</a></li>
+                                <li><a href="<?php echo $asset_path; ?>senate_board.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">Senate Board</a></li>
+                            </ul>
                         </li>
-                        <li class="<?php echo strpos($_SERVER['PHP_SELF'], 'events') !== false ? 'active' : ''; ?>">
-                            <a href="events.php">Events</a>
+                        <li<?php echo (in_array(basename($_SERVER['PHP_SELF']), ['how_to_apply.php', 'entry_requirements.php', 'programmes_offered.php', 'fee_structure.php', 'how_to_pay.php', 'student_transfers.php', 'postponent_transfer.php', 'credit_transfer.php', 'international_students.php', 'mature_age.php', 'special_admissions.php', 'faq.php'])) ? ' class="active"' : ''; ?>>
+                         <a href="#" class="has-child no-link" style="color: #fff; transition: color 0.3s ease; padding: 15px 20px; display: block;">Admissions</a>
+                            <ul class="list-unstyled child-navigation" style="background-color: #004225; border: 1px solid #003319; min-width: 200px;">
+                                <li><a href="<?php echo $asset_path; ?>how_to_apply.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">How to Apply</a></li>
+                                <li><a href="<?php echo $asset_path; ?>entry_requirements.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">Entry Requirements</a></li>
+                                <li><a href="<?php echo $asset_path; ?>programmes_offered.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">Programs Offered</a></li>
+                            </ul>
                         </li>
-                        <li class="<?php echo basename($_SERVER['PHP_SELF']) == 'about-us.php' ? 'active' : ''; ?>">
-                            <a href="about-us.php">About Us</a>
+                        <li<?php echo (in_array(basename($_SERVER['PHP_SELF']), ['faculty.php'])) ? ' class="active"' : ''; ?>>
+                         <a href="#" class="has-child no-link" style="color: #fff; transition: color 0.3s ease; padding: 15px 20px; display: block;">Academic</a>
+                            <ul class="list-unstyled child-navigation" style="background-color: #004225; border: 1px solid #003319; min-width: 200px;">
+                                <li><a href="<?php echo $asset_path; ?>faculty.php?id=1" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">Faculty Of Business Administration</a></li>
+                                <li><a href="<?php echo $asset_path; ?>research.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">Research & Publications</a></li>
+                            </ul>
                         </li>
-                        <li class="<?php echo strpos($_SERVER['PHP_SELF'], 'blog') !== false ? 'active' : ''; ?>">
-                            <a href="blog.php">Blog</a>
+                        <li>
+                            <a href="#" class="has-child no-link">Directorates</a>
+                            <ul class="list-unstyled child-navigation" style="background-color: #004225; border: 1px solid #003319; min-width: 200px;">
+                                <li><a href="#" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">Academic Affairs</a></li>
+                                <li><a href="#" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">Administration</a></li>
+                            </ul>
                         </li>
-                        <li class="<?php echo basename($_SERVER['PHP_SELF']) == 'contact-us.php' ? 'active' : ''; ?>">
-                            <a href="contact-us.php">Contact Us</a>
+                        <li>
+                            <a href="#" class="has-child no-link" style="color: #fff; transition: color 0.3s ease; padding: 15px 20px; display: block;">Facilities</a>
+                            <ul class="list-unstyled child-navigation" style="background-color: #004225; border: 1px solid #003319; min-width: 200px;">
+                                <li><a href="#" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">Library</a></li>
+                                <li><a href="#" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">Laboratories</a></li>
+                            </ul>
                         </li>
-                        <li class="<?php echo basename($_SERVER['PHP_SELF']) == 'register-sign-in.php' ? 'active' : ''; ?>">
-                            <a href="register-sign-in.php">Sign In</a>
+                        <li>
+                            <a href="<?php echo $asset_path; ?>contact-us.php">Contact Us</a>
                         </li>
                     </ul>
                 </nav>
+                <!-- /.navbar collapse-->
             </div>
+            <!-- /.container -->
         </header>
     </div>
     <div class="background">
-        <img src="assets/img/background-city.png" alt="background">
+        <img src="<?php echo $assets_url; ?>/img/background-city.png" alt="background" />
     </div>
 </div>
+<!-- end Header -->
+
+<!-- Page Title Section -->
+<section class="page-title" style="background-color: #f8f9fa; padding: 40px 0; margin-bottom: 30px; border-bottom: 1px solid #eaeaea;">
+    <div class="container">
+        <header style="text-align: center;">
+            <h1 style="color: #004225; font-size: 2.5rem; font-weight: 600; margin: 0 0 15px 0; line-height: 1.2;">
+                <?php echo isset($page_heading) ? htmlspecialchars($page_heading) : 'Zanvarsity'; ?>
+            </h1>
+        </header>
+    </div>
+</section>
+<!-- end Page Title Section -->
+
+<!-- Page Content -->
+<div id="page-content">
+
+<script>
+// Handle all dropdown menus
+document.addEventListener('DOMContentLoaded', function() {
+    // Get all menu items with dropdowns
+    const dropdownItems = document.querySelectorAll('.has-child');
+    
+    // Function to handle dropdown behavior
+    function setupDropdowns() {
+        dropdownItems.forEach(item => {
+            const link = item.querySelector('a');
+            const submenu = item.querySelector('.child-navigation');
+            
+            if (link && submenu) {
+                // Remove any existing event listeners to prevent duplicates
+                link.removeEventListener('mouseenter', showSubmenu);
+                link.removeEventListener('mouseleave', hideSubmenu);
+                submenu.removeEventListener('mouseenter', showSubmenu);
+                submenu.removeEventListener('mouseleave', hideSubmenu);
+                
+                // Add new event listeners
+                link.addEventListener('mouseenter', showSubmenu);
+                link.addEventListener('mouseleave', hideSubmenu);
+                submenu.addEventListener('mouseenter', showSubmenu);
+                submenu.addEventListener('mouseleave', hideSubmenu);
+            }
+        });
+    }
+    
+    // Show submenu and handle chevron rotation
+    function showSubmenu(e) {
+        const parentLi = this.closest('li');
+        if (!parentLi) return;
+        
+        const submenu = parentLi.querySelector('.child-navigation');
+        const chevron = this.querySelector('.fa-chevron-right');
+        
+        if (submenu) {
+            submenu.style.display = 'block';
+        }
+        if (chevron) {
+            chevron.style.transform = 'rotate(90deg)';
+        }
+    }
+    
+    // Hide submenu and reset chevron
+    function hideSubmenu(e) {
+        // Only proceed if we're not hovering over the submenu or its parent
+        if (e.relatedTarget && (this.contains(e.relatedTarget) || this.closest('li').contains(e.relatedTarget))) {
+            return;
+        }
+        
+        const parentLi = this.closest('li');
+        if (!parentLi) return;
+        
+        const submenu = parentLi.querySelector('.child-navigation');
+        const chevron = parentLi.querySelector('.fa-chevron-right');
+        
+        if (submenu) {
+            submenu.style.display = 'none';
+        }
+        if (chevron) {
+            chevron.style.transform = 'rotate(0deg)';
+        }
+    }
+    
+    // Initialize dropdowns
+    setupDropdowns();
+    
+    // Re-initialize dropdowns after AJAX or other dynamic content loads
+    document.addEventListener('click', function() {
+        // Small delay to ensure any dynamic content has been added
+        setTimeout(setupDropdowns, 100);
+    });
+    
+    // Handle mobile menu toggle
+    const mobileToggle = document.querySelector('.navbar-toggle');
+    const navbarCollapse = document.querySelector('.navbar-collapse');
+    
+    if (mobileToggle && navbarCollapse) {
+        mobileToggle.addEventListener('click', function() {
+            navbarCollapse.classList.toggle('in');
+        });
+    }
+});
+</script>
 
 

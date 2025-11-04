@@ -1,666 +1,399 @@
 <?php
-// Start the session if not already started
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-// Check if user is logged in and is an admin
-if (!isset($_SESSION['user_id'])) {
-    header("Location: /c/zanvarsity/html/sign-in.php");
-    exit();
-}
-
-// Set page title if not already set
-if (!isset($page_title)) {
-    $page_title = 'My Account';
-}
-
-// Get user information
-$user_id = $_SESSION['user_id'] ?? null;
-$user_role = $_SESSION['role'] ?? 'student';
-$user_email = $_SESSION['email'] ?? '';
-$user_name = !empty($_SESSION['name']) ? $_SESSION['name'] : (explode('@', $user_email)[0] ?? 'User');
-$is_admin = in_array($user_role, ['admin', 'super_admin']);
+/**
+ * About Header Template
+ * 
+ * This is a reusable header template for about-related pages.
+ * It includes the site header, navigation, and page title section.
+ */
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-US">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo htmlspecialchars($page_title); ?> - Zanvarsity</title>
-    
-    <!-- Favicon -->
-    <link rel="shortcut icon" href="/c/zanvarsity/favicon.ico" type="image/x-icon">
-    
-    <!-- Google Fonts -->
+    <meta name="author" content="Zanvarsity">
+    <meta name="description" content="<?php echo isset($page_description) ? $page_description : 'Zanvarsity - Empowering Education, Enriching Lives' ?>">
+
     <link href='http://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
+    <link href="../../assets/css/font-awesome.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="../../assets/bootstrap/css/bootstrap.css" type="text/css">
+    <link rel="stylesheet" href="../../assets/css/selectize.css" type="text/css">
+    <link rel="stylesheet" href="../../assets/css/owl.carousel.css" type="text/css">
+    <link rel="stylesheet" href="../../assets/css/vanillabox/vanillabox.css" type="text/css">
+    <link rel="stylesheet" href="../../assets/css/style.css" type="text/css">
     
-    <!-- Font Awesome -->
-    <link href="/c/zanvarsity/html/assets/css/font-awesome.css" rel="stylesheet" type="text/css">
+    <!-- Page-specific CSS -->
+    <?php if (isset($page_css)): ?>
+    <link rel="stylesheet" href="<?php echo $page_css; ?>" type="text/css">
+    <?php endif; ?>
     
-    <!-- Bootstrap -->
-    <link rel="stylesheet" href="/c/zanvarsity/html/assets/bootstrap/css/bootstrap.css" type="text/css">
-    
-    <!-- Custom CSS -->
-    <link href="/c/zanvarsity/html/assets/css/style.css" rel="stylesheet" type="text/css">
-    
-    <!-- Admin CSS -->
-    <link href="/c/zanvarsity/html/assets/css/admin.css" rel="stylesheet">
+    <title><?php echo isset($page_title) ? $page_title . ' - ' : ''; ?>Zanvarsity</title>
     
     <style>
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: #f5f5f5;
-        }
-        
-        /* Top Navigation */
-        .top-navigation {
-            background-color: #004225;
-            color: #fff;
-            padding: 5px 0;
-            font-size: 13px;
-        }
-        
-        .top-navigation a {
-            color: #fff;
-            text-decoration: none;
-            margin-right: 15px;
+        /* Navigation Styles */
+        .navbar-nav > li > a,
+        .navbar-nav > li > .no-link,
+        .navbar-nav .open .dropdown-menu > li > a {
+            color: #ffffff !important;
             transition: color 0.3s ease;
         }
         
-        .top-navigation a:hover {
-            color: #4CAF50;
-            text-decoration: none;
+        /* Hover states */
+        .navbar-nav > li > a:hover,
+        .navbar-nav > li > a:focus {
+            background-color: transparent !important;
+            color: #e0f2e9 !important; /* Lighter green on hover */
         }
         
-        .user-menu {
-            float: right;
+        /* Active menu item */
+        .navbar-nav > .active > a,
+        .navbar-nav > .active > a:hover,
+        .navbar-nav > .active > a:focus,
+        .navbar-nav > .current-menu-item > a,
+        .navbar-nav > .current-menu-parent > a,
+        .navbar-nav > .current-page-ancestor > a,
+        .navbar-nav > .current_page_item > a,
+        .navbar-nav > .current_page_parent > a {
+            background-color: transparent !important;
+            color: #5cb85c !important; /* Success green text to match buttons */
+            font-weight: bold !important;
         }
         
-        .user-menu a {
-            margin-left: 15px;
+        /* Ensure dropdown active items are also styled */
+        .dropdown-menu > .active > a,
+        .dropdown-menu > .current-menu-item > a,
+        .dropdown-menu > .current-menu-parent > a,
+        .dropdown-menu > li > a.active {
+            background-color: transparent !important;
+            color: #5cb85c !important; /* Success green text to match buttons */
+            font-weight: bold !important;
         }
         
-        /* Main Navigation */
-        .main-navigation {
-            background-color: #006400;
-            padding: 15px 0;
-        }
-        
-        .logo {
-            font-size: 24px;
-            font-weight: 700;
-            color: #fff;
-            text-decoration: none;
-        }
-        
-        .nav-links {
-            float: right;
-            margin-top: 5px;
-        }
-        
-        .nav-links a {
-            color: #fff;
-            margin-left: 25px;
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s ease;
-        }
-        
-        .nav-links a:hover {
-            color: #4CAF50;
-        }
-        
-        /* Sidebar */
-        .sidebar {
-            position: fixed;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            z-index: 100;
-            padding: 48px 0 0;
-            box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
-            background-color: #2c3e50;
-            color: white;
-            transition: all 0.3s;
-        }
-        
-        .sidebar-sticky {
-            position: relative;
-            top: 0;
-            height: calc(100vh - 48px);
-            padding-top: .5rem;
-            overflow-x: hidden;
-            overflow-y: auto;
-        }
-        
-        .sidebar .nav-link {
-            color: rgba(255, 255, 255, 0.8);
-            padding: 0.75rem 1rem;
-            margin: 0.25rem 1rem;
-            border-radius: 0.25rem;
-            transition: all 0.3s;
-        }
-        
-        .sidebar .nav-link:hover, 
-        .sidebar .nav-link.active {
-            background-color: rgba(255, 255, 255, 0.1);
-            color: white;
-        }
-        
-        .sidebar .nav-link i {
-            margin-right: 0.5rem;
-            font-size: 1.1rem;
-            width: 20px;
-            text-align: center;
-        }
-        
-        .sidebar .nav-link .menu-arrow {
-            float: right;
-            margin-top: 5px;
-            transition: transform 0.3s;
-        }
-        
-        .sidebar .nav-link[aria-expanded="true"] .menu-arrow {
-            transform: rotate(90deg);
-        }
-        
-        .sidebar .sub-menu {
-            padding-left: 1.5rem;
-        }
-        
-        .main-content {
-            margin-left: 250px;
-            padding: 20px;
-            transition: all 0.3s;
-        }
-        
-        .navbar {
-            position: fixed;
-            top: 0;
-            right: 0;
-            left: 250px;
-            z-index: 1030;
-            background-color: #fff;
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-            transition: all 0.3s;
-        }
-        
-        .content-wrapper {
-            margin-top: 56px;
-            padding: 20px;
-        }
-        
-        .stat-card {
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            color: white;
-            transition: transform 0.3s;
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        }
-        
-        .bg-primary { background: #3498db; }
-        .bg-success { background: #2ecc71; }
-        .bg-warning { background: #f39c12; }
-        .bg-danger { background: #e74c3c; }
-        .bg-info { background: #1abc9c; }
-        .bg-secondary { background: #7f8c8d; }
-        
-        /* Toggle button for sidebar */
-        #sidebarToggle {
-            cursor: pointer;
-            margin-right: 10px;
-        }
-        
-        /* Responsive styles */
-        @media (max-width: 991.98px) {
-            .sidebar {
-                left: -250px;
-            }
-            .main-content, .navbar {
-                left: 0;
-            }
-            .sidebar.active {
-                left: 0;
-            }
-            .main-content.active, .navbar.active {
-                left: 250px;
-            }
-        }
-        
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 4px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: #555;
-        }
-        
-        /* Custom form styles */
-        .form-control:focus, .form-select:focus {
-            border-color: #3498db;
-            box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
-        }
-        
-        /* Card styles */
-        .card {
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-            margin-bottom: 20px;
-        }
-        
-        .card-header {
-            background-color: #fff;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-            padding: 15px 20px;
-            font-weight: 600;
-        }
-        
-        /* Table styles */
-        .table th {
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 0.5px;
-            border-top: none;
-            padding: 12px 15px;
-        }
-        
-        .table td {
-            padding: 12px 15px;
-            vertical-align: middle;
-        }
-        
-        /* Badge styles */
-        .badge {
-            padding: 6px 10px;
-            font-weight: 500;
-            border-radius: 4px;
-        }
-        
-        /* Button styles */
-        .btn {
-            padding: 8px 16px;
-            border-radius: 4px;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-        
-        .btn-sm {
-            padding: 4px 10px;
-            font-size: 0.8rem;
-        }
-        
-        .btn i {
-            font-size: 1rem;
-            vertical-align: middle;
-            margin-right: 5px;
-        }
-        
-        /* Alert styles */
-        .alert {
-            border: none;
-            border-radius: 4px;
-            padding: 12px 20px;
-            margin-bottom: 20px;
-        }
-        
-        .alert-dismissible .btn-close {
-            padding: 0.75rem 1rem;
-        }
-        
-        /* Custom checkbox and radio */
-        .form-check-input:checked {
-            background-color: #3498db;
-            border-color: #3498db;
-        }
-        
-        /* Custom file upload */
-        .form-file-button {
-            cursor: pointer;
-        }
-        
-        /* Custom tabs */
-        .nav-tabs .nav-link {
-            border: none;
-            color: #6c757d;
-            font-weight: 500;
-            padding: 10px 20px;
-            border-bottom: 2px solid transparent;
-        }
-        
-        .nav-tabs .nav-link.active {
-            color: #3498db;
-            background: none;
-            border-bottom: 2px solid #3498db;
-        }
-        
-        /* Custom pagination */
-        .pagination .page-link {
-            color: #3498db;
-            border: 1px solid #dee2e6;
-            margin: 0 3px;
-            border-radius: 4px;
-        }
-        
-        .pagination .page-item.active .page-link {
-            background-color: #3498db;
-            border-color: #3498db;
-        }
-        
-        /* Custom tooltips */
-        .tooltip-inner {
-            font-size: 0.75rem;
-            padding: 5px 10px;
-            border-radius: 4px;
-        }
-        
-        /* Custom modal */
-        .modal-content {
-            border: none;
-            border-radius: 10px;
-        }
-        
-        .modal-header {
-            border-bottom: 1px solid #eee;
-            padding: 15px 20px;
-        }
-        
-        .modal-footer {
-            border-top: 1px solid #eee;
-            padding: 15px 20px;
-        }
-        
-        /* Custom form switch */
-        .form-switch .form-check-input {
-            width: 2.5em;
-            margin-left: -2.5em;
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%280, 0, 0, 0.25%29'/%3e%3c/svg%3e");
-        }
-        
-        .form-switch .form-check-input:checked {
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+        /* Ensure the active state is visible in dropdowns */
+        .child-navigation > li > a.active {
+            color: #5cb85c !important; /* Success green text to match buttons */
+            font-weight: bold !important;
         }
     </style>
-</head>
-<body>
-    <!-- Top Navigation -->
-<div class="top-navigation">
-    <div class="container">
-        <div class="user-menu">
-            <span>Welcome, <?php echo htmlspecialchars($user_name); ?></span>
-            <a href="/c/zanvarsity/html/my-profile.php"><i class="fa fa-user"></i> Profile</a>
-            <a href="/c/zanvarsity/html/change-password.php"><i class="fa fa-key"></i> Change Password</a>
-            <a href="/c/zanvarsity/html/logout.php"><i class="fa fa-sign-out"></i> Logout</a>
-        </div>
-    </div>
-</div>
-
-<!-- Main Navigation -->
-<header class="main-navigation">
-    <div class="container">
-        <a href="/c/zanvarsity/html/my-account.php" class="logo">Zanvarsity</a>
-        <nav class="nav-links">
-            <a href="/c/zanvarsity/html/index.php">Home</a>
-            <a href="/c/zanvarsity/html/prospectus.php">Prospectus</a>
-            <a href="/c/zanvarsity/html/almanac.php">Almanac</a>
-            <a href="/c/zanvarsity/html/fee_structure.php">Fee Structure</a>
-            <a href="/c/zanvarsity/html/alumni.php">Alumni</a>
-        </nav>
-    </div>
-</header>
-
-<!-- Sidebar -->
-<nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar collapse">
-    <div class="position-sticky pt-3">
-        <div class="text-center mb-4">
-            <h4 class="text-white">My Account</h4>
-            <p class="text-white-50 mb-0"><?php echo ucfirst($user_role); ?> Panel</p>
-        </div>
+    
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="assets/img/favicon.ico" type="image/x-icon">
+    
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script>
+        // Disable retina.js
+        window.Retina = { dontAddRetinaClass: true, checkForChange: function() {} };
+        
+        // Handle all dropdown menus
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get all menu items with dropdowns
+            const dropdownItems = document.querySelectorAll('.has-child');
             
-            <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link<?php echo basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? ' active' : ''; ?>" href="dashboard.php">
-                        <i class='bx bxs-dashboard'></i> Dashboard
-                    </a>
-                </li>
+            // Add event listeners to each dropdown item
+            dropdownItems.forEach(item => {
+                const link = item.querySelector('a');
+                const submenu = item.querySelector('.child-navigation');
                 
-                <li class="nav-item">
-                    <a class="nav-link<?php echo in_array(basename($_SERVER['PHP_SELF']), ['users.php', 'user-roles.php', 'user-permissions.php']) ? ' active' : ''; ?>" 
-                       href="#userManagement" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="userManagement">
-                        <i class='bx bxs-user-detail'></i> User Management
-                        <i class='bx bx-chevron-right menu-arrow'></i>
-                    </a>
-                    <div class="collapse<?php echo in_array(basename($_SERVER['PHP_SELF']), ['users.php', 'user-roles.php', 'user-permissions.php']) ? ' show' : ''; ?>" id="userManagement">
-                        <ul class="nav flex-column sub-menu">
-                            <li class="nav-item">
-                                <a class="nav-link<?php echo basename($_SERVER['PHP_SELF']) == 'users.php' ? ' active' : ''; ?>" href="users.php">
-                                    <i class='bx bx-user'></i> Users
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link<?php echo basename($_SERVER['PHP_SELF']) == 'user-roles.php' ? ' active' : ''; ?>" href="user-roles.php">
-                                    <i class='bx bx-id-card'></i> Roles
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link<?php echo basename($_SERVER['PHP_SELF']) == 'user-permissions.php' ? ' active' : ''; ?>" href="user-permissions.php">
-                                    <i class='bx bx-lock-alt'></i> Permissions
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
-                
-                <li class="nav-item">
-                    <a class="nav-link<?php echo in_array(basename($_SERVER['PHP_SELF']), ['news.php', 'events.php', 'announcements.php', 'downloads.php']) ? ' active' : ''; ?>" 
-                       href="#contentManagement" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="contentManagement">
-                        <i class='bx bxs-news'></i> Content Management
-                        <i class='bx bx-chevron-right menu-arrow'></i>
-                    </a>
-                    <div class="collapse<?php echo in_array(basename($_SERVER['PHP_SELF']), ['news.php', 'events.php', 'announcements.php', 'downloads.php']) ? ' show' : ''; ?>" id="contentManagement">
-                        <ul class="nav flex-column sub-menu">
-                            <li class="nav-item">
-                                <a class="nav-link<?php echo basename($_SERVER['PHP_SELF']) == 'news.php' ? ' active' : ''; ?>" href="news.php">
-                                    <i class='bx bx-news'></i> News
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link<?php echo basename($_SERVER['PHP_SELF']) == 'events.php' ? ' active' : ''; ?>" href="events.php">
-                                    <i class='bx bx-calendar-event'></i> Events
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link<?php echo basename($_SERVER['PHP_SELF']) == 'announcements.php' ? ' active' : ''; ?>" href="announcements.php">
-                                    <i class='bx bx-megaphone'></i> Announcements
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link<?php echo basename($_SERVER['PHP_SELF']) == 'downloads.php' ? ' active' : ''; ?>" href="downloads.php">
-                                    <i class='bx bx-download'></i> Downloads
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
-                
-                <li class="nav-item">
-                    <a class="nav-link<?php echo in_array(basename($_SERVER['PHP_SELF']), ['faculties.php', 'departments.php', 'courses.php', 'staff.php']) ? ' active' : ''; ?>" 
-                       href="#academicManagement" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="academicManagement">
-                        <i class='bx bxs-graduation'></i> Academic Management
-                        <i class='bx bx-chevron-right menu-arrow'></i>
-                    </a>
-                    <div class="collapse<?php echo in_array(basename($_SERVER['PHP_SELF']), ['faculties.php', 'departments.php', 'courses.php', 'staff.php']) ? ' show' : ''; ?>" id="academicManagement">
-                        <ul class="nav flex-column sub-menu">
-                            <li class="nav-item">
-                                <a class="nav-link<?php echo basename($_SERVER['PHP_SELF']) == 'faculties.php' ? ' active' : ''; ?>" href="faculties.php">
-                                    <i class='bx bx-building-house'></i> Faculties
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link<?php echo basename($_SERVER['PHP_SELF']) == 'departments.php' ? ' active' : ''; ?>" href="departments.php">
-                                    <i class='bx bx-buildings'></i> Departments
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link<?php echo basename($_SERVER['PHP_SELF']) == 'courses.php' ? ' active' : ''; ?>" href="courses.php">
-                                    <i class='bx bx-book'></i> Courses
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link<?php echo basename($_SERVER['PHP_SELF']) == 'staff.php' ? ' active' : ''; ?>" href="staff.php">
-                                    <i class='bx bx-user-voice'></i> Staff
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
-                
-                <li class="nav-item">
-                    <a class="nav-link<?php echo in_array(basename($_SERVER['PHP_SELF']), ['facilities.php', 'organizations.php']) ? ' active' : ''; ?>" 
-                       href="#campusManagement" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="campusManagement">
-                        <i class='bx bxs-building-house'></i> Campus Management
-                        <i class='bx bx-chevron-right menu-arrow'></i>
-                    </a>
-                    <div class="collapse<?php echo in_array(basename($_SERVER['PHP_SELF']), ['facilities.php', 'organizations.php']) ? ' show' : ''; ?>" id="campusManagement">
-                        <ul class="nav flex-column sub-menu">
-                            <li class="nav-item">
-                                <a class="nav-link<?php echo basename($_SERVER['PHP_SELF']) == 'facilities.php' ? ' active' : ''; ?>" href="facilities.php">
-                                    <i class='bx bx-building'></i> Facilities
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link<?php echo basename($_SERVER['PHP_SELF']) == 'organizations.php' ? ' active' : ''; ?>" href="organizations.php">
-                                    <i class='bx bx-group'></i> Student Organizations
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
-                
-                <li class="nav-item">
-                    <a class="nav-link<?php echo basename($_SERVER['PHP_SELF']) == 'settings.php' ? ' active' : ''; ?>" href="settings.php">
-                        <i class='bx bxs-cog'></i> Settings
-                    </a>
-                </li>
-            </ul>
-            
-            <div class="position-absolute bottom-0 start-0 end-0 p-3 text-center">
-                <div class="dropdown">
-                    <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class='bx bxs-user-circle fs-4 me-2'></i>
-                        <strong><?php echo htmlspecialchars($_SESSION['user_email']); ?></strong>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
-                        <li><a class="dropdown-item" href="profile.php">Profile</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="/zanvarsity/logout.php">Sign out</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Main Content -->
-    <main class="main-content">
-        <!-- Top Navigation -->
-        <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
-            <div class="container-fluid">
-                <button class="btn btn-link" id="sidebarToggle">
-                    <i class='bx bx-menu'></i>
-                </button>
-                
-                <div class="d-flex align-items-center">
-                    <div class="dropdown">
-                        <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle" id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class='bx bx-bell fs-4'></i>
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                3
-                                <span class="visually-hidden">unread notifications</span>
-                            </span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="notificationsDropdown">
-                            <li><h6 class="dropdown-header">Notifications</h6></li>
-                            <li><a class="dropdown-item d-flex align-items-center" href="#">
-                                <div class="flex-shrink-0 me-3">
-                                    <div class="bg-primary bg-opacity-10 p-2 rounded">
-                                        <i class='bx bx-user-plus text-primary'></i>
-                                    </div>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <div class="small text-muted">5 minutes ago</div>
-                                    New user registered
-                                </div>
-                            </a></li>
-                            <li><a class="dropdown-item d-flex align-items-center" href="#">
-                                <div class="flex-shrink-0 me-3">
-                                    <div class="bg-warning bg-opacity-10 p-2 rounded">
-                                        <i class='bx bx-calendar-exclamation text-warning'></i>
-                                    </div>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <div class="small text-muted">1 hour ago</div>
-                                    Event "Open Day" is starting soon
-                                </div>
-                            </a></li>
-                            <li><a class="dropdown-item d-flex align-items-center" href="#">
-                                <div class="flex-shrink-0 me-3">
-                                    <div class="bg-success bg-opacity-10 p-2 rounded">
-                                        <i class='bx bx-news text-success'></i>
-                                    </div>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <div class="small text-muted">2 hours ago</div>
-                                    New article published: "Campus Updates"
-                                </div>
-                            </a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-center" href="#">View all notifications</a></li>
-                        </ul>
-                    </div>
+                if (link && submenu) {
+                    // Show submenu on hover
+                    item.addEventListener('mouseenter', function() {
+                        submenu.style.display = 'block';
+                        const chevron = link.querySelector('.fa-chevron-right');
+                        if (chevron) {
+                            chevron.style.transform = 'rotate(90deg)';
+                        }
+                    });
                     
-                    <div class="dropdown ms-3">
-                        <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class='bx bxs-user-circle fs-4 me-2'></i>
-                            <span class="d-none d-md-inline"><?php echo htmlspecialchars($_SESSION['user_email']); ?></span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
-                            <li><a class="dropdown-item" href="profile.php"><i class='bx bx-user me-2'></i> Profile</a></li>
-                            <li><a class="dropdown-item" href="settings.php"><i class='bx bx-cog me-2'></i> Settings</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="/c/zanvarsity/html/logout.php"><i class='bx bx-log-out me-2'></i> Sign out</a></li>
-                        </ul>
+                    // Hide submenu when mouse leaves the item
+                    item.addEventListener('mouseleave', function() {
+                        submenu.style.display = 'none';
+                        const chevron = link.querySelector('.fa-chevron-right');
+                        if (chevron) {
+                            chevron.style.transform = 'rotate(0deg)';
+                        }
+                    });
+                    
+                    // Keep submenu open when hovering over it
+                    submenu.addEventListener('mouseenter', function() {
+                        this.style.display = 'block';
+                        const chevron = link.querySelector('.fa-chevron-right');
+                        if (chevron) {
+                            chevron.style.transform = 'rotate(90deg)';
+                        }
+                    });
+                    
+                    submenu.addEventListener('mouseleave', function() {
+                        this.style.display = 'none';
+                        const chevron = link.querySelector('.fa-chevron-right');
+                        if (chevron) {
+                            chevron.style.transform = 'rotate(0deg)';
+                        }
+                    });
+                }
+            });
+            
+            // Close all dropdowns when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.has-child')) {
+                    document.querySelectorAll('.child-navigation').forEach(menu => {
+                        menu.style.display = 'none';
+                    });
+                    document.querySelectorAll('.fa-chevron-right').forEach(chevron => {
+                        chevron.style.transform = 'rotate(0deg)';
+                    });
+                }
+            });
+        });
+    </script>
+</head>
+
+<body class="page-sub-page page-about">
+<!-- Wrapper -->
+<div class="wrapper">
+<!-- Header -->
+<div class="navigation-wrapper">
+    <div class="secondary-navigation-wrapper" style="background-color: #004225;">
+        <div class="container">
+            <div class="navigation-contact pull-left">Call Us:  <span class="opacity-70">+255 772 601 303</span></div>
+            <ul class="secondary-navigation list-unstyled pull-right" style="margin: 0; padding: 0;">
+                <li><a href="https://zumis.ac.tz/" target="_blank" style="color: #fff; text-decoration: none; transition: color 0.3s ease;"><i class="fa fa-user" style="color: #98FB98; margin-right: 5px;"></i>Zumis Portal</a></li>
+                <li><a href="../html/uploads/doc/prospectus.pdf" target="_blank">Prospectus</a></li>
+                <li><a href="../html/uploads/doc/almanac-2023.pdf" target="_blank">Almanac</a></li>
+                <li><a href="fee-structure.php" target="_blank">Fee Structure</a></li>
+                <li><a href="alumni.php" target="_blank">Alumni</a></li>
+                <li><a href="sign-in.php" style="color: #fff; text-decoration: none; transition: color 0.3s ease;"><i class="fa fa-sign-in" style="color: #98FB98; margin-right: 5px;"></i>Admin Login</a></li>
+            </ul>
+        </div>
+    </div><!-- /.secondary-navigation -->
+    <div class="primary-navigation-wrapper" style="background-color: #004225;">
+        <header class="navbar" id="top" role="banner">
+            <div class="container">
+                <div class="navbar-header">
+                    <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <div class="navbar-brand nav" id="brand">
+                        <a href="index.php"><img src="assets/img/logo11.png" alt="Zanvarsity"></a>
                     </div>
                 </div>
-            </div>
-        </nav>
+                <nav class="collapse navbar-collapse bs-navbar-collapse navbar-right" role="navigation">
+                    <ul class="nav navbar-nav">
+                        <li<?php echo (basename($_SERVER['PHP_SELF']) == 'index.php') ? ' class="active"' : ''; ?>>
+                            <a href="index.php">Home</a>
+                        </li>
+                        <li<?php echo (in_array(basename($_SERVER['PHP_SELF']), ['Background_info.php', 'vision_mission.php', 'board_of_trustees.php', 'principal_officers.php', 'council_board.php', 'senate_board.php', 'about-us.html', 'leadership.php', 'history.php', 'darul_iman.php'])) ? ' class="active"' : ''; ?>>
+                            <a href="#" class="has-child no-link" style="color: #fff; transition: color 0.3s ease; padding: 15px 20px; display: block;">About</a>
+                            <ul class="list-unstyled child-navigation" style="background-color: #004225; border: 1px solid #003319; min-width: 200px;">
+                                <li><a href="Background_info.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;">Background Information</a></li>
+                                <li><a href="vision_mission.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">Vision & Mission</a></li>
+                                <li><a href="board_of_trustees.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">Board of Trustees</a></li>
+                                <li><a href="darul_iman.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">Darul Iman (DICA)</a></li>
+                                <li><a href="council_board.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">Council Board</a></li>
+                                <li><a href="principal_officers.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">Principal Officers</a></li>
+                                <li><a href="senate_board.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">Senate Board</a></li>
+                                
+                               
+                            </ul>
+                        </li>
+                        <li<?php echo (in_array(basename($_SERVER['PHP_SELF']), ['how_to_apply.php', 'entry_requirements.php', 'programmes_offered.php', 'fee_structure.php', 'how_to_pay.php', 'student_transfers.php', 'postponent_transfer.php', 'credit_transfer.php', 'international_students.php', 'mature_age.php', 'special_admissions.php', 'faq.php'])) ? ' class="active"' : ''; ?>>
+                         <a href="#" class="has-child no-link" style="color: #fff; transition: color 0.3s ease; padding: 15px 20px; display: block;">Admissions</a>
+                            <ul class="list-unstyled child-navigation" style="background-color: #004225; border: 1px solid #003319; min-width: 200px;">
+                                <li class="has-child">
+                                    <a href="#" class="no-link" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease; position: relative;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">
+                                        Applications <i class="fa fa-chevron-right" style="float: right; margin-top: 5px; transition: transform 0.3s ease;"></i>
+                                    </a>
+                                    <ul class="list-unstyled child-navigation" style="position: absolute; left: 100%; top: 0; min-width: 220px; background-color: #006633; border: 1px solid #005229; display: none;">
+                                        <li><a href="how_to_apply.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">How to Apply</a></li>
+                                        <li><a href="entry_requirements.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Entry Requirements</a></li>
+                                        <li><a href="programmes_offered.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Programs Offered</a></li>
+                                        <li><a href="https://www.zumis.ac.tz/admission/data/register" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Online Application</a></li>
+                                    </ul>
+                                </li>
+                                <li class="has-child">
+                                    <a href="#" class="no-link" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease; position: relative;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">
+                                        Fees <i class="fa fa-chevron-right" style="float: right; margin-top: 5px; transition: transform 0.3s ease;"></i>
+                                    </a>
+                                    <ul class="list-unstyled child-navigation" style="position: absolute; left: 100%; top: 0; min-width: 220px; background-color: #006633; border: 1px solid #005229; display: none;">
+                                        <li><a href="fee_structure.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Fee Structure</a></li>
+                                        <li><a href="how_to_pay.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Payment Methods</a></li>
+                                        <!-- <li><a href="scholarships.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Scholarships</a></li>
+                                        <li><a href="financial_aid.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Financial Aid</a></li> -->
+                                    </ul>
+                                </li>
+                                <li class="has-child">
+                                    <a href="#" class="no-link" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease; position: relative;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">
+                                        Transfers <i class="fa fa-chevron-right" style="float: right; margin-top: 5px; transition: transform 0.3s ease;"></i>
+                                    </a>
+                                    <ul class="list-unstyled child-navigation" style="position: absolute; left: 100%; top: 0; min-width: 220px; background-color: #006633; border: 1px solid #005229; display: none;">
+                                        <li><a href="student_transfers.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Students Transfers</a></li>
+                                        <li><a href="postponent_transfer.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Postponent & Resuption of Studies</a></li>
+                                        <li><a href="credit_transfer.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Credit Transfer</a></li>
+                                    </ul>
+                                </li>
+                                <li class="has-child">
+                                    <a href="#" class="no-link" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease; position: relative;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">
+                                        Others <i class="fa fa-chevron-right" style="float: right; margin-top: 5px; transition: transform 0.3s ease;"></i>
+                                    </a>
+                                    <ul class="list-unstyled child-navigation" style="position: absolute; left: 100%; top: 0; min-width: 220px; background-color: #006633; border: 1px solid #005229; display: none;">
+                                        <li><a href="international_students.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">International Students</a></li>
+                                        <li><a href="mature_age.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Mature Age Entry</a></li>
+                                        <li><a href="special_admissions.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Special Admissions</a></li>
+                                        <li><a href="faq.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">FAQs</a></li>
+                                    </ul>
+                                </li>
+                                
+                            </ul>
+                        </li>
 
-        <!-- Page Content -->
-        <div class="content-wrapper">
-            <!-- Page header -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="mb-0"><?php echo htmlspecialchars($page_title); ?></h2>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-                        <li class="breadcrumb-item active" aria-current="page"><?php echo htmlspecialchars($page_title); ?></li>
-                    </ol>
-                </nav>
+                        <!-- Academic nav bar -->
+                        <li<?php echo (in_array(basename($_SERVER['PHP_SELF']), ['faculty.php'])) ? ' class="active"' : ''; ?>>
+                         <a href="#" class="has-child no-link" style="color: #fff; transition: color 0.3s ease; padding: 15px 20px; display: block;">Academic</a>
+                            <ul class="list-unstyled child-navigation" style="background-color: #004225; border: 1px solid #003319; min-width: 200px;">
+                                <li class="has-child">
+                                    <a href="#" class="no-link" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease; position: relative;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">
+                                        Faculties & Institutes <i class="fa fa-chevron-right" style="float: right; margin-top: 5px; transition: transform 0.3s ease;"></i>
+                                    </a>
+                                    <ul class="list-unstyled child-navigation" style="position: absolute; left: 100%; top: 0; min-width: 220px; background-color: #006633; border: 1px solid #005229; display: none;">
+                                        <li><a href="http://localhost/c/zanvarsity/html/faculty.php?id=1" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Faculty Of Business Administration (FBA)</a></li>
+                                        <li><a href="how_to_apply.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Faculty Of Law And Shariah (FLS)</a></li>
+                                        <li><a href="how_to_apply.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Faculty Of Arts And Social Sciences (FASS)</a></li>
+                                        <li><a href="how_to_apply.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Faculty Of Engineering (FOE)</a></li>
+                                        <li><a href="how_to_apply.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Faculty Of Health And Allied Sciences (FOHAS)</a></li>
+                                        <li><a href="how_to_apply.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Faculty Of Science (FOS)</a></li>
+                                        <li><a href="how_to_apply.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Institute Of Postgraduate Studies & Research (IPGRS)</a></li>
+                                        <li><a href="how_to_apply.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Institute Of Islamic Banking And Finance (IIBF)</a></li>
+                                        <li><a href="how_to_apply.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Institute Of Continuing Education (ICE)</a></li>
+                                        
+                                    </ul>
+                                </li>
+                                <li class="has-child">
+                                    <a href="#" class="no-link" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease; position: relative;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">
+                                        Research & Publications <i class="fa fa-chevron-right" style="float: right; margin-top: 5px; transition: transform 0.3s ease;"></i>
+                                    </a>
+                                    <ul class="list-unstyled child-navigation" style="position: absolute; left: 100%; top: 0; min-width: 220px; background-color: #006633; border: 1px solid #005229; display: none;">
+                                        <li><a href="http://localhost/c/zanvarsity/html/research.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Research & Publications</a></li>
+                                        <li><a href="how_to_pay.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Repositor</a></li>
+                                        <!-- <li><a href="scholarships.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Scholarships</a></li>
+                                        <li><a href="financial_aid.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Financial Aid</a></li> -->
+                                    </ul>
+                                </li>
+                                <li class="has-child">
+                                    <a href="#" class="no-link" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease; position: relative;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">
+                                      Examination Regulations <i class="fa fa-chevron-right" style="float: right; margin-top: 5px; transition: transform 0.3s ease;"></i>
+                                    </a>
+                                    <ul class="list-unstyled child-navigation" style="position: absolute; left: 100%; top: 0; min-width: 220px; background-color: #006633; border: 1px solid #005229; display: none;">
+                                        <li><a href="student_transfers.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Students Transfers</a></li>
+                                        <li><a href="postponent_transfer.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Postponent & Resuption of Studies</a></li>
+                                        <li><a href="credit_transfer.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Credit Transfer</a></li>
+                                    </ul>
+                                </li>
+                                <li class="has-child">
+                                    <a href="#" class="no-link" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease; position: relative;" onmouseover="this.style.backgroundColor='#006633'" onmouseout="this.style.backgroundColor='#004225'">
+                                        Others <i class="fa fa-chevron-right" style="float: right; margin-top: 5px; transition: transform 0.3s ease;"></i>
+                                    </a>
+                                    <ul class="list-unstyled child-navigation" style="position: absolute; left: 100%; top: 0; min-width: 220px; background-color: #006633; border: 1px solid #005229; display: none;">
+                                        <li><a href="international_students.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">International Students</a></li>
+                                        <li><a href="mature_age.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Mature Age Entry</a></li>
+                                        <li><a href="special_admissions.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">Special Admissions</a></li>
+                                        <li><a href="faq.php" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#007a3d'" onmouseout="this.style.backgroundColor='#006633'">FAQs</a></li>
+                                    </ul>
+                                </li>
+                                
+                            </ul>
+                        </li>
+
+                        <!-- <li>
+                            <a href="#" class="has-child no-link">Events</a>
+                            <ul class="list-unstyled child-navigation" style="background-color: #004225; border: 1px solid #003319; min-width: 200px;">
+                                <li><a href="event-listing-images.html">Events Listing with images</a></li>
+                                <li><a href="event-listing.html">Events Listing</a></li>
+                                <li><a href="event-grid.html">Events Grid</a></li>
+                                <li><a href="event-detail.html">Event Detail</a></li>
+                                <li><a href="event-calendar.html">Events Calendar</a></li>
+                            </ul>
+                        </li>
+                        -->
+                        <li>
+                            <a href="#" class="has-child no-link">Directorates</a>
+                            <ul class="list-unstyled child-navigation" style="background-color: #004225; border: 1px solid #003319; min-width: 200px;">
+                                <li><a href="#">Academic Affairs</a></li>
+                                <li><a href="#">Administration</a></li>
+                                <li><a href="#">Finance</a></li>
+                                <li><a href="#">Research & Innovation</a></li>
+                            </ul>
+                        </li>
+                        <!-- <li>
+                            <a href="#" class="has-child no-link">Blog</a>
+                            <ul class="list-unstyled child-navigation" style="background-color: #004225; border: 1px solid #003319; min-width: 200px;">
+                                <li><a href="blog-listing.html">Blog Listing</a></li>
+                                <li><a href="blog-detail.html">Blog Detail</a></li>
+                            </ul>
+                        </li> -->
+                        <!-- <li>
+                            <a href="#" class="has-child no-link" style="color: #fff; transition: color 0.3s ease; padding: 15px 20px; display: block;">Pages</a>
+                            <ul class="list-unstyled child-navigation" style="background-color: #004225; border: 1px solid #003319; min-width: 200px;">
+                                <li><a href="full-width.html" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;">Fullwidth</a></li>
+                                <li><a href="left-sidebar.html" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;">Left Sidebar</a></li>
+                                <li><a href="right-sidebar.html" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;">Right Sidebar</a></li>
+                                <li><a href="my-account.html">My Account</a></li>
+                                <li><a href="register-sign-in.html">Register & Sign In</a></li>
+                                <li><a href="members.html">Members</a></li>
+                                <li><a href="member-detail.html">Member Detail</a></li>
+                                <li><a href="shortcodes.html">Shortcodes</a></li>
+                            </ul>
+                        </li> -->
+                        <li>
+                            <a href="#" class="has-child no-link" style="color: #fff; transition: color 0.3s ease; padding: 15px 20px; display: block;">Facilities</a>
+                                    <ul class="list-unstyled child-navigation" style="background-color: #004225; border: 1px solid #003319; min-width: 200px;">
+                                        <li><a href="full-width.html" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;">Fullwidth</a></li>
+                                        <li><a href="left-sidebar.html" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;">Left Sidebar</a></li>
+                                        <li><a href="right-sidebar.html" style="color: #fff; display: block; padding: 8px 20px; transition: background-color 0.3s ease;">Right Sidebar</a></li>
+                                        <li><a href="microsite.html">Microsite</a></li>
+                                        <li><a href="my-account.html">My Account</a></li>
+                                        <li><a href="members.html">Members</a></li>
+                                        <li><a href="member-detail.html">Member Detail</a></li>
+                                        <li>
+                                            <a href="register-sign-in.html">Register & Sign In</a>
+                                        </li>
+                                        <li><a href="shortcodes.html">Shortcodes</a></li>
+                                    </ul>
+                                </li> 
+                                <li>
+                                    <a href="contact-us.html">Contact Us</a>
+                                </li>
+                            </ul>
+                        </nav>
+                        <!-- /.navbar collapse-->
+                    </div>
+                    <!-- /.container -->
+                </header>
+                <!-- /.navbar -->
             </div>
+            <!-- /.primary-navigation -->
+            <div class="background">
+                <img src="assets/img/background-city.png" alt="background" />
+            </div>
+        </div>
+        <!-- end Header -->
+
+        <!-- Page Title Section -->
+        <section class="page-title" style="background-color: #f8f9fa; padding: 40px 0; margin-bottom: 30px; border-bottom: 1px solid #eaeaea;">
+            <div class="container">
+                <header style="text-align: center;">
+                    <h1 style="color: #004225; font-size: 2.5rem; font-weight: 600; margin: 0 0 15px 0; line-height: 1.2;">
+                        <?php echo isset($page_heading) ? htmlspecialchars($page_heading) : 'About Us'; ?>
+                    </h1>
+                </header>
+            </div>
+        </section>
+        <!-- end Page Title Section -->
+        
+        <!-- Page Content -->
+  

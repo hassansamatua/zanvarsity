@@ -863,19 +863,18 @@ $page_title = 'Manage Downloads';
 
 <!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    
-<!-- Bootstrap JS Bundle with Popper -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    
+<!-- Bootstrap 5.1.3 Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 <!-- DataTables -->
-<script type="text/javascript" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
-
-<!-- Moment.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Debug script to check Bootstrap initialization -->
+<script>
+console.log('Bootstrap version:', bootstrap ? bootstrap.Tooltip.VERSION : 'Bootstrap not loaded');
+</script>
 
 <!-- Toastr -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
@@ -1121,20 +1120,79 @@ $page_title = 'Manage Downloads';
         });
     // Initialize modals and event handlers
     $(document).ready(function() {
+        console.log('Document ready, checking dependencies...');
+        // Debug function to check if Bootstrap is loaded properly
+        function checkBootstrap() {
+            console.log('Bootstrap check:', {
+                'bootstrap exists': typeof bootstrap !== 'undefined',
+                'bootstrap.Modal': typeof bootstrap !== 'undefined' ? typeof bootstrap.Modal : 'undefined',
+                'bootstrap.Tooltip': typeof bootstrap !== 'undefined' ? typeof bootstrap.Tooltip : 'undefined',
+                'jQuery.fn.modal': typeof $.fn.modal !== 'undefined' ? 'available' : 'unavailable'
+            });
+        }
+
+        // Safe modal show function
+        function showModal(modalId) {
+            try {
+                console.log('Attempting to show modal:', modalId);
+                const modalElement = document.getElementById(modalId);
+                console.log('Modal element found:', !!modalElement);
+                
+                if (!modalElement) {
+                    console.error('Modal element not found:', modalId);
+                    return false;
+                }
+                
+                // Try Bootstrap 5 method first
+                if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                    const modal = new bootstrap.Modal(modalElement, {
+                        backdrop: 'static',
+                        keyboard: false
+                    });
+                    modal.show();
+                    return true;
+                }
+                // Fallback to jQuery method
+                else if (typeof $ !== 'undefined' && $.fn.modal) {
+                    $(modalElement).modal({show: true, backdrop: 'static', keyboard: false});
+                    return true;
+                }
+                
+                console.error('No modal implementation available');
+                return false;
+            } catch (e) {
+                console.error('Error showing modal:', e);
+                return false;
+            }
+        }
+
+        checkBootstrap();
+        
         // Initialize tooltips
-        $('[data-toggle="tooltip"]').tooltip();
+        try {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+                if (tooltipTriggerEl) {
+                    try {
+                        new bootstrap.Tooltip(tooltipTriggerEl);
+                    } catch (e) {
+                        console.error('Error initializing tooltip:', e);
+                    }
+                }
+            });
+        } catch (e) {
+            console.error('Error initializing tooltips:', e);
+        }
         
-        // Initialize modals
-        $('#addDownloadModal').on('shown.bs.modal', function () {
-            $(this).removeAttr('aria-hidden');
-            $('#title').trigger('focus');
+        // Initialize DataTable
+        const dataTable = $('#downloadsTable').DataTable({
+            responsive: true,
+            order: [[1, 'asc']],
+            columnDefs: [
+                { orderable: false, targets: [0, 5] } // Disable sorting on image and actions columns
+            ]
         });
-        
-        $('#editEventModal').on('shown.bs.modal', function () {
-            $(this).removeAttr('aria-hidden');
-            $('#editEventTitle').trigger('focus');
-        });
-        
+
         // Handle add download button click
         $('button[data-target="#addDownloadModal"]').on('click', function() {
             // Reset form and clear any validation

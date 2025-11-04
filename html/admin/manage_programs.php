@@ -123,7 +123,11 @@ $programs = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $page_title; ?> - Zanvarsity Admin</title>
-    <?php include 'includes/header.php'; ?>
+    <?php 
+    // Define base URL for assets
+    $base_url = '/c/zanvarsity/html';
+    include dirname(__DIR__) . '/includes/about_header.php'; 
+    ?>
     <style>
         .program-card {
             margin-bottom: 20px;
@@ -161,7 +165,7 @@ $programs = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <h1 class="h2"><?php echo $page_title; ?></h1>
                     <div class="btn-toolbar mb-2 mb-md-0">
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProgramModal">
+                        <button type="button" class="btn btn-primary" id="addProgramBtn">
                             <i class="fas fa-plus"></i> Add New Program
                         </button>
                     </div>

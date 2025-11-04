@@ -39,7 +39,7 @@ $role_display = ucfirst($user_role);
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="manage_content.php">
+                <a class="nav-link" href="../manage_content.php">
                     <i class='bx bx-file me-2'></i>
                     Manage Content
                 </a>

@@ -41,47 +41,69 @@ if (!isset($hide_page_content_div) || $hide_page_content_div !== true) {
         </div>
     </section>
 
-    <section id="footer-content" style="background-color: #004225; position: relative; padding: 30px 0; width: 100%;">
-        <div class="container" style="width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 15px;">
+    <section id="footer-content" style="background: url('http://localhost/c/zanvarsity/html/assets/img/phd2.jpg'); background-size: cover; background-position: center; background-attachment: fixed; background-repeat: no-repeat; position: relative; padding: 50px 0; width: 100%; min-height: 400px;">
+        <!-- Enhanced blur effect with stronger overlay -->
+        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 66, 37, 0.5); backdrop-filter: blur(10px) brightness(0.8); -webkit-backdrop-filter: blur(10px) brightness(0.8);"></div>
+        <div class="container" style="width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 15px; position: relative; z-index: 2;">
             <div class="row">
                 <div class="col-md-3 col-sm-12">
                     <aside class="logo">
-                        <img src="assets/img/logo-white.png" class="vertical-center" alt="Zanvarsity" />
+                        <img src="assets/img/logo11.png" class="vertical-center" alt="Zanvarsity" style="max-height: 60px;" />
                     </aside>
                 </div>
                 <div class="col-md-3 col-sm-4">
                     <aside>
                         <header>
-                            <h4>Contact Us</h4>
+                            <h4>Center of Excellence</h4>
                         </header>
-                        <address>
-                            <strong>Zanvarsity</strong><br />
-                            <span>P.O. Box 1234</span><br />
-                            <span>Zanzibar, Tanzania</span><br /><br />
-                            <abbr title="Phone">Phone:</abbr> +255 000 000 000<br />
-                            <abbr title="Email">Email:</abbr> <a href="mailto:info@zanvarsity.ac.tz">info@zanvarsity.ac.tz</a>
+                        <p style="color: #fff; margin-bottom: 15px; position: relative; z-index: 2; text-shadow: 0 1px 3px rgba(0,0,0,0.9); font-weight: 600; background-color: rgba(0, 40, 20, 0.8); display: inline-block; padding: 10px 18px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.3); box-shadow: 0 4px 8px rgba(0,0,0,0.2);">Spring of Knowledge and Virtue</p>
+                        <h5 style="position: relative; z-index: 2; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.9); background-color: rgba(0, 40, 20, 0.8); display: inline-block; padding: 10px 18px; border-radius: 6px; margin: 20px 0 15px; border: 1px solid rgba(255,255,255,0.3); box-shadow: 0 4px 8px rgba(0,0,0,0.2);">GET IN TOUCH</h5>
+                        <address style="color: #fff; position: relative; z-index: 2; text-shadow: 0 1px 3px rgba(0,0,0,0.9); font-weight: 500; background-color: rgba(0, 40, 20, 0.8); display: inline-block; padding: 18px 25px; border-radius: 10px; margin: 15px 0; border: 1px solid rgba(255,255,255,0.3); line-height: 1.8; box-shadow: 0 6px 12px rgba(0,0,0,0.2);">
+                            <i class="fa fa-phone"></i> +255 772 601 303<br>
+                            <i class="fa fa-envelope"></i> <a href="mailto:info@zanvarsity.ac.tz" style="color: #fff;">info@zanvarsity.ac.tz</a><br>
+                            <i class="fa fa-globe"></i> <a href="https://www.zanvarsity.ac.tz" target="_blank" style="color: #fff;">www.zanvarsity.ac.tz</a><br>
+                            <i class="fa fa-map-marker"></i> Tunguu - Zanzibar
                         </address>
                     </aside>
                 </div>
-                <div class="col-md-3 col-sm-4">
+                <!-- <div class="col-md-3 col-sm-4">
                     <aside>
                         <header>
                             <h4>Quick Links</h4>
                         </header>
-                        <ul class="list-links" style="list-style: none; padding: 0; margin: 0;">
+                        <ul class="list-links" style="list-style: none; padding: 0; margin: 0; position: relative; z-index: 2;">
                             <li style="margin-bottom: 8px;"><a href="about.php" style="color: #fff; text-decoration: none; transition: color 0.3s ease;">About Us</a></li>
                             <li style="margin-bottom: 8px;"><a href="academics.php" style="color: #fff; text-decoration: none; transition: color 0.3s ease;">Academics</a></li>
                             <li style="margin-bottom: 8px;"><a href="admissions.php" style="color: #fff; text-decoration: none; transition: color 0.3s ease;">Admissions</a></li>
                             <li style="margin-bottom: 8px;"><a href="research.php" style="color: #fff; text-decoration: none; transition: color 0.3s ease;">Research</a></li>
-                            <li style="margin-bottom: 8px;"><a href="campus-life.php" style="color: #fff; text-decoration: none; transition: color 0.3s ease;">Campus Life</a></li>
-                            <li><a href="contact.php" style="color: #fff; text-decoration: none; transition: color 0.3s ease;">Contact Us</a></li>
+                            <li><a href="campus-life.php" style="color: #fff; text-decoration: none; transition: color 0.3s ease;">Campus Life</a></li>
                         </ul>
+                    </aside>
+                </div> -->
+                <div class="col-md-3 col-sm-4">
+                    <aside>
+                        <header>
+                            <h4 style="position: relative; z-index: 2;">Useful Links</h4>
+                        </header>
+                        <ul class="list-links" style="list-style: none; padding: 0; margin: 0; position: relative; z-index: 2;">
+                            <li style="margin-bottom: 8px;"><a href="https://www.tcu.go.tz/" target="_blank" style="color: #fff; text-decoration: none; transition: color 0.3s ease;">Tanzania Commission for Universities</a></li>
+                            <li style="margin-bottom: 8px;"><a href="https://www.nacte.go.tz/" target="_blank" style="color: #fff; text-decoration: none; transition: color 0.3s ease;">National Council for Technical Education</a></li>
+                            <li style="margin-bottom: 8px;"><a href="https://www.heslb.go.tz/" target="_blank" style="color: #fff; text-decoration: none; transition: color 0.3s ease;">Higher Education Student's Loans Board</a></li>
+                            <li><a href="https://www.zhelb.go.tz/" target="_blank" style="color: #fff; text-decoration: none; transition: color 0.3s ease;">Zanzibar Higher Education Loans Board</a></li>
+                        </ul>
+                        <div class="social-media" style="margin-top: 20px; position: relative; z-index: 2;">
+                            <h5>Social Media</h5>
+                            <a href="https://www.zanvarsity.ac.tz/site/index" target="_blank" style="color: #fff; margin-right: 10px; font-size: 18px;"><i class="fa fa-globe"></i></a>
+                            <a href="#" style="color: #fff; margin-right: 10px; font-size: 18px;"><i class="fa fa-facebook"></i></a>
+                            <a href="#" style="color: #fff; margin-right: 10px; font-size: 18px;"><i class="fa fa-twitter"></i></a>
+                            <a href="#" style="color: #fff; font-size: 18px;"><i class="fa fa-youtube"></i></a>
+                        </div>
                     </aside>
                 </div>
                 <div class="col-md-3 col-sm-4">
                     <aside>
                         <header>
-                            <h4>Newsletter</h4>
+                            <h4 style="position: relative; z-index: 2;">Newsletter</h4>
                         </header>
                         <style>
                             /* Scoped styles for newsletter form */
@@ -233,9 +255,7 @@ if (!isset($hide_page_content_div) || $hide_page_content_div !== true) {
                 </div>
             </div>
         </div>
-        <div class="background">
-            <img src="assets/img/background-city.png" alt="Background" />
-        </div>
+        <!-- Background image with opacity is now set in the section's background -->
     </section>
 
     <section id="footer-bottom" style="background-color: #004225 !important; box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2); position: relative; z-index: 1; width: 100%;">

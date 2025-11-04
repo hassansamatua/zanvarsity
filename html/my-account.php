@@ -1,18 +1,482 @@
 <?php
-// Start session if not already started
+// Set session configuration before starting
+ini_set('session.cookie_httponly', 1);
+ini_set('session.use_only_cookies', 1);
+ini_set('session.cookie_secure', isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on');
+
+// Handle Add/Edit Event Form Submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add_event') {
+    // Verify CSRF token
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        $_SESSION['error'] = 'Invalid CSRF token';
+        header('Location: ' . $_SERVER['HTTP_REFERER']);
+        exit;
+    }
+
+    try {
+        // Required fields
+        $title = trim($_POST['title'] ?? '');
+        $start_date = $_POST['start_date'] ?? '';
+        
+        if (empty($title) || empty($start_date)) {
+            throw new Exception('Title and start date are required');
+        }
+
+        // Optional fields
+        $description = trim($_POST['description'] ?? '');
+        $location = trim($_POST['location'] ?? '');
+        $end_date = !empty($_POST['end_date']) ? $_POST['end_date'] : null;
+
+        // Handle file upload
+        $image_path = null;
+        if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+            $upload_dir = __DIR__ . '/uploads/events/';
+            if (!file_exists($upload_dir)) {
+                mkdir($upload_dir, 0777, true);
+            }
+
+            $file_extension = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
+            $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif'];
+            
+            if (!in_array($file_extension, $allowed_extensions)) {
+                throw new Exception('Only JPG, JPEG, PNG & GIF files are allowed.');
+            }
+
+            $file_name = uniqid() . '.' . $file_extension;
+            $target_file = $upload_dir . $file_name;
+
+            if (move_uploaded_file($_FILES['image']['tmp_name'], $target_file)) {
+                $image_path = '/c/zanvarsity/html/uploads/events/' . $file_name;
+            } else {
+                throw new Exception('Failed to upload image.');
+            }
+        }
+
+        // Insert into database
+        $stmt = $conn->prepare("INSERT INTO events (title, description, location, start_date, end_date, image_url, created_at) 
+                              VALUES (?, ?, ?, ?, ?, ?, NOW())");
+        
+        $stmt->bind_param("ssssss", 
+            $title, 
+            $description, 
+            $location, 
+            $start_date, 
+            $end_date, 
+            $image_path
+        );
+
+        if ($stmt->execute()) {
+            $_SESSION['success'] = 'Event added successfully!';
+        } else {
+            throw new Exception('Failed to add event to database.');
+        }
+
+        // Redirect back to the events tab
+        header('Location: ' . strtok($_SERVER['HTTP_REFERER'], '?') . '?tab=manage-events');
+        exit;
+
+    } catch (Exception $e) {
+        $_SESSION['error'] = 'Error: ' . $e->getMessage();
+        header('Location: ' . $_SERVER['HTTP_REFERER']);
+        exit;
+    }
+}
+ini_set('session.cookie_samesite', 'Lax');
+ini_set('session.cookie_path', '/');
+
+// Set session name and start session
+session_name('zanvarsity_session');
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Define root path - point to zanvarsity directory
-define('ROOT_PATH', dirname(dirname(dirname(__DIR__))));
+// Debug: Log session status
+error_log('my-account.php - Session ID: ' . (session_id() ?: 'none'));
+error_log('my-account.php - Session status: ' . session_status());
+error_log('my-account.php - Session data: ' . print_r($_SESSION, true));
+
+// Define base path
+$base_path = '/c/zanvarsity/html';
 
 // Include necessary files
-require_once ROOT_PATH . '/zanvarsity/includes/auth_functions.php';
-require_once ROOT_PATH . '/zanvarsity/includes/database.php';
+require_once __DIR__ . '/../includes/auth_functions.php';
+require_once __DIR__ . '/../includes/database.php';
+
+// Add JavaScript functions at the top level to ensure they're available globally
+echo '<script>
+// User Management Functions - Moved to bottom of file
+</script>';
 
 // Check if user is logged in
-require_login();
+if (!is_logged_in()) {
+    // Get the current URL for redirection after login
+    $current_url = $_SERVER['REQUEST_URI'];
+    
+    // Debug: Log the redirect attempt
+    error_log('my-account.php - User not logged in, redirecting to login');
+    error_log('my-account.php - Current URL: ' . $current_url);
+    
+    // Build login URL with redirect
+    $login_url = $base_path . '/register-sign-in.php?error=login_required';
+    
+    // Only add redirect parameter if not already going to login page
+    if (strpos($current_url, 'register-sign-in.php') === false) {
+        $login_url .= '&redirect=' . urlencode($current_url);
+    }
+    
+    // Clear any output buffers
+    while (ob_get_level()) {
+        ob_end_clean();
+    }
+    
+    // Set cache control headers
+    header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+    header('Cache-Control: post-check=0, pre-check=0', false);
+    header('Pragma: no-cache');
+    
+    // Perform the redirect
+    header('Location: ' . $login_url, true, 302);
+    exit();
+}
+
+// Get user information from session
+$user_id = $_SESSION['user_id'] ?? null;
+$user_email = $_SESSION['user_email'] ?? 'Guest';
+$user_name = $_SESSION['first_name'] ?? 'User';
+$user_role = $_SESSION['user_role'] ?? 'student';
+
+// Debug: Log user info
+error_log('my-account.php - User Info:');
+error_log('- User ID: ' . $user_id);
+error_log('- Email: ' . $user_email);
+error_log('- Name: ' . $user_name);
+error_log('- Role: ' . $user_role);
+$is_admin = in_array($user_role, ['admin', 'super_admin']);
+$is_dean = ($user_role === 'dean');
+
+// Handle profile update
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile']) && $user_id) {
+    // Sanitize input
+    $first_name = trim(htmlspecialchars($_POST['first_name'] ?? ''));
+    $last_name = trim(htmlspecialchars($_POST['last_name'] ?? ''));
+    $phone = trim(htmlspecialchars($_POST['phone'] ?? ''));
+    $bio = trim(htmlspecialchars($_POST['bio'] ?? ''));
+    
+    // Validate required fields
+    if (empty($first_name) || empty($last_name)) {
+        $_SESSION['error'] = "First name and last name are required.";
+        header("Location: my-account.php?tab=profile");
+        exit();
+    }
+    
+    // Get current user data
+    $user = [];
+    $query = "SELECT profile_image FROM users WHERE id = ?";
+    if ($stmt = $conn->prepare($query)) {
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $user = $result->fetch_assoc();
+        $stmt->close();
+    }
+    
+    // Handle file upload
+    $default_avatar = '/c/zanvarsity/html/assets/img/avatar-placeholder.png';
+    $profile_image = !empty($user['profile_image']) ? $user['profile_image'] : $default_avatar;
+    
+    // Define upload directories
+    $base_upload_dir = __DIR__ . '/uploads/profiles/';
+    $web_upload_dir = '/c/zanvarsity/html/uploads/profiles/';
+    
+    // Ensure the uploads directory exists with proper permissions
+    if (!file_exists($base_upload_dir)) {
+        if (!mkdir($base_upload_dir, 0755, true)) {
+            error_log("Failed to create directory: " . $base_upload_dir);
+            $_SESSION['error'] = "Failed to create upload directory";
+        } else {
+            // Set directory permissions
+            chmod($base_upload_dir, 0755);
+            // Create an index.html file to prevent directory listing
+            file_put_contents($base_upload_dir . 'index.html', '<!-- Directory access forbidden -->');
+        }
+    }
+    
+    // Check if remove profile image is checked
+    if (isset($_POST['remove_profile_image']) && $_POST['remove_profile_image'] == '1') {
+        // Remove the current profile image
+        if (!empty($user['profile_image']) && $user['profile_image'] !== $default_avatar) {
+            $old_image_path = str_replace('/c/zanvarsity/html', $_SERVER['DOCUMENT_ROOT'], $user['profile_image']);
+            if (file_exists($old_image_path)) {
+                @unlink($old_image_path);
+            }
+            $profile_image = $default_avatar;
+            $update_image = true;
+        }
+    } 
+    // Handle file upload if a new file was provided
+    elseif (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === UPLOAD_ERR_OK) {
+        // Debug log
+        error_log("Starting file upload process");
+        error_log("Uploaded file info: " . print_r($_FILES['profile_image'], true));
+        
+        // Ensure directories exist
+        if (!file_exists($base_upload_dir)) {
+            mkdir($base_upload_dir, 0755, true);
+        }
+        
+        error_log("Base upload dir: $base_upload_dir");
+        error_log("Web upload dir: $web_upload_dir");
+        
+        // Create upload directory if it doesn't exist
+        if (!file_exists($base_upload_dir)) {
+            if (!mkdir($base_upload_dir, 0755, true)) {
+                error_log("Failed to create directory: " . $base_upload_dir);
+                $_SESSION['error'] = "Failed to create upload directory";
+                header("Location: my-account.php?tab=profile");
+                exit();
+            }
+            // Set directory permissions
+            chmod($base_upload_dir, 0755);
+        }
+        
+        $file_extension = strtolower(pathinfo($_FILES['profile_image']['name'], PATHINFO_EXTENSION));
+        $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif'];
+        
+        if (in_array($file_extension, $allowed_extensions)) {
+            // Delete old profile image if it exists and is not the default avatar
+            if (!empty($user['profile_image']) && $user['profile_image'] !== $default_avatar) {
+                $old_image_path = strpos($user['profile_image'], $web_upload_dir) === 0 ? 
+                    str_replace($web_upload_dir, $base_upload_dir, $user['profile_image']) : 
+                    $base_upload_dir . basename($user['profile_image']);
+                
+                if (file_exists($old_image_path) && is_writable($old_image_path)) {
+                    @unlink($old_image_path);
+                }
+            }
+            
+            // Generate a unique filename
+            $new_filename = 'profile_' . $user_id . '_' . time() . '.' . $file_extension;
+            $target_path = $base_upload_dir . $new_filename;
+            $web_path = $web_upload_dir . $new_filename;
+            
+            // Debug information
+            error_log("Attempting to move uploaded file to: " . $target_path);
+            error_log("Temporary file: " . $_FILES['profile_image']['tmp_name']);
+            error_log("File size: " . $_FILES['profile_image']['size']);
+            
+            error_log("Attempting to move uploaded file to: $target_path");
+            if (move_uploaded_file($_FILES['profile_image']['tmp_name'], $target_path)) {
+                error_log("File moved successfully to: $target_path");
+                
+                // Verify the file was actually moved
+                if (file_exists($target_path)) {
+                    error_log("Target file exists, setting permissions");
+                    // Set proper permissions
+                    if (chmod($target_path, 0644)) {
+                        error_log("File permissions set successfully");
+                    } else {
+                        error_log("Failed to set file permissions");
+                    }
+                    
+                    // Store the full web path in the database
+                    $profile_image = $web_path;
+                    
+                    // Log the path for debugging
+                    error_log("Profile image path to save in DB: $profile_image");
+                    error_log("Target file exists: " . (file_exists($target_path) ? 'Yes' : 'No'));
+                    error_log("File size: " . filesize($target_path) . " bytes");
+                    
+                    // Update the user's profile image in the database
+                    $update_sql = "UPDATE users SET profile_image = ? WHERE id = ?";
+                    if ($update_stmt = $conn->prepare($update_sql)) {
+                        $update_stmt->bind_param("si", $profile_image, $user_id);
+                        if ($update_stmt->execute()) {
+                            error_log("Successfully updated profile image in database");
+                            
+                            // Update the current user's profile image in session
+                            if (isset($_SESSION['user'])) {
+                                $_SESSION['user']['profile_image'] = $profile_image;
+                            }
+                            
+                            // Also update the $user array for immediate display
+                            $user['profile_image'] = $profile_image;
+                            
+                            // Set success message
+                            $_SESSION['success'] = "Profile picture updated successfully!";
+                        } else {
+                            error_log("Failed to update profile image in database: " . $update_stmt->error);
+                            $_SESSION['error'] = "Failed to update profile image in database: " . $update_stmt->error;
+                            header("Location: my-account.php?tab=profile");
+                            exit();
+                        }
+                        $update_stmt->close();
+                    } else {
+                        $error = $conn->error;
+                        error_log("Failed to prepare update statement: $error");
+                        $_SESSION['error'] = "Database error: $error";
+                        header("Location: my-account.php?tab=profile");
+                        exit();
+                    }
+                } else {
+                    error_log("File move succeeded but target file doesn't exist: " . $target_path);
+                    $_SESSION['error'] = "Failed to save uploaded file";
+                    header("Location: my-account.php?tab=profile");
+                    exit();
+                }
+            }
+        } else {
+            $_SESSION['error'] = "Invalid file type. Only JPG, JPEG, PNG & GIF files are allowed.";
+            header("Location: my-account.php?tab=profile");
+            exit();
+        }
+    }
+    
+    // Update user in database
+    $sql = "UPDATE users SET 
+            first_name = ?,
+            last_name = ?,
+            phone = ?,
+            bio = ?,
+            profile_image = ?
+            WHERE id = ?";
+    
+    if ($stmt = $conn->prepare($sql)) {
+        $stmt->bind_param("sssssi", $first_name, $last_name, $phone, $bio, $profile_image, $user_id);
+        
+        if ($stmt->execute()) {
+            $_SESSION['success'] = "Profile updated successfully!";
+            // Update session data
+            $_SESSION['first_name'] = $first_name;
+            $_SESSION['profile_image'] = $profile_image;
+            // Refresh the page
+            header("Location: my-account.php?tab=profile");
+            exit();
+        } else {
+            $_SESSION['error'] = "Error updating profile: " . $conn->error;
+        }
+        $stmt->close();
+    } else {
+        $_SESSION['error'] = "Database error: " . $conn->error;
+    }
+}
+
+// Handle User Management Actions
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $is_admin) {
+    $action = $_POST['action'] ?? '';
+    
+    switch ($action) {
+        case 'add_user':
+            $first_name = trim($_POST['first_name'] ?? '');
+            $last_name = trim($_POST['last_name'] ?? '');
+            $email = trim($_POST['email'] ?? '');
+            $password = $_POST['password'] ?? '';
+            $role = $_POST['role'] ?? 'student';
+            $is_active = isset($_POST['is_active']) ? 1 : 0;
+            
+            // Basic validation
+            if (empty($first_name) || empty($last_name) || empty($email) || empty($password)) {
+                $_SESSION['error'] = "All fields are required.";
+                header("Location: my-account.php?tab=manage-users");
+                exit();
+            }
+            
+            // Check if email already exists
+            $check_sql = "SELECT id FROM users WHERE email = ?";
+            if ($stmt = $conn->prepare($check_sql)) {
+                $stmt->bind_param("s", $email);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                if ($result->num_rows > 0) {
+                    $_SESSION['error'] = "Email already exists.";
+                    header("Location: my-account.php?tab=manage-users");
+                    exit();
+                }
+                $stmt->close();
+            }
+            
+            // Hash password
+            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+            
+            // Insert new user
+            $sql = "INSERT INTO users (first_name, last_name, email, password, role, is_active, created_at) 
+                    VALUES (?, ?, ?, ?, ?, ?, NOW())";
+            
+            if ($stmt = $conn->prepare($sql)) {
+                $stmt->bind_param("sssssi", $first_name, $last_name, $email, $hashed_password, $role, $is_active);
+                
+                if ($stmt->execute()) {
+                    $_SESSION['success'] = "User added successfully!";
+                } else {
+                    $_SESSION['error'] = "Error adding user: " . $conn->error;
+                }
+                $stmt->close();
+            } else {
+                $_SESSION['error'] = "Database error: " . $conn->error;
+            }
+            
+            header("Location: my-account.php?tab=manage-users");
+            exit();
+            
+        case 'update_role':
+            $user_id_to_update = intval($_POST['user_id'] ?? 0);
+            $new_role = $_POST['new_role'] ?? 'student';
+            
+            // Prevent changing your own role
+            if ($user_id_to_update === $_SESSION['user_id']) {
+                $_SESSION['error'] = "You cannot change your own role.";
+                header("Location: my-account.php?tab=manage-users");
+                exit();
+            }
+            
+            $valid_roles = ['student', 'dean', 'admin'];
+            if (in_array($new_role, $valid_roles)) {
+                $sql = "UPDATE users SET role = ? WHERE id = ?";
+                if ($stmt = $conn->prepare($sql)) {
+                    $stmt->bind_param("si", $new_role, $user_id_to_update);
+                    if ($stmt->execute()) {
+                        $_SESSION['success'] = "User role updated successfully!";
+                    } else {
+                        $_SESSION['error'] = "Error updating user role: " . $conn->error;
+                    }
+                    $stmt->close();
+                }
+            }
+            
+            header("Location: my-account.php?tab=manage-users");
+            exit();
+            
+        case 'delete_user':
+            $user_id_to_delete = intval($_POST['user_id'] ?? 0);
+            
+            // Prevent deleting yourself
+            if ($user_id_to_delete === $_SESSION['user_id']) {
+                $_SESSION['error'] = "You cannot delete your own account.";
+                header("Location: my-account.php?tab=manage-users");
+                exit();
+            }
+            
+            $sql = "DELETE FROM users WHERE id = ?";
+            if ($stmt = $conn->prepare($sql)) {
+                $stmt->bind_param("i", $user_id_to_delete);
+                if ($stmt->execute()) {
+                    $_SESSION['success'] = "User deleted successfully!";
+                } else {
+                    $_SESSION['error'] = "Error deleting user: " . $conn->error;
+                }
+                $stmt->close();
+            }
+            
+            header("Location: my-account.php?tab=manage-users");
+            exit();
+    }
+}
+
+// Set page title and heading
+$page_title = 'My Account | Zanvarsity';
+$page_heading = 'My Dashboard';
+
+// Include header
+include 'includes/about_header.php';
 
 // Get user information from session
 $user_id = $_SESSION['user_id'] ?? null;
@@ -23,21 +487,24 @@ $is_admin = in_array($user_role, ['admin', 'super_admin']);
 
 // Get user data from database
 if (isset($conn) && $user_id) {
-    $query = "SELECT id, email, first_name, last_name, role FROM users WHERE id = ?";
+    $query = "SELECT id, email, first_name, last_name, phone, bio, profile_image, role FROM users WHERE id = ?";
     if ($stmt = $conn->prepare($query)) {
         $stmt->bind_param("i", $user_id);
         if ($stmt->execute()) {
             $result = $stmt->get_result();
-            if ($user_data = $result->fetch_assoc()) {
+            if ($user = $result->fetch_assoc()) {
                 // Update session data from database
-                if (!empty($user_data['first_name'])) {
-                    $user_name = $user_data['first_name'];
+                if (!empty($user['first_name'])) {
+                    $user_name = $user['first_name'];
                     $_SESSION['first_name'] = $user_name;
                 }
-                if (!empty($user_data['role'])) {
-                    $user_role = $user_data['role'];
+                if (!empty($user['role'])) {
+                    $user_role = $user['role'];
                     $_SESSION['role'] = $user_role;
                     $is_admin = in_array($user_role, ['admin', 'super_admin']);
+                }
+                if (!empty($user['profile_image'])) {
+                    $_SESSION['profile_image'] = $user['profile_image'];
                 }
             }
         }
@@ -45,520 +512,3426 @@ if (isset($conn) && $user_id) {
     }
 }
 
+// Set active tab
+$active_tab = isset($_GET['tab']) ? $_GET['tab'] : 'dashboard';
+
 // Get user stats from database
 $stats = [];
 if (isset($conn)) {
-    // Get user's course count
-    $query = "SELECT COUNT(*) as count FROM user_courses WHERE user_id = ?";
-    if ($stmt = $conn->prepare($query)) {
-        $stmt->bind_param("i", $user_id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $stats['courses'] = $result->fetch_assoc()['count'] ?? 0;
-        $stats['completed'] = 0; // Initialize other stats
-        $stats['in_progress'] = 0;
-        $stats['certificates'] = 0;
-        $stmt->close();
-    }
+    // Add your stats queries here
+    // Example: $stats['total_courses'] = get_course_count($conn, $user_id);
 }
 
-// Set page title for the header
-$page_title = 'My Account - Zanvarsity';
-
-// Include the admin header (must be after all session and variable setup)
-require_once __DIR__ . '/admin/includes/header.php';
+// Add custom styles for the dashboard
 ?>
-
 <style>
-/* Ensure the admin header is properly displayed */
-body.page-my-account {
-    padding-top: 0 !important;
-    background-color: #f5f5f5;
-}
-/* Override any conflicting styles from other CSS */
-#page-content {
-    padding-top: 20px;
-    margin-top: 0;
-}
-/* Force the admin header to be dark green */
-.navigation-wrapper {
-    background-color: #006400 !important;
-}
-.secondary-navigation-wrapper {
-    background-color: #004d00 !important;
-}
-.navbar {
-    background-color: #006400 !important;
-    border: none !important;
-}
-.navbar-nav > li > a {
-    color: #e0e0e0 !important;
-}
-.navbar-nav > li > a:hover,
-.navbar-nav > li.active > a {
-    background-color: #005900 !important;
-    color: #ffffff !important;
-}
+  /* Dashboard Styles */
+  .dashboard-container {
+    padding: 40px 0;
+    background: #f8f9fa;
+    min-height: calc(100vh - 200px);
+  }
 
-/* Sidebar Styling */
-.sidebar {
-    width: auto;
-    min-width: 200px;
-    max-width: 250px;
-    background: #ffffff;
-    border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    padding: 15px;
-    margin-bottom: 20px;
-}
-
-.sidebar .sidebar-widget {
-    margin-bottom: 20px;
-}
-
-.sidebar .nav-pills {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-}
-
-.sidebar .nav-pills > li {
-    float: none;
-    display: block;
-    margin: 0;
-    width: 100%;
-}
-
-.sidebar .nav-pills > li > a {
-    border-radius: 4px;
-    padding: 10px 15px;
-    margin-bottom: 5px;
-    color: #333;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.sidebar .nav-pills > li > a:hover,
-.sidebar .nav-pills > li.active > a {
-    background-color: #f0f0f0;
-    color: #006400;
-}
-
-.sidebar .nav-pills > li > a i {
-    margin-right: 8px;
-    width: 20px;
+  .dashboard-header {
+    margin-bottom: 30px;
     text-align: center;
-}
+  }
 
-/* Make sure the sidebar takes minimum width on mobile */
-@media (max-width: 767px) {
+  .dashboard-card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 25px;
+    margin-bottom: 30px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  .stat-card {
+    text-align: center;
+    padding: 20px;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .stat-icon {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+    color: #014421;
+  }
+
+  .stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #333;
+    margin: 10px 0;
+  }
+
+  .stat-label {
+    color: #666;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* Sidebar Styles */
+  .sidebar {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    margin-bottom: 30px;
+  }
+
+  .profile-card {
+    text-align: center;
+    padding: 25px 15px;
+    background: linear-gradient(135deg, #014421 0%, #027333 100%);
+    color: white;
+  }
+
+  .profile-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 4px solid rgba(255, 255, 255, 0.2);
+    margin: 0 auto 15px;
+    overflow: hidden;
+  }
+
+  .profile-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .profile-name {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 10px 0 5px;
+  }
+
+  .profile-role {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    text-transform: capitalize;
+  }
+
+  .sidebar-menu {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  .sidebar-menu li {
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .sidebar-menu li:last-child {
+    border-bottom: none;
+  }
+
+  .sidebar-menu a {
+    display: block;
+    padding: 12px 20px;
+    color: #555;
+    text-decoration: none;
+    transition: all 0.3s;
+  }
+
+  .sidebar-menu a:hover,
+  .sidebar-menu a.active {
+    background: #f8f9fa;
+    color: #014421;
+    padding-left: 25px;
+  }
+
+  .sidebar-menu i {
+    width: 20px;
+    margin-right: 10px;
+    text-align: center;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 991px) {
     .sidebar {
-        width: 100%;
-        max-width: 100%;
+      margin-bottom: 30px;
     }
-}
+  }
 </style>
 
-<!-- Page Content -->
-<!-- Start of page content -->
-<!-- Start of page content -->
-<div id="page-content" class="admin-page" style="margin-top: 0;">
-    <div class="container">
-        <div class="row">
-            <!-- Sidebar -->
-            <aside class="col-md-3 col-sm-4">
-                <div class="sidebar">
-                    <div class="sidebar-inner">
-                        <div class="sidebar-widget">
-                            <div class="user-avatar">
-                                <div style="width: 100px; height: 100px; margin: 0 auto 15px; background-color: #4caf50; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: bold; text-transform: uppercase; text-align: center; padding: 5px; line-height: 1.2;">
-                                    <?php 
-                                    $role_display = '';
-                                    switch($user_role) {
-                                        case 'super_admin':
-                                            $role_display = 'Super Admin';
-                                            break;
-                                        case 'admin':
-                                            $role_display = 'Admin';
-                                            break;
-                                        case 'instructor':
-                                            $role_display = 'Instructor';
-                                            break;
-                                        case 'student':
-                                            $role_display = 'Student';
-                                            break;
-                                        case 'staff':
-                                            $role_display = 'Staff';
-                                            break;
-                                        case 'parent':
-                                            $role_display = 'Parent';
-                                            break;
-                                        default:
-                                            $role_display = 'User';
-                                    }
-                                    echo $role_display;
-                                    ?>
-                                </div>
-                                <div class="text-center">
-                                    <h4><?php echo htmlspecialchars($user_name); ?></h4>
-                                    <span class="label label-primary"><?php echo $role_display; ?></span>
-                                </div>
-                            </div>
-                        </div>
+<!-- Main Content -->
+<div class="dashboard-container">
+  <div class="container">
+    <div class="row">
+      <!-- Sidebar -->
+      <div class="col-lg-3">
+        <div class="sidebar">
+          <div class="profile-card">
+            <div class="profile-image">
+                <?php 
+                // Define default avatar as data URI
+                $default_avatar = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiNkZGQiLz48dGV4dCB4PSI1MCIgeT0iNTAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgYWxpZ25tZW50LWJhc2VsaW5lPSJtaWRkbGUiIGZpbGw9IiYjNjY2OyI+QXZhdGFyPC90ZXh0Pjwvc3ZnPg';
+                
+                // Initialize profile image with default
+                $profile_img = $default_avatar;
+                
+                // If user has a profile image set
+                if (!empty($user['profile_image'])) {
+                    $user_image = $user['profile_image'];
+                    
+                    // Check if the image exists at the given path
+                    $server_path = str_replace('/c/zanvarsity/html', $_SERVER['DOCUMENT_ROOT'], $user_image);
+                    
+                    if (file_exists($server_path)) {
+                        $profile_img = $user_image . '?v=' . filemtime($server_path);
+                    } else {
+                        // Try alternative path resolution
+                        $alt_path = __DIR__ . str_replace('/c/zanvarsity/html', '', $user_image);
+                        if (file_exists($alt_path)) {
+                            $profile_img = $user_image . '?v=' . filemtime($alt_path);
+                        } else {
+                            // Fall back to default avatar if image not found
+                            error_log("Profile image not found: " . $server_path);
+                            $profile_img = $default_avatar;
+                        }
+                    }
                         
-                        <div class="sidebar-widget">
-                            <ul class="nav nav-pills nav-stacked nav-dashboard">
-                                <li class="active"><a href="my-account.php"><i class="fa fa-dashboard"></i> Dashboard</a></li>
-                                <?php if (in_array($user_role, ['super_admin', 'admin'])): ?>
-                                <li><a href="admin/users.php"><i class="fa fa-users"></i> Manage Users</a></li>
-                                <li><a href="admin/contents.php"><i class="fa fa-file-text"></i> Manage Contents</a></li>
-                                <?php endif; ?>
-                                <li><a href="my-courses.php"><i class="fa fa-book"></i> My Courses</a></li>
-                                <li><a href="my-profile.php"><i class="fa fa-user"></i> My Profile</a></li>
-                                <li><a href="settings.php"><i class="fa fa-cog"></i> Settings</a></li>
-                                <?php if (in_array($user_role, ['instructor', 'admin', 'super_admin'])): ?>
-                                <li><a href="instructor/"><i class="fa fa-graduation-cap"></i> Instructor Panel</a></li>
-                                <?php endif; ?>
-                                <li class="divider"></li>
-                                <li><a href="/zanvarsity/html/logout.php" onclick="return confirm('Are you sure you want to log out?')"><i class="fa fa-sign-out"></i> Logout</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </aside>
-            <!-- End Sidebar -->
-            
-            <!-- Main Content -->
-            <div class="col-md-9 col-sm-8">
-                <section class="block">
-                    <div class="text-center">
-                        <h1>Welcome back, <?php echo htmlspecialchars($user_name); ?>!</h1>
-                        <p class="lead">Here's what's happening with your account today.</p>
-                    </div>
-
-                    <!-- Statistics Cards -->
-                    <div class="row">
-                        <?php
-                        // Get counts from database
-                        $stats = [];
-                        
-                        // Total Users (only for admin)
-                        if ($is_admin) {
-                            // Total Active Users
-                            $result = $conn->query("SELECT COUNT(*) as count FROM users WHERE status = 1");
-                            $stats['users'] = $result ? $result->fetch_assoc()['count'] : 0;
-                            
-                            // Active Announcements
-                            $result = $conn->query("SELECT COUNT(*) as count FROM announcements WHERE status = 'active' AND (end_date IS NULL OR end_date >= NOW())");
-                            $stats['announcements'] = $result ? $result->fetch_assoc()['count'] : 0;
-                            
-                            // Upcoming Events
-                            $result = $conn->query("SELECT COUNT(*) as count FROM events WHERE end_date >= CURDATE()");
-                            $stats['events'] = $result ? $result->fetch_assoc()['count'] : 0;
-                            
-                            // Total Downloads (if downloads table exists)
-                            $table_check = $conn->query("SHOW TABLES LIKE 'downloads'");
-                            if ($table_check && $table_check->num_rows > 0) {
-                                $result = $conn->query("SELECT SUM(download_count) as count FROM downloads");
-                                $stats['downloads'] = $result ? ($result->fetch_assoc()['count'] ?: 0) : 0;
-                            } else {
-                                $stats['downloads'] = 0;
-                            }
-                            
-                            // Total Programs (if programs table exists)
-                            $table_check = $conn->query("SHOW TABLES LIKE 'programs'");
-                            if ($table_check && $table_check->num_rows > 0) {
-                                $result = $conn->query("SELECT COUNT(*) as count FROM programs WHERE status = 'active'");
-                                $stats['programs'] = $result ? $result->fetch_assoc()['count'] : 0;
-                            } else {
-                                $stats['programs'] = 0;
-                            }
+                    // Ensure the path is accessible from the web root
+                    if (strpos($profile_img, 'http') !== 0 && strpos($profile_img, 'data:image/') !== 0) {
+                        // If the path doesn't start with /c/zanvarsity/html, add it
+                        if (strpos($profile_img, '/c/zanvarsity/html/') !== 0) {
+                            $profile_img = '/c/zanvarsity/html' . $profile_img;
                         }
                         
-                        // Get today's logins (if user_logins table exists)
-                        $today_logins = 0;
-                        $table_check = $conn->query("SHOW TABLES LIKE 'user_logins'");
-                        if ($table_check && $table_check->num_rows > 0) {
-                            $result = $conn->prepare("SELECT COUNT(*) as count FROM user_logins WHERE user_id = ? AND DATE(login_time) = CURDATE()");
-                            if ($result) {
-                                $result->bind_param("i", $user_id);
-                                $result->execute();
-                                $today_logins = $result->get_result()->fetch_assoc()['count'];
-                                $result->close();
+                        // Add cache buster
+                        $profile_img .= (strpos($profile_img, '?') === false ? '?' : '&') . 'v=' . time();
+                    }
+                }
+                ?>
+                <img src="<?php echo htmlspecialchars($profile_img); ?>" 
+                     alt="Profile Image" 
+                     id="sidebar-profile-img" 
+                     style="width: 100px; height: 100px; object-fit: cover; border-radius: 50%;" 
+                     onerror="this.src='<?php echo htmlspecialchars($default_avatar); ?>';">
+            </div>
+            <h3 class="profile-name"><?php echo htmlspecialchars($user_name); ?></h3>
+            <div class="profile-role"><?php echo ucfirst(htmlspecialchars($user_role)); ?></div>
+          </div>
+          <ul class="sidebar-menu">
+            <li><a href="?tab=dashboard" class="<?php echo (!isset($_GET['tab']) || $_GET['tab'] === 'dashboard') ? 'active' : ''; ?>"><i class="fa fa-tachometer"></i> Dashboard</a></li>
+            <li><a href="?tab=profile" class="<?php echo (isset($_GET['tab']) && $_GET['tab'] === 'profile') ? 'active' : ''; ?>"><i class="fa fa-user"></i> My Profile</a></li>
+            <?php if ($is_admin): ?>
+            <li><a href="?tab=manage-users" class="<?php echo (isset($_GET['tab']) && $_GET['tab'] === 'manage-users') ? 'active' : ''; ?>"><i class="fa fa-users"></i> Manage Users</a></li>
+        
+            <?php endif; ?>
+            <?php if ($is_dean): ?>
+            <li><a href="?tab=faculty-content" class="<?php echo (isset($_GET['tab']) && $_GET['tab'] === 'faculty-content') ? 'active' : ''; ?>"><i class="fa fa-graduation-cap"></i> Faculty Content</a></li>
+            <?php endif; ?>
+            <li><a href="?tab=messages" class="<?php echo (isset($_GET['tab']) && $_GET['tab'] === 'messages') ? 'active' : ''; ?>"><i class="fa fa-envelope"></i> Messages</a></li>
+            <li><a href="?tab=settings" class="<?php echo (isset($_GET['tab']) && $_GET['tab'] === 'settings') ? 'active' : ''; ?>"><i class="fa fa-cog"></i> Settings</a></li>
+            <?php if ($is_admin || $is_dean): ?>
+            <li class="has-submenu">
+                <a href="#" class="<?php echo (isset($_GET['tab']) && in_array($_GET['tab'], ['manage-content', 'manage-announcements', 'manage-publications', 'manage-users', 'faculty-content'])) ? 'active' : ''; ?>">
+                    <i class="fa fa-cogs"></i> Manage
+                    <i class="fa fa-chevron-down float-end"></i>
+                </a>
+                <ul class="submenu">
+                    <?php if ($is_admin): ?>
+                    <li><a href="?tab=manage-users" class="<?php echo (isset($_GET['tab']) && $_GET['tab'] === 'manage-users') ? 'active' : ''; ?>"><i class="fa fa-users"></i> Users</a></li>
+                    <?php endif; ?>
+                    <li><a href="?tab=manage-content" class="<?php echo (isset($_GET['tab']) && $_GET['tab'] === 'manage-content') ? 'active' : ''; ?>"><i class="fa fa-edit"></i> Content</a></li>
+                    <li><a href="?tab=manage-announcements" class="<?php echo (isset($_GET['tab']) && $_GET['tab'] === 'manage-announcements') ? 'active' : ''; ?>"><i class="fa fa-bullhorn"></i> Announcements</a></li>
+                    <li><a href="?tab=manage-publications" class="<?php echo (isset($_GET['tab']) && $_GET['tab'] === 'manage-publications') ? 'active' : ''; ?>"><i class="fa fa-file-text"></i> Publications</a></li>
+                    <?php if ($is_dean): ?>
+                    <li><a href="?tab=faculty-content" class="<?php echo (isset($_GET['tab']) && $_GET['tab'] === 'faculty-content') ? 'active' : ''; ?>"><i class="fa fa-graduation-cap"></i> Faculty Content</a></li>
+                    <?php endif; ?>
+                </ul>
+            </li>
+            <?php endif; ?>
+            <li><a href="logout.php"><i class="fa fa-sign-out"></i> Logout</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <div class="col-lg-9">
+        <?php if (isset($_GET['tab']) && $_GET['tab'] === 'manage-events' && ($is_admin || $is_dean)): ?>
+          <!-- Manage Events Section -->
+          <div class="manage-events-section">
+            <div class="page-title">
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class='bx bx-calendar-event me-2'></i>Manage Events</h2>
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addEventModal">
+                  <i class='bx bx-plus-circle'></i> Add New Event
+                </button>
+              </div>
+            </div>
+            
+            <?php if (isset($_SESSION['success'])): ?>
+              <div class="alert alert-success"><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></div>
+            <?php endif; ?>
+            
+            <?php if (isset($_SESSION['error'])): ?>
+              <div class="alert alert-danger"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
+            <?php endif; ?>
+            
+            <!-- Events Grid -->
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <div class="events-grid">
+                  <?php
+                  // Fetch events from database
+                  $events = [];
+                  $query = "SELECT * FROM events ORDER BY start_date DESC";
+                  if ($result = $conn->query($query)) {
+                      while ($row = $result->fetch_assoc()) {
+                          $events[] = $row;
+                      }
+                  }
+                  
+                  if (!empty($events)): 
+                  ?>
+                    <div class="row">
+                      <?php foreach ($events as $event): 
+                        // Format date
+                        $start_date = new DateTime($event['start_date']);
+                        $end_date = !empty($event['end_date']) ? new DateTime($event['end_date']) : null;
+                        $date_display = $start_date->format('M d, Y');
+                        
+                        if ($end_date && $start_date != $end_date) {
+                            $date_display .= ' - ' . $end_date->format('M d, Y');
+                        }
+                        
+                        // Handle image
+                        $default_image = '/c/zanvarsity/html/assets/img/no-image-available.jpg';
+                        $image_url = $default_image; // Default to no-image-available
+                        
+                        // Check if image_url exists in the database
+                        if (!empty($event['image_url'])) {
+                            $db_image = $event['image_url'];
+                            $filename = basename($db_image);
+                            
+                            // Try direct path first
+                            $direct_path = 'c:/xampp/htdocs/c/zanvarsity/html/uploads/events/' . $filename;
+                            $web_path = '/c/zanvarsity/html/uploads/events/' . $filename;
+                            
+                            if (file_exists($direct_path)) {
+                                $image_url = $web_path;
+                            } 
+                            // Try with just the numeric part of the filename
+                            else if (preg_match('/(\d+)_/', $filename, $matches)) {
+                                $numeric_part = $matches[1];
+                                $matching_files = glob('c:/xampp/htdocs/c/zanvarsity/html/uploads/events/' . $numeric_part . '_*');
+                                if (!empty($matching_files)) {
+                                    $found_file = basename($matching_files[0]);
+                                    $image_url = '/c/zanvarsity/html/uploads/events/' . $found_file;
+                                }
+                            }
+                            
+                            // Debug output (temporary)
+                            // echo "<!-- Debug - DB Image: " . htmlspecialchars($db_image) . " -->\n";
+                            // echo "<!-- Debug - Filename: " . htmlspecialchars($filename) . " -->\n";
+                            // echo "<!-- Debug - Final URL: " . htmlspecialchars($image_url) . " -->\n";
+                        }
+                      ?>
+                      <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="event-card card h-100 shadow-sm">
+                          <div class="position-relative" style="height: 200px; overflow: hidden;">
+                            <!-- Event Image -->
+                            <img src="<?php echo $image_url; ?>" class="card-img-top h-100 w-100" alt="<?php echo htmlspecialchars($event['title']); ?>" style="object-fit: cover;">
+                            
+                            <!-- Event Date Badge -->
+                            <div class="position-absolute top-2 end-2 bg-primary text-white rounded p-2 text-center" style="width: 50px;">
+                              <div class="fw-bold"><?php echo $start_date->format('d'); ?></div>
+                              <div class="small"><?php echo $start_date->format('M'); ?></div>
+                            </div>
+                            
+                            <!-- Hover effect for the image -->
+                            <div class="position-absolute top-0 start-0 w-100 h-100" style="background: rgba(0,0,0,0.5); opacity: 0; transition: opacity 0.3s ease;">
+                            </div>
+                          </div>
+                          
+                          <div class="card-body">
+                            <h5 class="card-title text-truncate" title="<?php echo htmlspecialchars($event['title']); ?>">
+                              <?php echo htmlspecialchars($event['title']); ?>
+                            </h5>
+                            
+                            <?php if (!empty($event['location'])): ?>
+                              <p class="card-text text-muted mb-2 small">
+                                <i class='bx bx-map'></i> <?php echo htmlspecialchars($event['location']); ?>
+                              </p>
+                            <?php endif; ?>
+                            
+                            <?php if (!empty($event['description'])): ?>
+                              <p class="card-text small text-muted">
+                                <?php 
+                                $desc = strip_tags($event['description']);
+                                echo strlen($desc) > 80 ? substr($desc, 0, 80) . '...' : $desc;
+                                ?>
+                              </p>
+                            <?php endif; ?>
+                            
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                              <span class="badge bg-light text-dark d-flex align-items-center">
+                                <i class='bx bx-time me-1'></i>
+                                <?php 
+                                echo $start_date->format('g:i A');
+                                if ($end_date) {
+                                    echo ' - ' . $end_date->format('g:i A');
+                                }
+                                ?>
+                              </span>
+                              <div class="btn-group" style="box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                                <a href="#" class="btn btn-sm btn-outline-primary px-3 d-flex align-items-center">
+                                  <i class='bx bx-show me-1'></i> View
+                                </a>
+                                <button class="btn btn-sm btn-outline-warning edit-event px-3" data-id="<?php echo $event['id']; ?>" title="Edit" style="border-left: 1px solid rgba(0,0,0,0.1);">
+                                  <i class='bx bx-edit-alt'></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger delete-event px-3" data-id="<?php echo $event['id']; ?>" title="Delete" style="border-left: 1px solid rgba(0,0,0,0.1);">
+                                  <i class='bx bx-trash'></i>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <?php endforeach; ?>
+                    </div>
+                  <?php else: ?>
+                    <div class="col-12 text-center py-5">
+                      <i class='bx bx-calendar-x' style="font-size: 3rem; color: #6c757d; margin-bottom: 15px;"></i>
+                      <h4>No events found</h4>
+                      <p>Get started by adding your first event.</p>
+                      <button class="btn btn-success mt-2" data-toggle="modal" data-target="#addEventModal">
+                        <i class='bx bx-plus-circle'></i> Add Event
+                      </button>
+                    </div>
+                  <?php endif; ?>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Edit Event Modal -->
+          <div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+              <div class="modal-content">
+                <div class="modal-header bg-warning text-white">
+                  <h5 class="modal-title" id="editEventModalLabel">Edit Event</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="editEventForm" method="POST" enctype="multipart/form-data">
+                  <input type="hidden" name="action" value="update_event">
+                  <input type="hidden" name="id" id="editEventId">
+                  <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                  
+                  <div class="modal-body">
+                    <div class="form-group">
+                      <label for="editEventTitle">Event Title <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" id="editEventTitle" name="title" required>
+                    </div>
+                    
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label for="editStartDate">Start Date <span class="text-danger">*</span></label>
+                          <input type="datetime-local" class="form-control" id="editStartDate" name="start_date" required>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label for="editEndDate">End Date (Optional)</label>
+                          <input type="datetime-local" class="form-control" id="editEndDate" name="end_date">
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div class="form-group">
+                      <label for="editEventLocation">Location</label>
+                      <input type="text" class="form-control" id="editEventLocation" name="location">
+                    </div>
+                    
+                    <div class="form-group">
+                      <label for="editEventImage">Event Image</label>
+                      <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="editEventImage" name="image" accept="image/*">
+                        <label class="custom-file-label" for="editEventImage">Choose file</label>
+                      </div>
+                      <small class="form-text text-muted">Leave blank to keep current image</small>
+                    </div>
+                    
+                    <div class="form-group">
+                      <label for="editEventDescription">Description</label>
+                      <textarea class="form-control" id="editEventDescription" name="description" rows="5"></textarea>
+                    </div>
+                  </div>
+                  
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning">Update Event</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Add Event Modal -->
+          <div class="modal fade" id="addEventModal" tabindex="-1" role="dialog" aria-labelledby="addEventModalLabel">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="addEventModalLabel">Add New Event</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <form id="eventForm" action="?tab=manage-events" method="POST" enctype="multipart/form-data">
+                  <input type="hidden" name="action" value="add_event">
+                  <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                  
+                  <div class="modal-body">
+                    <div class="form-group">
+                      <label for="eventTitle">Event Title <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" id="eventTitle" name="title" required>
+                    </div>
+                    
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label for="startDate">Start Date <span class="text-danger">*</span></label>
+                          <input type="datetime-local" class="form-control" id="startDate" name="start_date" required>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label for="endDate">End Date (Optional)</label>
+                          <input type="datetime-local" class="form-control" id="endDate" name="end_date">
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div class="form-group">
+                      <label for="eventLocation">Location</label>
+                      <input type="text" class="form-control" id="eventLocation" name="location">
+                    </div>
+                    
+                    <div class="form-group">
+                      <label for="eventImage">Event Image</label>
+                      <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="eventImage" name="image" accept="image/*">
+                        <label class="custom-file-label" for="eventImage">Choose file</label>
+                      </div>
+                      <small class="form-text text-muted">Recommended size: 1200x600px</small>
+                    </div>
+                    
+                    <div class="form-group">
+                      <label for="eventDescription">Description</label>
+                      <textarea class="form-control" id="eventDescription" name="description" rows="5"></textarea>
+                    </div>
+                  </div>
+                  
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Save Event</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!-- Delete Confirmation Modal -->
+          <div class="modal fade" id="deleteEventModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Confirm Delete</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <p>Are you sure you want to delete this event? This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                  <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <style>
+            /* Event Card Hover Effects */
+            .event-card {
+              transition: transform 0.3s ease, box-shadow 0.3s ease;
+              overflow: hidden;
+            }
+            .event-card:hover {
+              transform: translateY(-5px);
+              box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+            }
+            .event-card .position-relative:hover .position-absolute {
+              opacity: 1 !important;
+            }
+            .event-card .btn-circle {
+              width: 40px;
+              height: 40px;
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            }
+            .event-card .card-title {
+              font-weight: 600;
+              margin-bottom: 0.75rem;
+            }
+            .event-card .card-text {
+              font-size: 0.9rem;
+              color: #6c757d;
+            }
+            .event-card .badge {
+              font-weight: 500;
+              padding: 0.35em 0.65em;
+            }
+          </style>
+          
+          <!-- Event Management JavaScript is now in /c/zanvarsity/html/js/event-management.js -->
+          <script src="/c/zanvarsity/html/js/event-management.js"></script>
+          <script>
+          // Debug: Log when the script is loaded
+          console.log('Event management script loaded');
+          </script>
+
+        <?php elseif (isset($_GET['tab']) && $_GET['tab'] === 'manage-content' && ($is_admin || $is_dean)): ?>
+          <!-- Manage Content Section -->
+          <div class="manage-content-section">
+            <div class="page-title">
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class='bx bxs-dashboard me-2'></i>Content Management Dashboard</h2>
+              </div>
+            </div>
+            
+            <?php if (isset($_SESSION['success'])): ?>
+              <div class="alert alert-success"><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></div>
+            <?php endif; ?>
+            
+            <?php if (isset($_SESSION['error'])): ?>
+              <div class="alert alert-danger"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
+            <?php endif; ?>
+            
+            <div class="row">
+              <!-- Events Management -->
+              <div class="col-md-4 col-sm-6">
+                <div class="dashboard-card card h-100">
+                  <div class="card-body text-center">
+                    <div class="card-icon">
+                      <i class='bx bx-calendar-event'></i>
+                    </div>
+                    <h5 class="card-title">Events Management</h5>
+                    <p class="card-text">Manage university events, workshops, and important dates.</p>
+                  </div>
+                  <div class="card-footer text-center">
+                    <a href="?tab=manage-events" class="btn btn-success btn-sm">
+                      <i class='bx bx-edit me-1'></i> Manage Events
+                    </a>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Announcements -->
+              <div class="col-md-4 col-sm-6">
+                <div class="dashboard-card card h-100">
+                  <div class="card-body text-center">
+                    <div class="card-icon">
+                      <i class='bx bx-megaphone'></i>
+                    </div>
+                    <h5 class="card-title">Announcements</h5>
+                    <p class="card-text">Create and manage important university announcements.</p>
+                  </div>
+                  <div class="card-footer text-center">
+                    <a href="?tab=manage-announcements" class="btn btn-success btn-sm">
+                      <i class='bx bx-edit me-1'></i> Manage Announcements
+                    </a>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Publications -->
+              <div class="col-md-4 col-sm-6">
+                <div class="dashboard-card card h-100">
+                  <div class="card-body text-center">
+                    <div class="card-icon">
+                      <i class='bx bx-book-open'></i>
+                    </div>
+                    <h5 class="card-title">Publications</h5>
+                    <p class="card-text">Manage research papers, articles, and publications.</p>
+                  </div>
+                  <div class="card-footer text-center">
+                    <a href="?tab=manage-publications" class="btn btn-success btn-sm">
+                      <i class='bx bx-edit me-1'></i> Manage Publications
+                    </a>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Downloads -->
+              <div class="col-md-4 col-sm-6">
+                <div class="dashboard-card card h-100">
+                  <div class="card-body text-center">
+                    <div class="card-icon">
+                      <i class='bx bx-download'></i>
+                    </div>
+                    <h5 class="card-title">Downloads</h5>
+                    <p class="card-text">Manage downloadable resources and documents.</p>
+                  </div>
+                  <div class="card-footer text-center">
+                    <a href="?tab=manage-downloads" class="btn btn-success btn-sm">
+                      <i class='bx bx-edit me-1'></i> Manage Downloads
+                    </a>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Staff Management -->
+              <div class="col-md-4 col-sm-6">
+                <div class="dashboard-card card h-100">
+                  <div class="card-body text-center">
+                    <div class="card-icon">
+                      <i class='bx bx-group'></i>
+                    </div>
+                    <h5 class="card-title">Staff Management</h5>
+                    <p class="card-text">Manage faculty and staff information and profiles.</p>
+                  </div>
+                  <div class="card-footer text-center">
+                    <a href="?tab=manage-staff" class="btn btn-success btn-sm">
+                      <i class='bx bx-edit me-1'></i> Manage Staff
+                    </a>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Programs & Courses -->
+              <div class="col-md-4 col-sm-6">
+                <div class="dashboard-card card h-100">
+                  <div class="card-body text-center">
+                    <div class="card-icon">
+                      <i class='bx bx-book-alt'></i>
+                    </div>
+                    <h5 class="card-title">Programs & Courses</h5>
+                    <p class="card-text">Manage academic programs and course offerings.</p>
+                  </div>
+                  <div class="card-footer text-center">
+                    <a href="?tab=manage-programs" class="btn btn-success btn-sm">
+                      <i class='bx bx-edit me-1'></i> Manage Programs
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Add any additional sections here if needed -->
+          </div>
+
+        <?php elseif (isset($_GET['tab']) && $_GET['tab'] === 'profile'): ?>
+          <!-- Profile Section -->
+          <div class="profile-section">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h2><i class="fa fa-user"></i> My Profile</h2>
+            </div>
+            
+            <div class="card">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-4 text-center">
+                    <form method="POST" action="" enctype="multipart/form-data" id="profileForm" onsubmit="return validateForm()">
+                      <input type="hidden" name="update_profile" value="1">
+                      <?php echo csrf_token_field(); ?>
+                      <div class="profile-image-large mb-3">
+                        <?php 
+                        // Define default avatar as data URI
+                        $default_avatar = '/c/zanvarsity/html/assets/img/avatar-placeholder.png';
+                        
+                        // Initialize profile image with default
+                        $profile_img = $default_avatar;
+                        
+                        // If user has a profile image set
+                        if (!empty($user['profile_image'])) {
+                            $user_image = $user['profile_image'];
+                            
+                            // Check if the image exists at the given path
+                            $server_path = str_replace('/c/zanvarsity/html', $_SERVER['DOCUMENT_ROOT'], $user_image);
+                            
+                            if (file_exists($server_path)) {
+                                $profile_img = $user_image . '?v=' . filemtime($server_path);
+                            } else {
+                                // Try alternative path resolution
+                                $alt_path = __DIR__ . str_replace('/c/zanvarsity/html', '', $user_image);
+                                if (file_exists($alt_path)) {
+                                    $profile_img = $user_image . '?v=' . filemtime($alt_path);
+                                } else {
+                                    // Fall back to default avatar if image not found
+                                    error_log("Profile image not found: " . $server_path);
+                                    $profile_img = $default_avatar;
+                                }
+                            }
+                            
+                            // Ensure the path is accessible from the web root
+                            if (strpos($profile_img, 'http') !== 0 && strpos($profile_img, 'data:image/') !== 0) {
+                                // If the path doesn't start with /c/zanvarsity/html, add it
+                                if (strpos($profile_img, '/c/zanvarsity/html/') !== 0) {
+                                    $profile_img = '/c/zanvarsity/html' . ltrim($profile_img, '/');
+                                }
+                                
+                                // Add cache buster if not already present
+                                if (strpos($profile_img, '?') === false) {
+                                    $profile_img .= '?v=' . time();
+                                }
                             }
                         }
                         ?>
-                        
-                        <!-- Today's Logins -->
-                        <div class="col-md-3 col-sm-6">
-                            <div class="stat-card">
-                                <div class="stat-icon">
-                                    <i class="fa fa-sign-in"></i>
-                                </div>
-                                <div class="stat-content">
-                                    <span class="counter"><?php echo $today_logins; ?></span>
-                                    <h4>Today's Logins</h4>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <?php if ($is_admin): ?>
-                        <!-- Total Users -->
-                        <div class="col-md-3 col-sm-6">
-                            <div class="stat-card">
-                                <div class="stat-icon">
-                                    <i class="fa fa-users"></i>
-                                </div>
-                                <div class="stat-content">
-                                    <span class="counter"><?php echo $stats['users']; ?></span>
-                                    <h4>Active Users</h4>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Active Announcements -->
-                        <div class="col-md-3 col-sm-6">
-                            <div class="stat-card">
-                                <div class="stat-icon">
-                                    <i class="fa fa-bullhorn"></i>
-                                </div>
-                                <div class="stat-content">
-                                    <span class="counter"><?php echo $stats['announcements']; ?></span>
-                                    <h4>Announcements</h4>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Upcoming Events -->
-                        <div class="col-md-3 col-sm-6">
-                            <div class="stat-card">
-                                <div class="stat-icon">
-                                    <i class="fa fa-calendar"></i>
-                                </div>
-                                <div class="stat-content">
-                                    <span class="counter"><?php echo $stats['events']; ?></span>
-                                    <h4>Upcoming Events</h4>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Total Programs -->
-                        <div class="col-md-3 col-sm-6">
-                            <div class="stat-card">
-                                <div class="stat-icon">
-                                    <i class="fa fa-graduation-cap"></i>
-                                </div>
-                                <div class="stat-content">
-                                    <span class="counter"><?php echo $stats['programs']; ?></span>
-                                    <h4>Programs</h4>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Total Downloads -->
-                        <div class="col-md-3 col-sm-6">
-                            <div class="stat-card">
-                                <div class="stat-icon">
-                                    <i class="fa fa-download"></i>
-                                </div>
-                                <div class="stat-content">
-                                    <span class="counter"><?php echo $stats['downloads']; ?></span>
-                                    <h4>Total Downloads</h4>
-                                </div>
-                            </div>
+                        <img id="profile-preview" 
+                             src="<?php echo htmlspecialchars($profile_img); ?>" 
+                             alt="Profile Image" 
+                             style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover;" 
+                             onerror="this.src='<?php echo htmlspecialchars($default_avatar); ?>';">
+                      </div>
+                      <div class="mb-3">
+                        <label for="profile_image" class="form-label">Change Profile Picture</label>
+                        <input type="file" class="form-control" id="profile_image" name="profile_image" accept="image/jpeg, image/png, image/gif" onchange="previewImage(this)">
+                        <div class="form-text">Max file size: 2MB. Allowed formats: JPG, PNG, GIF</div>
+                        <?php if (!empty($user['profile_image']) && $user['profile_image'] !== $default_avatar): ?>
+                        <div class="form-check mt-2">
+                          <input class="form-check-input" type="checkbox" name="remove_profile_image" id="remove_profile_image" value="1">
+                          <label class="form-check-label" for="remove_profile_image">
+                            Remove profile picture
+                          </label>
                         </div>
                         <?php endif; ?>
+                      </div>
                     </div>
-                    <!-- End Statistics Cards -->
-                    
-                    <style>
-                    .stat-card {
-                        background: #fff;
-                        border-radius: 5px;
-                        padding: 20px;
-                        margin-bottom: 20px;
-                        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                        text-align: center;
-                        transition: all 0.3s ease;
-                    }
-                    .stat-card:hover {
-                        transform: translateY(-5px);
-                        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-                    }
-                    .stat-icon {
-                        font-size: 40px;
-                        color: #4CAF50;
-                        margin-bottom: 15px;
-                    }
-                    .stat-content .counter {
-                        font-size: 32px;
-                        font-weight: bold;
-                        display: block;
-                        color: #333;
-                    }
-                    .stat-content h4 {
-                        margin: 10px 0 0;
-                        color: #666;
-                        font-size: 16px;
-                    }
-                    .progress {
-                        height: 8px;
-                        margin-top: 15px;
-                        background: #f1f1f1;
-                        border-radius: 4px;
-                    }
-                    .progress-bar {
-                        background-color: #4CAF50;
-                        border-radius: 4px;
-                    }
-                    </style>
-                </section>
+                    <div class="col-md-8">
+                      <?php if (isset($_SESSION['error'])): ?>
+                        <div class="alert alert-danger"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
+                      <?php endif; ?>
+                      <?php if (isset($_SESSION['success'])): ?>
+                        <div class="alert alert-success"><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></div>
+                      <?php endif; ?>
+                      <div class="row">
+                        <div class="col-md-6 mb-3">
+                          <label class="form-label">First Name</label>
+                          <input type="text" class="form-control" id="first_name" name="first_name" value="<?php echo htmlspecialchars($user['first_name'] ?? ''); ?>">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                          <label class="form-label">Last Name</label>
+                          <input type="text" class="form-control" id="last_name" name="last_name" value="<?php echo htmlspecialchars($user['last_name'] ?? ''); ?>">
+                        </div>
+                        <div class="col-md-12 mb-3">
+                          <label class="form-label">Email</label>
+                          <input type="email" class="form-control" value="<?php echo htmlspecialchars($user_email); ?>" readonly>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                          <label class="form-label">Role</label>
+                          <input type="text" class="form-control" value="<?php echo ucfirst(htmlspecialchars($user_role)); ?>" readonly>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                          <label class="form-label">Phone</label>
+                          <input type="tel" class="form-control" id="phone" name="phone" value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>">
+                        </div>
+                      </div>
+                      <div class="mb-3">
+                        <label for="bio" class="form-label">Bio</label>
+                        <textarea class="form-control" id="bio" name="bio" rows="3"><?php echo htmlspecialchars($user['bio'] ?? ''); ?></textarea>
+                      </div>
+                      
+                      <button type="submit" class="btn btn-primary">Save Changes</button>
+                      
+                      <script>
+                      // Profile picture preview
+                      document.getElementById('profile_image')?.addEventListener('change', function(e) {
+                          const file = e.target.files[0];
+                          if (file) {
+                              // Check file size (max 2MB)
+                              if (file.size > 2 * 1024 * 1024) {
+                                  alert('File size must be less than 2MB');
+                                  this.value = '';
+                                  return;
+                              }
+                              
+                              // Check file type
+                              const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+                              if (!validTypes.includes(file.type)) {
+                                  alert('Only JPG, PNG, and GIF files are allowed');
+                                  this.value = '';
+                                  return;
+                              }
+                              
+                              // Create preview
+                              const reader = new FileReader();
+                              reader.onload = function(e) {
+                                  // Update main profile preview
+                                  const preview = document.getElementById('profile-preview');
+                                  if (preview) {
+                                      preview.src = e.target.result;
+                                  }
+                                  
+                                  // Update sidebar image
+                                  const sidebarImg = document.querySelector('.profile-image img');
+                                  if (sidebarImg) {
+                                      sidebarImg.src = e.target.result;
+                                  }
+                              };
+                              reader.readAsDataURL(file);
+                          }
+                      });
+                      
+                      // Form validation
+                      function validateForm() {
+                          const firstName = document.getElementById('first_name')?.value.trim();
+                          const lastName = document.getElementById('last_name')?.value.trim();
+                          const fileInput = document.getElementById('profile_image');
+                          const removeCheckbox = document.getElementById('remove_profile_image');
+                          
+                          // Basic validation
+                          if (!firstName || !lastName) {
+                              alert('First name and last name are required');
+                              return false;
+                          }
+                          
+                          // Show loading state
+                          const submitBtn = document.querySelector('button[type="submit"]');
+                          if (submitBtn) {
+                              submitBtn.disabled = true;
+                              submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...';
+                          }
+                          
+                          // File validation if a file is selected
+                          if (fileInput.files.length > 0 && !removeCheckbox?.checked) {
+                              const file = fileInput.files[0];
+                              const fileSize = file.size / 1024 / 1024; // in MB
+                              const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+                              
+                              if (fileSize > 2) {
+                                  alert('File size must be less than 2MB');
+                                  if (submitBtn) submitBtn.disabled = false;
+                                  return false;
+                              }
+                              
+                              if (!validTypes.includes(file.type)) {
+                                  alert('Only JPG, PNG, and GIF files are allowed');
+                                  if (submitBtn) submitBtn.disabled = false;
+                                  return false;
+                              }
+                          }
+                          
+                          return true;
+                      }
+                      
+                      function previewImage(input) {
+                          const preview = document.getElementById('profile-preview');
+                          const file = input.files[0];
+                          
+                          if (file) {
+                              const reader = new FileReader();
+                              
+                              reader.onload = function(e) {
+                                  preview.src = e.target.result;
+                              }
+                              
+                              reader.readAsDataURL(file);
+                          }
+                      }
+                      </script>
+                      <style>
+                        /* Hover effects for action buttons */
+                        .event-card .btn-group {
+                          border-radius: 6px;
+                          overflow: hidden;
+                        }
+                        .event-card .btn-group .btn {
+                          transition: all 0.2s ease;
+                          padding: 0.25rem 0.75rem;
+                          line-height: 1.5;
+                        }
+                        .event-card .btn-outline-primary {
+                          border-color: #0d6efd;
+                          color: #0d6efd;
+                        }
+                        .event-card .btn-outline-primary:hover {
+                          background-color: #0d6efd;
+                          color: #fff !important;
+                        }
+                        .event-card .btn-outline-warning {
+                          border-color: #ffc107;
+                          color: #ffc107;
+                        }
+                        .event-card .btn-outline-warning:hover {
+                          background-color: #ffc107;
+                          color: #000 !important;
+                        }
+                        .event-card .btn-outline-danger {
+                          border-color: #dc3545;
+                          color: #dc3545;
+                        }
+                        .event-card .btn-outline-danger:hover {
+                          background-color: #dc3545;
+                          color: #fff !important;
+                        }
+                        .event-card .btn i {
+                          font-size: 1rem;
+                          line-height: 1;
+                        }
+                      </style>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <!-- End Main Content -->
-        </div>
-    </div>
-    <!-- end Page Content -->
-</div>
-<!-- Include the footer -->
-<?php include_once __DIR__ . '/includes/footer.php'; ?>
+          </div>
+          
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-<!-- JavaScripts are included in the admin_header.php -->
-<script>
-    $(document).ready(function() {
-        // Initialize counters
-        $('.counter').each(function() {
-            $(this).prop('Counter', 0).animate({
-                Counter: $(this).text()
-            }, {
-                duration: 1000,
-                easing: 'swing',
-                step: function(now) {
-                    $(this).text(Math.ceil(now));
+        <?php elseif (isset($_GET['tab']) && $_GET['tab'] === 'messages'): ?>
+          <!-- Messages Section -->
+          <div class="messages-section">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h2><i class="fa fa-envelope"></i> Messages</h2>
+              <button class="btn btn-primary"><i class="fa fa-plus"></i> New Message</button>
+            </div>
+            
+            <div class="card">
+              <div class="card-body">
+                <div class="text-center py-5">
+                  <i class="fa fa-envelope-o fa-3x text-muted mb-3"></i>
+                  <h4>No Messages</h4>
+                  <p class="text-muted">You don't have any messages yet.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        <?php elseif (isset($_GET['tab']) && $_GET['tab'] === 'settings'): ?>
+          <!-- Settings Section -->
+          <div class="settings-section">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h2><i class="fa fa-cog"></i> Settings</h2>
+            </div>
+            
+            <div class="row">
+              <div class="col-md-6">
+                <div class="card">
+                  <div class="card-header">
+                    <h5>Account Settings</h5>
+                  </div>
+                  <div class="card-body">
+                    <div class="form-check mb-3">
+                      <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
+                      <label class="form-check-label" for="emailNotifications">
+                        Email Notifications
+                      </label>
+                    </div>
+                    <div class="form-check mb-3">
+                      <input class="form-check-input" type="checkbox" id="smsNotifications">
+                      <label class="form-check-label" for="smsNotifications">
+                        SMS Notifications
+                      </label>
+                    </div>
+                    <button class="btn btn-success">Save Settings</button>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card">
+                  <div class="card-header">
+                    <h5>Security</h5>
+                  </div>
+                  <div class="card-body">
+                    <button class="btn btn-warning mb-2 d-block">Change Password</button>
+                    <button class="btn btn-info mb-2 d-block">Two-Factor Authentication</button>
+                    <button class="btn btn-secondary d-block">Download Data</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        <?php elseif (isset($_GET['tab']) && $_GET['tab'] === 'manage-users' && $is_admin): ?>
+          <!-- Manage Users Section -->
+          <div class="manage-users-section">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h2><i class="fa fa-users"></i> Manage Users</h2>
+              <button type="button" class="btn btn-primary" id="addNewUserBtn">
+                <i class="fa fa-plus"></i> Add New User
+              </button>
+            </div>
+            
+            <?php if (isset($_SESSION['error'])): ?>
+              <div class="alert alert-danger"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
+            <?php endif; ?>
+            
+            <?php if (isset($_SESSION['success'])): ?>
+              <div class="alert alert-success"><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></div>
+            <?php endif; ?>
+            
+            <div class="card">
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <?php
+                      // Get all users except the current admin
+                      $users = [];
+                      $query = "SELECT id, first_name, last_name, email, role, status FROM users WHERE id != ? ORDER BY role, first_name";
+                      if ($stmt = $conn->prepare($query)) {
+                          $stmt->bind_param("i", $user_id);
+                          if ($stmt->execute()) {
+                              $result = $stmt->get_result();
+                              while ($row = $result->fetch_assoc()) {
+                                  $users[] = $row;
+                              }
+                          }
+                          $stmt->close();
+                      }
+                      
+                      foreach ($users as $user): 
+                          $full_name = htmlspecialchars($user['first_name'] . ' ' . $user['last_name']);
+                          $email = htmlspecialchars($user['email']);
+                          $role = ucfirst($user['role']);
+                          $status = $user['status'] ? 'Active' : 'Inactive';
+                          $status_class = $user['status'] ? 'success' : 'secondary';
+                      ?>
+                      <tr>
+                        <td><?php echo $full_name; ?></td>
+                        <td><?php echo $email; ?></td>
+                        <td><?php echo $role; ?></td>
+                        <td><span class="badge bg-<?php echo $status_class; ?>"><?php echo $status; ?></span></td>
+                        <td class="text-nowrap">
+                          <button type="button" class="btn btn-sm btn-outline-primary me-2 edit-user-btn" 
+                            data-id="<?php echo $user['id']; ?>"
+                            data-firstname="<?php echo htmlspecialchars($user['first_name'], ENT_QUOTES); ?>"
+                            data-lastname="<?php echo htmlspecialchars($user['last_name'], ENT_QUOTES); ?>"
+                            data-email="<?php echo htmlspecialchars($user['email'], ENT_QUOTES); ?>"
+                            data-role="<?php echo htmlspecialchars($user['role'], ENT_QUOTES); ?>"
+                            data-status="<?php echo $user['status'] ? '1' : '0'; ?>"
+                            title="Edit User">
+                            <i class="fa fa-edit"></i> Edit
+                          </button>
+                          <button class="btn btn-sm btn-outline-danger delete-user-btn" 
+                            data-id="<?php echo $user['id']; ?>"
+                            data-name="<?php echo htmlspecialchars($full_name, ENT_QUOTES); ?>"
+                            title="Delete User">
+                            <i class="fa fa-trash"></i> Delete
+                          </button>
+                        </td>
+                      </tr>
+                      <?php endforeach; ?>
+                      <?php if (empty($users)): ?>
+                      <tr>
+                        <td colspan="5" class="text-center">No users found.</td>
+                      </tr>
+                      <?php endif; ?>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Add/Edit User Modal -->
+            <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <form id="userForm" method="POST" action="">
+                    <input type="hidden" name="action" id="userAction" value="">
+                    <input type="hidden" name="user_id" id="userId" value="">
+                    
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="userModalTitle">Add New User</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      <div class="mb-3">
+                        <label for="firstName" class="form-label">First Name</label>
+                        <input type="text" class="form-control" id="firstName" name="first_name" required>
+                      </div>
+                      <div class="mb-3">
+                        <label for="lastName" class="form-label">Last Name</label>
+                        <input type="text" class="form-control" id="lastName" name="last_name" required>
+                      </div>
+                      <div class="mb-3">
+                        <label for="userEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="userEmail" name="email" required>
+                      </div>
+                      <div class="mb-3">
+                        <label for="userRole" class="form-label">Role</label>
+                        <select class="form-select" id="userRole" name="role" required>
+                          <option value="student">Student</option>
+                          <option value="lecturer">Lecturer</option>
+                          <option value="dean">Dean</option>
+                          <option value="admin">Administrator</option>
+                        </select>
+                      </div>
+                      <div class="mb-3">
+                        <div class="form-check form-switch">
+                          <input class="form-check-input" type="checkbox" id="userStatus" name="is_active" value="1" checked>
+                          <label class="form-check-label" for="userStatus">Active</label>
+                        </div>
+                      </div>
+                      <div id="passwordFields">
+                        <div class="mb-3">
+                          <label for="userPassword" class="form-label">Password</label>
+                          <input type="password" class="form-control" id="userPassword" name="password" autocomplete="new-password">
+                          <div class="form-text">Leave blank to keep current password (when editing)</div>
+                        </div>
+                        <div class="mb-3">
+                          <label for="confirmPassword" class="form-label">Confirm Password</label>
+                          <input type="password" class="form-control" id="confirmPassword" name="confirm_password" autocomplete="new-password">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                      <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Delete Confirmation Modal -->
+            <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <p>Are you sure you want to delete <strong id="deleteUserName"></strong>?</p>
+                    <p class="text-danger">This action cannot be undone.</p>
+                  </div>
+                  <div class="modal-footer">
+                    <form id="deleteForm" method="POST" action="">
+                      <?php echo csrf_token_field(); ?>
+                      <input type="hidden" name="action" value="delete">
+                      <input type="hidden" name="user_id" id="deleteUserId" value="">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                      <button type="submit" class="btn btn-danger">Delete User</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        <?php elseif (isset($_GET['tab']) && $_GET['tab'] === 'manage-content' && ($is_admin || $is_dean)): ?>
+          <!-- Manage Content Section -->
+          <div class="manage-content-section">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h2><i class="fa fa-edit"></i> Manage Content</h2>
+              <button type="button" class="btn btn-primary" id="addNewContentBtn">
+                <i class="fa fa-plus"></i> Add New Content
+              </button>
+            </div>
+            
+            <?php if (isset($_SESSION['error'])): ?>
+              <div class="alert alert-danger"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
+            <?php endif; ?>
+            
+            <?php if (isset($_SESSION['success'])): ?>
+              <div class="alert alert-success"><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></div>
+            <?php endif; ?>
+            
+            <div class="card">
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>Title</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Last Updated</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <?php
+                      // Get content based on user role
+                      $content = [];
+                      $query = "SELECT id, title, type, status, updated_at FROM content ";
+                      
+                      if ($is_dean && !$is_admin) {
+                        $query .= " WHERE created_by = ? ";
+                      }
+                      
+                      $query .= " ORDER BY updated_at DESC";
+                      
+                      if ($stmt = $conn->prepare($query)) {
+                        if ($is_dean && !$is_admin) {
+                          $stmt->bind_param("i", $user_id);
+                        }
+                        
+                        if ($stmt->execute()) {
+                          $result = $stmt->get_result();
+                          while ($row = $result->fetch_assoc()) {
+                            $content[] = $row;
+                          }
+                        }
+                        $stmt->close();
+                      }
+                      
+                      foreach ($content as $item): 
+                          $status_class = $item['status'] === 'published' ? 'success' : 'secondary';
+                          $status_text = ucfirst($item['status']);
+                          $last_updated = date('M d, Y', strtotime($item['updated_at']));
+                      ?>
+                      <tr>
+                        <td><?php echo htmlspecialchars($item['title']); ?></td>
+                        <td><?php echo ucfirst(htmlspecialchars($item['type'])); ?></td>
+                        <td><span class="badge bg-<?php echo $status_class; ?>"><?php echo $status_text; ?></span></td>
+                        <td><?php echo $last_updated; ?></td>
+                        <td class="text-nowrap">
+                          <button type="button" class="btn btn-sm btn-outline-primary me-2 edit-content-btn" 
+                            data-id="<?php echo $item['id']; ?>"
+                            data-title="<?php echo htmlspecialchars($item['title'], ENT_QUOTES); ?>"
+                            data-type="<?php echo htmlspecialchars($item['type'], ENT_QUOTES); ?>"
+                            data-status="<?php echo $item['status']; ?>"
+                            title="Edit Content">
+                            <i class="fa fa-edit"></i> Edit
+                          </button>
+                          <button class="btn btn-sm btn-outline-danger delete-content-btn" 
+                            data-id="<?php echo $item['id']; ?>"
+                            data-title="<?php echo htmlspecialchars($item['title'], ENT_QUOTES); ?>"
+                            title="Delete Content">
+                            <i class="fa fa-trash"></i> Delete
+                          </button>
+                        </td>
+                      </tr>
+                      <?php endforeach; ?>
+                      <?php if (empty($content)): ?>
+                      <tr>
+                        <td colspan="5" class="text-center">No content found. Click 'Add New Content' to get started.</td>
+                      </tr>
+                      <?php endif; ?>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Add/Edit Content Modal -->
+            <div class="modal fade" id="contentModal" tabindex="-1" aria-labelledby="contentModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                  <form id="contentForm" method="POST" action="">
+                    <input type="hidden" name="action" id="contentAction" value="">
+                    <input type="hidden" name="content_id" id="contentId" value="">
+                    
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="contentModalTitle">Add New Content</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      <div class="row">
+                        <div class="col-md-8">
+                          <div class="mb-3">
+                            <label for="contentTitle" class="form-label">Title</label>
+                            <input type="text" class="form-control" id="contentTitle" name="title" required>
+                          </div>
+                        </div>
+                        <div class="col-md-4">
+                          <div class="mb-3">
+                            <label for="contentType" class="form-label">Type</label>
+                            <select class="form-select" id="contentType" name="type" required>
+                              <option value="article">Article</option>
+                              <option value="page">Page</option>
+                              <option value="news">News</option>
+                              <option value="event">Event</option>
+                              <?php if ($is_admin): ?>
+                              <option value="announcement">Announcement</option>
+                              <?php endif; ?>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div class="mb-3">
+                        <label for="contentBody" class="form-label">Content</label>
+                        <textarea class="form-control" id="contentBody" name="content" rows="10" required></textarea>
+                      </div>
+                      
+                      <div class="row">
+                        <div class="col-md-6">
+                          <div class="mb-3">
+                            <label for="contentStatus" class="form-label">Status</label>
+                            <select class="form-select" id="contentStatus" name="status" required>
+                              <option value="draft">Draft</option>
+                              <option value="published">Published</option>
+                              <?php if ($is_admin): ?>
+                              <option value="archived">Archived</option>
+                              <?php endif; ?>
+                            </select>
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <div class="mb-3">
+                            <label for="featuredImage" class="form-label">Featured Image</label>
+                            <input type="file" class="form-control" id="featuredImage" name="featured_image" accept="image/*">
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div class="mb-3">
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox" id="allowComments" name="allow_comments" value="1" checked>
+                          <label class="form-check-label" for="allowComments">
+                            Allow Comments
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                      <button type="submit" class="btn btn-primary">Save Content</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Delete Confirmation Modal -->
+            <div class="modal fade" id="deleteContentModal" tabindex="-1" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <p>Are you sure you want to delete <strong id="deleteContentTitle"></strong>?</p>
+                    <p class="text-danger">This action cannot be undone.</p>
+                  </div>
+                  <div class="modal-footer">
+                    <form id="deleteContentForm" method="POST" action="">
+                      <?php echo csrf_token_field(); ?>
+                      <input type="hidden" name="action" value="delete_content">
+                      <input type="hidden" name="content_id" id="deleteContentId" value="">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                      <button type="submit" class="btn btn-danger">Delete Content</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <script>
+            // Initialize DataTable for content management
+            $(document).ready(function() {
+                // Initialize tooltips
+                $('[data-toggle="tooltip"]').tooltip();
+                
+                // Initialize Summernote for rich text editing
+                $('#contentBody').summernote({
+                    height: 200,
+                    toolbar: [
+                        ['style', ['style']],
+                        ['font', ['bold', 'italic', 'underline', 'clear']],
+                        ['fontname', ['fontname']],
+                        ['color', ['color']],
+                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['height', ['height']],
+                        ['table', ['table']],
+                        ['insert', ['link', 'picture', 'video']],
+                        ['view', ['fullscreen', 'codeview', 'help']]
+                    ]
+                });
+                
+                // Handle add new content button
+                $('#addNewContentBtn').click(function() {
+                    $('#contentForm')[0].reset();
+                    $('#contentModalTitle').text('Add New Content');
+                    $('#contentAction').val('add_content');
+                    $('#contentId').val('');
+                    $('#contentModal').modal('show');
+                });
+                
+                // Handle edit content button
+                $('.edit-content-btn').click(function() {
+                    const id = $(this).data('id');
+                    const title = $(this).data('title');
+                    const type = $(this).data('type');
+                    const status = $(this).data('status');
+                    
+                    // In a real implementation, you would fetch the content via AJAX
+                    // For now, we'll just populate the form with the available data
+                    $('#contentTitle').val(title);
+                    $('#contentType').val(type);
+                    $('#contentStatus').val(status);
+                    
+                    // Set form action
+                    $('#contentModalTitle').text('Edit Content');
+                    $('#contentAction').val('update_content');
+                    $('#contentId').val(id);
+                    
+                    // Show the modal
+                    $('#contentModal').modal('show');
+                });
+                
+                // Handle delete content button
+                $('.delete-content-btn').click(function() {
+                    const id = $(this).data('id');
+                    const title = $(this).data('title');
+                    
+                    $('#deleteContentId').val(id);
+                    $('#deleteContentTitle').text(title);
+                    $('#deleteContentForm').attr('action', '?tab=manage-content');
+                    $('#deleteContentModal').modal('show');
+                });
+                
+                // Handle form submission
+                $('#contentForm').on('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Get the form data
+                    const formData = new FormData(this);
+                    const action = $('#contentAction').val();
+                    
+                    // Add CSRF token
+                    formData.append('<?php echo csrf_token_name(); ?>', '<?php echo csrf_token(); ?>');
+                    
+                    // Submit the form via AJAX
+                    $.ajax({
+                        url: 'handle_content.php',
+                        type: 'POST',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function(response) {
+                            try {
+                                const result = JSON.parse(response);
+                                if (result.success) {
+                                    // Show success message and reload the page
+                                    showAlert('success', result.message || 'Operation completed successfully.');
+                                    setTimeout(function() {
+                                        window.location.reload();
+                                    }, 1500);
+                                } else {
+                                    // Show error message
+                                    showAlert('danger', result.message || 'An error occurred. Please try again.');
+                                }
+                            } catch (e) {
+                                console.error('Error parsing response:', e);
+                                showAlert('danger', 'An error occurred while processing the response.');
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('AJAX Error:', status, error);
+                            showAlert('danger', 'An error occurred. Please try again.');
+                        }
+                    });
+                });
+                
+                // Helper function to show alerts
+                function showAlert(type, message) {
+                    const alertHtml = `
+                        <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                            ${message}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>`;
+                    
+                    // Remove any existing alerts
+                    $('.alert-dismissible').remove();
+                    
+                    // Add the new alert at the top of the content section
+                    $('.manage-content-section').prepend(alertHtml);
+                    
+                    // Auto-hide after 5 seconds
+                    setTimeout(function() {
+                        $('.alert-dismissible').fadeOut('slow', function() {
+                            $(this).remove();
+                        });
+                    }, 5000);
                 }
             });
+            </script>
+          </div>
+          
+        <?php elseif (isset($_GET['tab']) && $_GET['tab'] === 'faculty-content' && $is_dean): ?>
+          <!-- Faculty Content Management Section -->
+          <div class="faculty-content-section">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h2><i class="fa fa-graduation-cap"></i> Faculty Content Management</h2>
+              <button class="btn btn-primary" onclick="showAddContentModal()"><i class="fa fa-plus"></i> Add Content</button>
+            </div>
+            
+            <div class="row">
+              <!-- Welcome Message Card -->
+              <div class="col-md-6 mb-4">
+                <div class="card">
+                  <div class="card-header">
+                    <h5><i class="fa fa-home"></i> Welcome Message</h5>
+                  </div>
+                  <div class="card-body">
+                    <p class="text-muted">Manage the welcome message for your faculty page.</p>
+                    <button class="btn btn-primary btn-sm" onclick="editContent('welcome')">
+                      <i class="fa fa-edit"></i> Edit Welcome Message
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Vision Card -->
+              <div class="col-md-6 mb-4">
+                <div class="card">
+                  <div class="card-header">
+                    <h5><i class="fa fa-eye"></i> Vision Statement</h5>
+                  </div>
+                  <div class="card-body">
+                    <p class="text-muted">Manage your faculty's vision statement.</p>
+                    <button class="btn btn-primary btn-sm" onclick="editContent('vision')">
+                      <i class="fa fa-edit"></i> Edit Vision
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Mission Card -->
+              <div class="col-md-6 mb-4">
+                <div class="card">
+                  <div class="card-header">
+                    <h5><i class="fa fa-bullseye"></i> Mission Statement</h5>
+                  </div>
+                  <div class="card-body">
+                    <p class="text-muted">Manage your faculty's mission statement.</p>
+                    <button class="btn btn-primary btn-sm" onclick="editContent('mission')">
+                      <i class="fa fa-edit"></i> Edit Mission
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- About Card -->
+              <div class="col-md-6 mb-4">
+                <div class="card">
+                  <div class="card-header">
+                    <h5><i class="fa fa-info-circle"></i> About Faculty</h5>
+                  </div>
+                  <div class="card-body">
+                    <p class="text-muted">Manage general information about your faculty.</p>
+                    <button class="btn btn-primary btn-sm" onclick="editContent('about')">
+                      <i class="fa fa-edit"></i> Edit About
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Recent Content -->
+            <div class="card">
+              <div class="card-header">
+                <h5>Recent Content Updates</h5>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>Content Type</th>
+                        <th>Last Updated</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><i class="fa fa-home"></i> Welcome Message</td>
+                        <td>2 days ago</td>
+                        <td><span class="badge bg-success">Published</span></td>
+                        <td>
+                          <button class="btn btn-sm btn-info" onclick="editContent('welcome')">
+                            <i class="fa fa-edit"></i>
+                          </button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td><i class="fa fa-eye"></i> Vision Statement</td>
+                        <td>1 week ago</td>
+                        <td><span class="badge bg-success">Published</span></td>
+                        <td>
+                          <button class="btn btn-sm btn-info" onclick="editContent('vision')">
+                            <i class="fa fa-edit"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        <?php elseif (isset($_GET['tab']) && $_GET['tab'] === 'manage-announcements' && ($is_admin || $is_dean)): ?>
+          <!-- Manage Announcements Section -->
+          <div class="manage-announcements-section">
+            <div class="page-title">
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class='bx bx-megaphone me-2'></i>Manage Announcements</h2>
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addAnnouncementModal">
+                  <i class='bx bx-plus'></i> Add New Announcement
+                </button>
+              </div>
+            </div>
+            
+            <?php if (isset($_SESSION['success'])): ?>
+              <div class="alert alert-success"><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></div>
+            <?php endif; ?>
+            
+            <?php if (isset($_SESSION['error'])): ?>
+              <div class="alert alert-danger"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
+            <?php endif; ?>
+            
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>Title</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Important</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <?php
+                      // Fetch announcements from database
+                      $announcements = [];
+                      $query = "SELECT * FROM announcements ORDER BY start_date DESC";
+                      $result = $conn->query($query);
+                      
+                      if ($result && $result->num_rows > 0):
+                        while ($row = $result->fetch_assoc()):
+                          $announcements[] = $row;
+                        endwhile;
+                      endif;
+                      
+                      if (!empty($announcements)): 
+                        foreach ($announcements as $announcement): 
+                          $start_date = new DateTime($announcement['start_date']);
+                          $end_date = !empty($announcement['end_date']) ? new DateTime($announcement['end_date']) : null;
+                      ?>
+                        <tr>
+                          <td>
+                            <?php echo htmlspecialchars($announcement['title']); ?>
+                            <?php if ($announcement['attachment_url']): ?>
+                              <i class="bi bi-paperclip ms-1" title="Has attachment"></i>
+                            <?php endif; ?>
+                          </td>
+                          <td><?php echo $start_date->format('M j, Y'); ?></td>
+                          <td><?php echo $end_date ? $end_date->format('M j, Y') : 'N/A'; ?></td>
+                          <td>
+                            <?php if ($announcement['is_important']): ?>
+                              <span class="badge bg-danger">Important</span>
+                            <?php else: ?>
+                              <span class="text-muted">-</span>
+                            <?php endif; ?>
+                          </td>
+                          <td>
+                            <span class="badge bg-<?php echo $announcement['status'] === 'active' ? 'success' : 'secondary'; ?>">
+                              <?php echo ucfirst($announcement['status']); ?>
+                            </span>
+                          </td>
+                          <td>
+                            <button class="btn btn-sm btn-info edit-announcement" 
+                                    data-id="<?php echo $announcement['id']; ?>"
+                                    data-title="<?php echo htmlspecialchars($announcement['title']); ?>"
+                                    data-content="<?php echo htmlspecialchars($announcement['content']); ?>"
+                                    data-start-date="<?php echo $start_date->format('Y-m-d'); ?>"
+                                    data-end-date="<?php echo $end_date ? $end_date->format('Y-m-d') : ''; ?>"
+                                    data-is-important="<?php echo $announcement['is_important']; ?>"
+                                    data-status="<?php echo $announcement['status']; ?>"
+                                    data-attachment-name="<?php echo htmlspecialchars($announcement['attachment_name'] ?? ''); ?>"
+                                    data-attachment-url="<?php echo htmlspecialchars($announcement['attachment_url'] ?? ''); ?>">
+                              <i class="bi bi-pencil"></i> Edit
+                            </button>
+                            <button class="btn btn-sm btn-danger delete-announcement" 
+                                    data-id="<?php echo $announcement['id']; ?>"
+                                    data-title="<?php echo htmlspecialchars($announcement['title']); ?>">
+                              <i class="bi bi-trash"></i> Delete
+                            </button>
+                          </td>
+                        </tr>
+                      <?php 
+                        endforeach; 
+                      else: 
+                      ?>
+                        <tr>
+                          <td colspan="6" class="text-center py-4">
+                            <i class='bx bx-megaphone-off' style="font-size: 3rem; color: #6c757d; margin-bottom: 15px;"></i>
+                            <h4>No announcements found</h4>
+                            <p>Get started by adding your first announcement.</p>
+                          </td>
+                        </tr>
+                      <?php endif; ?>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Add/Edit Announcement Modal -->
+          <div class="modal fade" id="announcementModal" tabindex="-1" aria-labelledby="announcementModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="announcementModalLabel">Add New Announcement</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="announcementForm" method="POST" enctype="multipart/form-data">
+                  <input type="hidden" name="action" id="announcementAction" value="add_announcement">
+                  <input type="hidden" name="announcement_id" id="announcementId">
+                  <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?? ''; ?>">
+                  
+                  <div class="modal-body">
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="mb-3">
+                          <label for="title" class="form-label">Title <span class="text-danger">*</span></label>
+                          <input type="text" class="form-control" id="title" name="title" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                          <label for="content" class="form-label">Content <span class="text-danger">*</span></label>
+                          <textarea class="form-control" id="content" name="content" rows="5" required></textarea>
+                        </div>
+                        
+                        <div class="row">
+                          <div class="col-md-6">
+                            <div class="mb-3">
+                              <label for="start_date" class="form-label">Start Date <span class="text-danger">*</span></label>
+                              <input type="date" class="form-control" id="start_date" name="start_date" required>
+                            </div>
+                          </div>
+                          <div class="col-md-6">
+                            <div class="mb-3">
+                              <label for="end_date" class="form-label">End Date (Optional)</label>
+                              <input type="date" class="form-control" id="end_date" name="end_date">
+                              <div class="form-text">Leave empty if the announcement has no end date</div>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div class="row">
+                          <div class="col-md-6">
+                            <div class="mb-3">
+                              <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="is_important" name="is_important" value="1">
+                                <label class="form-check-label" for="is_important">Mark as Important</label>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-md-6">
+                            <div class="mb-3">
+                              <label for="status" class="form-label">Status</label>
+                              <select class="form-select" id="status" name="status">
+                                <option value="active" selected>Active</option>
+                                <option value="inactive">Inactive</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                          <label for="attachment" class="form-label">Attachment (Optional)</label>
+                          <input type="file" class="form-control" id="attachment" name="attachment">
+                          <div class="form-text">Allowed file types: PDF, DOC, DOCX, JPG, JPEG, PNG, GIF (Max: 5MB)</div>
+                          <div id="currentAttachment" class="mt-2" style="display: none;">
+                            <span class="text-muted">Current: </span>
+                            <a href="#" id="attachmentLink" target="_blank"></a>
+                            <button type="button" class="btn btn-sm btn-outline-danger ms-2" id="removeAttachment">
+                              <i class="bi bi-trash"></i> Remove
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Announcement</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Delete Confirmation Modal -->
+          <div class="modal fade" id="deleteAnnouncementModal" tabindex="-1" aria-labelledby="deleteAnnouncementModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="deleteAnnouncementModalLabel">Confirm Delete</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <p>Are you sure you want to delete the announcement "<span id="announcementTitle"></span>"?</p>
+                  <p class="text-danger">This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                  <form id="deleteAnnouncementForm" method="POST">
+                    <input type="hidden" name="action" value="delete_announcement">
+                    <input type="hidden" name="id" id="deleteAnnouncementId">
+                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?? ''; ?>">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <script>
+          $(document).ready(function() {
+              // Set today's date as default for start date
+              const today = new Date().toISOString().split('T')[0];
+              $('#start_date').attr('min', today);
+              
+              // Update end date min date when start date changes
+              $('#start_date').on('change', function() {
+                  $('#end_date').attr('min', $(this).val());
+              });
+              
+              // Handle edit announcement button click
+              $(document).on('click', '.edit-announcement', function() {
+                  const id = $(this).data('id');
+                  const title = $(this).data('title');
+                  const content = $(this).data('content');
+                  const startDate = $(this).data('start-date');
+                  const endDate = $(this).data('end-date');
+                  const isImportant = $(this).data('is-important');
+                  const status = $(this).data('status');
+                  const attachmentName = $(this).data('attachment-name');
+                  const attachmentUrl = $(this).data('attachment-url');
+                  
+                  $('#announcementModalLabel').text('Edit Announcement');
+                  $('#announcementAction').val('update_announcement');
+                  $('#announcementId').val(id);
+                  $('#title').val(title);
+                  $('#content').val(content);
+                  $('#start_date').val(startDate);
+                  $('#end_date').val(endDate || '');
+                  $('#is_important').prop('checked', isImportant == 1);
+                  $('#status').val(status);
+                  
+                  // Handle attachment
+                  if (attachmentUrl) {
+                      $('#currentAttachment').show();
+                      $('#attachmentLink').attr('href', attachmentUrl).text(attachmentName || 'View Attachment');
+                  } else {
+                      $('#currentAttachment').hide();
+                  }
+                  
+                  // Show the modal
+                  const modal = new bootstrap.Modal(document.getElementById('announcementModal'));
+                  modal.show();
+              });
+              
+              // Handle remove attachment button
+              $('#removeAttachment').on('click', function() {
+                  $('#currentAttachment').hide();
+                  $('#attachmentLink').attr('href', '#').text('');
+                  // Add a hidden field to indicate attachment removal
+                  if ($('#removeAttachmentFlag').length === 0) {
+                      $('#announcementForm').append('<input type="hidden" id="removeAttachmentFlag" name="remove_attachment" value="1">');
+                  }
+              });
+              
+              // Handle delete announcement button click
+              $(document).on('click', '.delete-announcement', function() {
+                  const id = $(this).data('id');
+                  const title = $(this).data('title');
+                  
+                  $('#announcementTitle').text(title);
+                  $('#deleteAnnouncementId').val(id);
+                  
+                  const modal = new bootstrap.Modal(document.getElementById('deleteAnnouncementModal'));
+                  modal.show();
+              });
+              
+              // Handle form submission
+              $('#announcementForm').on('submit', function(e) {
+                  e.preventDefault();
+                  
+                  const formData = new FormData(this);
+                  
+                  // Show loading state
+                  const submitBtn = $(this).find('button[type="submit"]');
+                  const originalBtnText = submitBtn.html();
+                  submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...');
+                  
+                  $.ajax({
+                      url: 'manage_announcements.php',
+                      type: 'POST',
+                      data: formData,
+                      processData: false,
+                      contentType: false,
+                      success: function(response) {
+                          try {
+                              const data = typeof response === 'string' ? JSON.parse(response) : response;
+                              
+                              if (data.success) {
+                                  // Show success message and reload the page
+                                  window.location.href = 'my-account.php?tab=manage-announcements&success=' + encodeURIComponent(data.message);
+                              } else {
+                                  // Show error message
+                                  alert(data.message || 'An error occurred. Please try again.');
+                                  submitBtn.prop('disabled', false).html(originalBtnText);
+                              }
+                          } catch (e) {
+                              console.error('Error parsing response:', e, response);
+                              alert('An error occurred while processing the response. Please check the console for details.');
+                              submitBtn.prop('disabled', false).html(originalBtnText);
+                          }
+                      },
+                      error: function(xhr, status, error) {
+                          console.error('AJAX Error:', status, error);
+                          alert('An error occurred while saving the announcement. Please try again.');
+                          submitBtn.prop('disabled', false).html(originalBtnText);
+                      }
+                  });
+              });
+              
+              // Handle delete form submission
+              $('#deleteAnnouncementForm').on('submit', function(e) {
+                  e.preventDefault();
+                  
+                  const formData = $(this).serialize();
+                  const deleteBtn = $(this).find('button[type="submit"]');
+                  const originalBtnText = deleteBtn.html();
+                  
+                  deleteBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Deleting...');
+                  
+                  $.post('manage_announcements.php', formData, function(response) {
+                      try {
+                          const data = typeof response === 'string' ? JSON.parse(response) : response;
+                          
+                          if (data.success) {
+                              // Show success message and reload the page
+                              window.location.href = 'my-account.php?tab=manage-announcements&success=' + encodeURIComponent(data.message);
+                          } else {
+                              // Show error message
+                              alert(data.message || 'An error occurred while deleting the announcement.');
+                              deleteBtn.prop('disabled', false).html(originalBtnText);
+                          }
+                      } catch (e) {
+                          console.error('Error parsing response:', e, response);
+                          alert('An error occurred while processing the response. Please check the console for details.');
+                          deleteBtn.prop('disabled', false).html(originalBtnText);
+                      }
+                  }).fail(function(xhr, status, error) {
+                      console.error('AJAX Error:', status, error);
+                      alert('An error occurred while deleting the announcement. Please try again.');
+                      deleteBtn.prop('disabled', false).html(originalBtnText);
+                  });
+              });
+              
+              // Show success message from URL parameter
+              const urlParams = new URLSearchParams(window.location.search);
+              const successMessage = urlParams.get('success');
+              if (successMessage) {
+                  alert(decodeURIComponent(successMessage));
+                  // Remove the success parameter from URL
+                  const newUrl = window.location.pathname + '?tab=manage-announcements';
+                  window.history.replaceState({}, document.title, newUrl);
+              }
+          });
+          
+          // Function to reset the form when adding a new announcement
+          function resetAnnouncementForm() {
+              $('#announcementForm')[0].reset();
+              $('#announcementModalLabel').text('Add New Announcement');
+              $('#announcementAction').val('add_announcement');
+              $('#announcementId').val('');
+              $('#currentAttachment').hide();
+              $('#attachmentLink').attr('href', '#').text('');
+              $('#removeAttachmentFlag').remove();
+              
+              // Set default start date to today
+              const today = new Date().toISOString().split('T')[0];
+              $('#start_date').val(today);
+          }
+          
+          // Initialize the form when the modal is shown
+          $('#announcementModal').on('show.bs.modal', function (e) {
+              if (!e.relatedTarget) {
+                  resetAnnouncementForm();
+              }
+          });
+          </script>
+
+        <?php elseif (isset($_GET['tab']) && $_GET['tab'] === 'manage-publications' && ($is_admin || $is_dean)): ?>
+          <!-- Include Publications Management Section -->
+          <?php include __DIR__ . '/includes/publications_section.php'; ?>
+          
+        <?php elseif (isset($_GET['tab']) && $_GET['tab'] === 'manage-downloads' && ($is_admin || $is_dean)): ?>
+          <!-- Include Downloads Management Section -->
+          <?php include __DIR__ . '/includes/downloads_section.php'; ?>
+          
+        <?php elseif (isset($_GET['tab']) && $_GET['tab'] === 'manage-staff' && ($is_admin || $is_dean)): ?>
+          <!-- Include Staff Management Section -->
+          <?php include __DIR__ . '/includes/staff_section.php'; ?>
+          
+        <?php elseif (isset($_GET['tab']) && (rtrim($_GET['tab'], '#') === 'manage-programs') && ($is_admin || $is_dean)): ?>
+          <!-- Include Programs Management Section -->
+          <?php include __DIR__ . '/includes/programs_section.php'; ?>
+          
+        <?php elseif (isset($_GET['tab']) && $_GET['tab'] === 'dashboard'): ?>
+          <!-- Dashboard Section -->
+          <div class="dashboard-header">
+            <h1>Welcome back, <?php echo htmlspecialchars($user_name); ?>!</h1>
+            <p>Here's what's happening with your account today.</p>
+          </div>
+
+          <!-- Statistics Cards -->
+          <div class="row">
+            <!-- Announcements Card -->
+            <div class="col-md-3 mb-4">
+              <div class="stat-card">
+                <div class="stat-icon">
+                  <i class="fa fa-bullhorn"></i>
+                </div>
+                <div class="stat-info">
+                  <h3>
+                  <?php 
+                    $sql = "SELECT COUNT(*) as count FROM publications";
+                    $result = $conn->query($sql);
+                    echo $result ? $result->fetch_assoc()['count'] : '0';
+                    ?>
+                </h3>
+                <p>Publications</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Events Card -->
+          <div class="col-md-3 mb-4">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="fa fa-calendar"></i>
+              </div>
+              <div class="stat-info">
+                <h3>
+                  <?php 
+                    $sql = "SELECT COUNT(*) as count FROM events 
+                            WHERE _date >= CURDATE()";
+                    $result = $conn->query($sql);
+                    echo $result ? $result->fetch_assoc()['count'] : '0';
+                    ?>
+                </h3>
+                <p>Upcoming Events</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- News Card -->
+          <div class="col-md-3 mb-4">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="fa fa-newspaper-o"></i>
+              </div>
+              <div class="stat-info">
+                <h3>
+                  <?php 
+                    $sql = "SELECT COUNT(*) as count FROM news 
+                            WHERE status = 'published'";
+                    $result = $conn->query($sql);
+                    echo $result ? $result->fetch_assoc()['count'] : '0';
+                    ?>
+                </h3>
+                <p>News Articles</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Users Card (Admin only) -->
+          <?php if ($is_admin): ?>
+          <div class="col-md-3 mb-4">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="fa fa-users"></i>
+              </div>
+              <div class="stat-info">
+                <h3>
+                  <?php 
+                    $sql = "SELECT COUNT(*) as count FROM users";
+                    $result = $conn->query($sql);
+                    echo $result ? $result->fetch_assoc()['count'] : '0';
+                    ?>
+                </h3>
+                <p>Total Users</p>
+              </div>
+            </div>
+          </div>
+          <?php endif; ?>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="row mt-4">
+          <div class="col-md-8">
+            <div class="card">
+              <div class="card-header">
+                <h5>Recent Activity</h5>
+              </div>
+              <div class="card-body">
+                <div class="text-center py-4">
+                  <i class="fa fa-clock-o fa-2x text-muted mb-3"></i>
+                  <p class="text-muted">No recent activity to display.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card">
+              <div class="card-header">
+                <h5>Quick Actions</h5>
+              </div>
+              <div class="card-body">
+                <div class="d-grid gap-2">
+                  <a href="?tab=profile" class="btn btn-outline-primary text-start">
+                    <i class="fa fa-user me-2"></i> Edit Profile
+                  </a>
+                  <?php if ($is_admin || $is_dean): ?>
+                  <a href="?tab=manage-content" class="btn btn-outline-success text-start <?php echo $active_tab === 'manage-content' ? 'active' : ''; ?>">
+                    <i class="fa fa-edit me-2"></i> Manage Content
+                  </a>
+                  <?php endif; ?>
+                  <?php if ($is_admin): ?>
+                  <a href="?tab=manage-users" class="btn btn-outline-secondary text-start <?php echo $active_tab === 'manage-users' ? 'active' : ''; ?>">
+                    <i class="fa fa-users me-2"></i> Manage Users
+                  </a>
+                  <?php endif; ?>
+                  <a href="?tab=settings" class="btn btn-outline-info text-start">
+                    <i class="fa fa-cog me-2"></i> Settings
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <?php else: // Default fallback ?>
+          <div class="dashboard-header">
+            <h1>Welcome back, <?php echo htmlspecialchars($user_name); ?>!</h1>
+            <p>Here's what's happening with your account today.</p>
+          </div>
+
+          <!-- Statistics Cards -->
+          <div class="row">
+            <!-- Announcements Card -->
+            <div class="col-md-3 mb-4">
+              <div class="stat-card">
+                <div class="stat-icon">
+                  <i class="fa fa-bullhorn"></i>
+                </div>
+                <div class="stat-info">
+                  <h3>
+                  <?php 
+                    $sql = "SELECT COUNT(*) as count FROM publications";
+                    $result = $conn->query($sql);
+                    echo $result ? $result->fetch_assoc()['count'] : '0';
+                    ?>
+                </h3>
+                <p>Publications</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Events Card -->
+          <div class="col-md-3 mb-4">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="fa fa-calendar"></i>
+              </div>
+              <div class="stat-info">
+                <h3>
+                  <?php 
+                    $sql = "SELECT COUNT(*) as count FROM events 
+                            WHERE _date >= CURDATE()";
+                    $result = $conn->query($sql);
+                    echo $result ? $result->fetch_assoc()['count'] : '0';
+                    ?>
+                </h3>
+                <p>Upcoming Events</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Recent Activity -->
+        <div class="dashboard-card">
+          <h3>Recent Activity</h3>
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Activity</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Today</td>
+                  <td>Completed "Introduction to Web Development"</td>
+                  <td><span class="badge bg-success">Completed</span></td>
+                </tr>
+                <tr>
+                  <td>Yesterday</td>
+                  <td>Started "Advanced JavaScript" course</td>
+                  <td><span class="badge bg-primary">In Progress</span></td>
+                </tr>
+                <tr>
+                  <td>2 days ago</td>
+                  <td>Submitted assignment for "Database Design"</td>
+                  <td><span class="badge bg-warning">Pending</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Profile Section -->
+        <div class="dashboard-card" id="profile-section" style="display: <?php echo $active_tab === 'profile' ? 'block' : 'none'; ?>">
+          <h2 class="mb-4">My Profile</h2>
+          
+          <?php if (isset($_SESSION['success'])): ?>
+            <div class="alert alert-success"><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></div>
+          <?php endif; ?>
+          
+          <?php if (isset($_SESSION['error'])): ?>
+            <div class="alert alert-danger"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
+          <?php endif; ?>
+
+          <form action="my-account.php?tab=profile" method="POST" enctype="multipart/form-data">
+            <div class="row">
+              <div class="col-md-4 text-center mb-4">
+                <div class="profile-image-container mb-3" style="width: 200px; height: 200px; margin: 0 auto; border-radius: 50%; overflow: hidden; border: 5px solid #f0f0f0;">
+                  <img id="profile-preview" src="<?php echo !empty($user['profile_image']) ? $user['profile_image'] : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiNkZGQiLz48dGV4dCB4PSI1MCIgeT0iNTAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgYWxpZ25tZW50LWJhc2VsaW5lPSJtaWRkbGUiIGZpbGw9IiYjNjY2OyI+QXZhdGFyPC90ZXh0Pjwvc3ZnPg'; ?>" alt="Profile Image" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="form-group">
+                  <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="profile_image" name="profile_image" accept="image/*" onchange="previewImage(this)">
+                    <label class="custom-file-label" for="profile_image">Choose file</label>
+                  </div>
+                  <small class="form-text text-muted">Max file size: 2MB. Allowed formats: JPG, PNG, GIF</small>
+                </div>
+              </div>
+              
+              <div class="col-md-8">
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="first_name">First Name</label>
+                      <input type="text" class="form-control" id="first_name" name="first_name" value="<?php echo htmlspecialchars($user['first_name'] ?? ''); ?>" required>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="last_name">Last Name</label>
+                      <input type="text" class="form-control" id="last_name" name="last_name" value="<?php echo htmlspecialchars($user['last_name'] ?? ''); ?>">
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="form-group">
+                  <label for="email">Email Address</label>
+                  <input type="email" class="form-control" id="email" value="<?php echo htmlspecialchars($user['email'] ?? ''); ?>" disabled>
+                  <small class="form-text text-muted">Contact support to change your email address</small>
+                </div>
+                
+                <div class="form-group">
+                  <label for="phone">Phone Number</label>
+                  <input type="tel" class="form-control" id="phone" name="phone" value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>">
+                </div>
+                
+                <div class="form-group">
+                  <label for="bio">Bio</label>
+                  <textarea class="form-control" id="bio" name="bio" rows="4"><?php echo htmlspecialchars($user['bio'] ?? ''); ?></textarea>
+                </div>
+                
+                <button type="submit" name="update_profile" class="btn btn-primary">Save Changes</button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <script>
+        function previewImage(input) {
+          const preview = document.getElementById('profile-preview');
+          const sidebarImg = document.getElementById('sidebar-profile-img');
+          const file = input.files[0];
+          const reader = new FileReader();
+          
+          reader.onloadend = function() {
+            preview.src = reader.result;
+            if (sidebarImg) {
+              sidebarImg.src = reader.result;
+            }
+          }
+          
+          if (file) {
+            reader.readAsDataURL(file);
+          } else {
+const defaultImg = '<?php echo !empty($user['profile_image']) ? $user['profile_image'] : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiNkZGQiLz48dGV4dCB4PSI1MCIgeT0iNTAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgYWxpZ25tZW50LWJhc2VsaW5lPSJtaWRkbGUiIGZpbGw9IiYjNjY2OyI+QXZhdGFyPC90ZXh0Pjwvc3ZnPg'; ?>';
+            preview.src = defaultImg;
+            if (sidebarImg) {
+              sidebarImg.src = defaultImg;
+            }
+          }
+        }
+        
+        // Tab navigation is now handled by PHP URL parameters, not JavaScript hash navigation
+        </script>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="container-fluid p-0">
+  <?php include 'includes/about_footer.php'; ?>
+</div>
+
+<!-- JavaScript Libraries -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- User Management JavaScript -->
+<script>
+// Make sure these functions are available globally
+window.editUser = function(id, firstName, lastName, email, role, status) {
+    try {
+        console.log('editUser called with:', {id, firstName, lastName, email, role, status});
+        const modalElement = document.getElementById('userModal');
+        if (!modalElement) {
+            console.error('User modal element not found');
+            return false;
+        }
+        
+        const modal = new bootstrap.Modal(modalElement);
+        
+        // Set form action and title
+        const title = id ? 'Edit User' : 'Add New User';
+        document.getElementById('userModalTitle').textContent = title;
+        document.getElementById('userAction').value = id ? 'update' : 'add';
+        document.getElementById('userId').value = id || '';
+        
+        // Fill the form
+        document.getElementById('firstName').value = firstName || '';
+        document.getElementById('lastName').value = lastName || '';
+        document.getElementById('userEmail').value = email || '';
+        document.getElementById('userRole').value = role || 'student';
+        document.getElementById('userStatus').checked = status == 1;
+        
+        // Show/hide password fields
+        const passwordFields = document.getElementById('passwordFields');
+        if (passwordFields) {
+            passwordFields.style.display = id ? 'none' : 'block';
+        }
+        
+        // Show the modal
+        console.log('Showing user modal');
+        modal.show();
+    } catch (error) {
+        console.error('Error in editUser:', error);
+        alert('An error occurred while loading the user form. Please check the console for details.');
+    }
+    return false;
+};
+
+window.confirmDelete = function(userId, userName) {
+    console.log('confirmDelete called with:', {userId, userName});
+    try {
+        const modalElement = document.getElementById('deleteModal');
+        if (!modalElement) {
+            console.error('Delete modal element not found');
+            return false;
+        }
+        
+        const modal = new bootstrap.Modal(modalElement);
+        const nameElement = document.getElementById('deleteUserName');
+        const idElement = document.getElementById('deleteUserId');
+        
+        if (!nameElement || !idElement) {
+            console.error('Required elements not found in delete modal');
+            return false;
+        }
+        
+        nameElement.textContent = userName;
+        idElement.value = userId;
+        console.log('Showing delete confirmation modal');
+        modal.show();
+    } catch (error) {
+        console.error('Error in confirmDelete:', error);
+        if (confirm('Are you sure you want to delete user: ' + userName + '?')) {
+            // Fallback if modal fails
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = window.location.href.split('?')[0];
+            
+            const actionInput = document.createElement('input');
+            actionInput.type = 'hidden';
+            actionInput.name = 'action';
+            actionInput.value = 'delete';
+            
+            const userIdInput = document.createElement('input');
+            userIdInput.type = 'hidden';
+            userIdInput.name = 'user_id';
+            userIdInput.value = userId;
+            
+            // Add CSRF token if exists
+            const csrfToken = document.querySelector('input[name="csrf_token"]');
+            
+            form.appendChild(actionInput);
+            form.appendChild(userIdInput);
+            if (csrfToken) {
+                form.appendChild(csrfToken.cloneNode());
+            }
+            
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+    return false;
+};
+
+// Initialize when document is ready
+// Main document ready function
+$(document).ready(function() {
+    console.log('Document ready');
+    
+    // Initialize tooltips
+    $('[data-bs-toggle="tooltip"]').tooltip();
+
+    // Handle tab-based navigation
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentTab = urlParams.get('tab') || 'dashboard';
+    console.log('Setting up sidebar active states for tab:', currentTab);
+    
+    // Remove all active classes first
+    $('.sidebar-menu a').removeClass('active');
+    
+    // Add active class to current tab
+    $(`.sidebar-menu a[href*="tab=${currentTab}"]`).addClass('active');
+    
+    // If no tab-specific link found, activate dashboard
+    if ($('.sidebar-menu a.active').length === 0) {
+        $('.sidebar-menu a[href*="tab=dashboard"]').addClass('active');
+    }
+    
+    // Handle event form submission
+    $(document).on('submit', '#eventForm', function(e) {
+        e.preventDefault();
+        console.log('Event form submitted');
+        
+        const form = this;
+        const formData = new FormData(form);
+        
+        // Log form data for debugging
+        const formDataObj = {};
+        for (let [key, value] of formData.entries()) {
+            formDataObj[key] = value;
+        }
+        console.log('Form data to be submitted:', formDataObj);
+        
+        // Client-side validation
+        const title = formData.get('title')?.trim();
+        const startDate = formData.get('start_date')?.trim();
+        
+        if (!title || !startDate) {
+            const errorMsg = 'Please fill in all required fields';
+            console.error('Validation error:', errorMsg);
+            showAlert('warning', errorMsg);
+            return false;
+        }
+        
+        // Add CSRF token if not already in form
+        if (!formData.get('csrf_token')) {
+            const csrfToken = $('meta[name="csrf-token"]').attr('content') || 
+                             $('input[name="csrf_token"]').val() ||
+                             $('#eventForm input[name="csrf_token"]').val();
+            
+            console.log('CSRF Token:', csrfToken ? 'Found' : 'Not found');
+            
+            if (csrfToken) {
+                formData.set('csrf_token', csrfToken);
+            } else {
+                const errorMsg = 'Security error: CSRF token not found. Please refresh the page and try again.';
+                console.error(errorMsg);
+                showAlert('danger', errorMsg);
+                return false;
+            }
+        }
+        
+        // Show loading state
+        const submitBtn = $(form).find('button[type="submit"]');
+        const originalBtnText = submitBtn.html();
+        submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...');
+        
+        // Log the request being sent
+        console.log('Sending request to handle_event.php');
+        
+        // Submit form via AJAX
+        fetch('handle_event.php', {
+            method: 'POST',
+            body: formData,
+            credentials: 'same-origin' // Include cookies in the request
+        })
+        .then(async response => {
+            const responseText = await response.text();
+            console.log('Raw server response:', responseText);
+            
+            try {
+                return JSON.parse(responseText);
+            } catch (e) {
+                console.error('Failed to parse JSON response:', e);
+                throw new Error('Invalid server response: ' + responseText.substring(0, 200));
+            }
+        })
+        .then(data => {
+            console.log('Parsed server response:', data);
+            
+            if (data && data.success) {
+                // Close the modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('addEventModal'));
+                if (modal) {
+                    modal.hide();
+                    console.log('Modal closed');
+                }
+                
+                // Show success message
+                const successMsg = data.message || 'Event saved successfully';
+                console.log('Success:', successMsg);
+                showAlert('success', successMsg);
+                
+                // Reset form
+                form.reset();
+                
+                // Refresh the page to show the new event
+                console.log('Refreshing page to show new event...');
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                const errorMsg = data && data.message ? data.message : 'Failed to save event';
+                console.error('Server error:', errorMsg);
+                throw new Error(errorMsg);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            
+            let errorMessage = 'An error occurred while saving the event';
+            
+            // Try to extract a meaningful error message
+            if (error.message) {
+                try {
+                    const errorData = JSON.parse(error.message);
+                    errorMessage = errorData.message || error.message;
+                } catch (e) {
+                    errorMessage = error.message || errorMessage;
+                }
+            }
+            
+            // Show error message to user
+            showAlert('danger', errorMessage);
+            
+            // Log detailed error to console
+            if (error.stack) {
+                console.error('Error stack:', error.stack);
+            }
+        })
+        .finally(() => {
+            submitBtn.prop('disabled', false).html(originalBtnText);
+            console.log('Form submission completed');
         });
+        
+        return false;
     });
+    
+    // Handle user form submission
+    $(document).on('submit', '#userForm', function(e) {
+        e.preventDefault();
+        
+        const form = this;
+        const formData = new FormData(form);
+        const action = formData.get('action');
+        const isAdd = action === 'add_user';
+        const password = formData.get('password');
+        const confirmPassword = document.getElementById('confirmPassword')?.value;
+        
+        // Client-side validation
+        if (!formData.get('first_name')?.trim() || !formData.get('last_name')?.trim() || !formData.get('email')?.trim()) {
+            alert('Please fill in all required fields');
+            return false;
+        }
+        
+        if (isAdd && !password) {
+            alert('Please enter a password for new users');
+            return false;
+        }
+        
+        if (password && password !== confirmPassword) {
+            alert('Passwords do not match');
+            return false;
+        }
+        
+        if (password && password.length < 8) {
+            alert('Password must be at least 8 characters long');
+            return false;
+        }
+        
+        // Add CSRF token if not already in form
+        if (!formData.get('csrf_token')) {
+            const csrfToken = $('input[name="csrf_token"]').val();
+            if (csrfToken) {
+                formData.append('csrf_token', csrfToken);
+            }
+        }
+        
+        // Show loading state
+        const submitBtn = $(form).find('button[type="submit"]');
+        const originalBtnText = submitBtn.html();
+        submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...');
+        
+        // Submit form via AJAX
+        fetch('handle_user.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Close the modal and refresh the page
+                const modal = bootstrap.Modal.getInstance(document.getElementById('userModal'));
+                if (modal) modal.hide();
+                // Show success message and reload
+                showAlert('success', data.message || 'Operation completed successfully');
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                showAlert('danger', data.message || 'An error occurred');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('danger', 'An error occurred while processing your request');
+        })
+        .finally(() => {
+            submitBtn.prop('disabled', false).html(originalBtnText);
+        });
+        
+        return false;
+    });
+    
+    // Handle delete form submission
+    $(document).on('submit', '#deleteForm', function(e) {
+        e.preventDefault();
+        
+        if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+            return false;
+        }
+        
+        const form = this;
+        const formData = new FormData(form);
+        
+        // Add CSRF token if not already in form
+        if (!formData.get('csrf_token')) {
+            const csrfToken = $('input[name="csrf_token"]').val();
+            if (csrfToken) {
+                formData.append('csrf_token', csrfToken);
+            }
+        }
+        
+        // Show loading state
+        const submitBtn = $(form).find('button[type="submit"]');
+        const originalBtnText = submitBtn.html();
+        submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Deleting...');
+        
+        // Submit form via AJAX
+        fetch('handle_user.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Close the modal and refresh the page
+                const modal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
+                if (modal) modal.hide();
+                // Show success message and reload
+                showAlert('success', data.message || 'User deleted successfully');
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                showAlert('danger', data.message || 'Failed to delete user');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('danger', 'An error occurred while processing your request');
+        })
+        .finally(() => {
+            submitBtn.prop('disabled', false).html(originalBtnText);
+        });
+        
+        return false;
+    });
+    
+    // Helper function to show alerts
+    function showAlert(type, message) {
+        // Remove any existing alerts
+        $('.alert-dismissible').remove();
+        
+        // Create and show new alert
+        const alertHtml = `
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        `;
+        
+        // Add alert to the top of the content area
+        $('.manage-users-section').prepend(alertHtml);
+        
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+            $('.alert-dismissible').fadeOut(500, function() {
+                $(this).remove();
+            });
+        }, 5000);
+    }
+    
+    // Initialize add user button
+    const addUserBtn = document.getElementById('addNewUserBtn');
+    if (addUserBtn) {
+        addUserBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            // Show the user modal for adding a new user
+            const modal = new bootstrap.Modal(document.getElementById('userModal'));
+            document.getElementById('userModalTitle').textContent = 'Add New User';
+            document.getElementById('userAction').value = 'add_user';
+            document.getElementById('userId').value = '';
+            document.getElementById('firstName').value = '';
+            document.getElementById('lastName').value = '';
+            document.getElementById('userEmail').value = '';
+            document.getElementById('userRole').value = 'student';
+            document.getElementById('userStatus').checked = true;
+            // Show password fields for new users
+            document.getElementById('passwordFields').style.display = 'block';
+            // Make password fields required for new users
+            document.getElementById('userPassword').required = true;
+            document.getElementById('confirmPassword').required = true;
+            modal.show();
+        });
+    }
+    
+    // Handle edit user buttons
+    $(document).on('click', '.edit-user-btn', function() {
+        const id = $(this).data('id');
+        const firstName = $(this).data('firstname');
+        const lastName = $(this).data('lastname');
+        const email = $(this).data('email');
+        const role = $(this).data('role');
+        const status = $(this).data('status') === '1';
+        
+        const modal = new bootstrap.Modal(document.getElementById('userModal'));
+        document.getElementById('userModalTitle').textContent = 'Edit User';
+        document.getElementById('userAction').value = 'edit_user';
+        document.getElementById('userId').value = id;
+        document.getElementById('firstName').value = firstName;
+        document.getElementById('lastName').value = lastName;
+        document.getElementById('userEmail').value = email;
+        document.getElementById('userRole').value = role;
+        document.getElementById('userStatus').checked = status;
+        // Show password fields but make them optional
+        document.getElementById('passwordFields').style.display = 'block';
+        document.getElementById('userPassword').required = false;
+        document.getElementById('confirmPassword').required = false;
+        modal.show();
+    });
+    
+    // Handle delete user buttons
+    $(document).on('click', '.delete-user-btn', function() {
+        const id = $(this).data('id');
+        const name = $(this).data('name');
+        
+        // Show the delete confirmation modal
+        document.getElementById('deleteUserId').value = id;
+        document.getElementById('deleteUserName').textContent = name;
+        const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        deleteModal.show();
+    });
+    
+    // Initialize the old add user button if it exists
+    const oldAddUserBtn = document.querySelector('.btn-primary[onclick*="addUser"], .btn-primary[onclick*="editUser"]');
+    if (oldAddUserBtn) {
+        oldAddUserBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            editUser(0, '', '', '', 'student', 1);
+        });
+    }
+    
+    // Handle smooth scrolling for anchor links
+    $('a[href^="#"]').not('.direct-link').on('click', function(e) {
+        const href = $(this).attr('href');
+        if (href === '#' || href.startsWith('#')) {
+            e.preventDefault();
+            const $target = $(href);
+            if ($target.length) {
+                $('html, body').stop().animate({
+                    'scrollTop': $target.offset().top
+                }, 900, 'swing');
+        return false;
+    });
+
+    // Handle edit user button clicks
+    $(document).on('click', '.edit-user-btn', function() {
+        const $btn = $(this);
+        editUser(
+            $btn.data('id'),
+            $btn.data('firstname'),
+            $btn.data('lastname'),
+            $btn.data('email'),
+            $btn.data('role'),
+            $btn.data('status')
+        );
+        return false;
+    });
+
+    // Handle delete user button clicks
+    $(document).on('click', '.delete-user-btn', function() {
+        const $btn = $(this);
+        confirmDelete($btn.data('id'), $btn.data('name'));
+        return false;
+    });
+    
+    // Initialize the delete form handler
+    const deleteForm = document.getElementById('deleteForm');
+    if (deleteForm) {
+        deleteForm.addEventListener('submit', function(e) {
+            if (!confirm('Are you sure you want to delete this user?')) {
+                e.preventDefault();
+                return false;
+            }
+            return true;
+        });
+    }
+    
+    // Faculty content management functions
+    window.editContent = function(contentType) {
+        alert('Edit ' + contentType + ' content functionality will be implemented here.');
+        // This would open a modal or redirect to an edit page
+        // Example: window.location.href = '?tab=edit-content&type=' + contentType;
+    };
+    
+    window.showAddContentModal = function() {
+        alert('Add new content functionality will be implemented here.');
+        // This would show a modal for adding new content types
+    };
+});
+
+// This is intentionally left blank to prevent duplicate initialization
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentTab = urlParams.get('tab') || 'dashboard';
+    console.log('Setting up sidebar active states for tab:', currentTab);
+    
+    // Remove all active classes first
+    $('.sidebar-menu a').removeClass('active');
+    
+    // Add active class to current tab
+    $('.sidebar-menu a[href="?tab=' + currentTab + '"]').addClass('active');
+    
+    // If no tab-specific link found, activate dashboard
+    if ($('.sidebar-menu a.active').length === 0) {
+      $('.sidebar-menu a[href="?tab=dashboard"]').addClass('active');
+    }
+
+    // Handle sidebar navigation
+    console.log('My-account.php loaded, current URL:', window.location.href);
+    
+    // Add click handlers to sidebar links
+    const sidebarLinks = document.querySelectorAll('.sidebar-menu a');
+    sidebarLinks.forEach(function(link) {
+      link.addEventListener('click', function(e) {
+        const href = this.getAttribute('href');
+        console.log('Sidebar link clicked:', href);
+        
+        // If it's a tab link (starts with ?tab=) or a direct link, let it navigate normally
+        if ((href && href.startsWith('?tab=')) || this.classList.contains('direct-link')) {
+          console.log('Navigating to tab:', href);
+          // Let the default navigation happen
+          return true;
+        }
+      });
+    });
+    
+    // Active class management is now handled above with jQuery
+
+    // Add smooth scrolling (but not for tab links or direct links)
+    $('a[href^="#"]').not('.direct-link').on('click', function(e) {
+      const href = $(this).attr('href');
+     // Add smooth scrolling (but not for tab links or direct links)
+    $('a[href^="#"]').not('.direct-link').on('click', function(e) {
+      e.preventDefault();
+      const target = this.getAttribute('href');
+      if (target === '#') return;
+      
+      const $target = $(target);
+      $('html, body').stop().animate({
+        'scrollTop': $target.offset().top
+      }, 900, 'swing', function() {
+        window.location.hash = target;
+      });
+    });
+});
+
+// Handle form submission
+const userForm = document.getElementById('userForm');
+if (userForm) {
+    userForm.addEventListener('submit', function(e) {
+        // Basic form validation
+        const firstName = document.getElementById('firstName').value.trim();
+        const lastName = document.getElementById('lastName').value.trim();
+        const email = document.getElementById('userEmail').value.trim();
+        const password = document.getElementById('userPassword')?.value;
+        const confirmPassword = document.getElementById('confirmPassword')?.value;
+        const isAdd = document.getElementById('userAction').value === 'add';
+        
+        if (!firstName || !lastName || !email) {
+            e.preventDefault();
+            alert('Please fill in all required fields');
+            return false;
+        }
+        
+        if (isAdd && (!password || !confirmPassword)) {
+            e.preventDefault();
+            alert('Please enter and confirm the password for new users');
+            return false;
+        }
+        
+        if (password && password !== confirmPassword) {
+            e.preventDefault();
+            alert('Passwords do not match');
+            return false;
+        }
+        
+        // Check password strength for new users
+        if (isAdd && password && password.length < 8) {
+            e.preventDefault();
+            alert('Password must be at least 8 characters long');
+            return false;
+        }
+        
+        return true;
+    });
+}
+
+// Faculty content management functions
+function editContent(contentType) {
+    alert('Edit ' + contentType + ' content functionality will be implemented here.');
+    // This would open a modal or redirect to an edit page
+    // Example: window.location.href = '?tab=edit-content&type=' + contentType;
+}
+
+function showAddContentModal() {
+    alert('Add new content functionality will be implemented here.');
+    // This would show a modal for adding new content types
+}
+
+// Handle smooth scrolling for anchor links
+$('a[href^="#"]').on('click', function(e) {
+  const href = $(this).attr('href');
+  if (href === '#') return;
+  
+  e.preventDefault();
+  const target = href.split('?')[0];
+  const $target = $(target);
+  if ($target.length) {
+    $('html, body').stop().animate({
+      'scrollTop': $target.offset().top
+    }, 900, 'swing', function() {
+      window.location.hash = target;
+    });
+          
+    window.location.hash = target;
+  });
+}
+
+// User Management Functions
+window.editUser = function(id, firstName = '', lastName = '', email = '', role = 'student', status = 0) {
+    try {
+        console.log('editUser called with:', {id, firstName, lastName, email, role, status});
+        const modalElement = document.getElementById('userModal');
+        if (!modalElement) {
+            console.error('Error: Could not find user modal element');
+            return false;
+        }
+
+        const modal = new bootstrap.Modal(modalElement);
+        
+        // Set form action and title
+        const title = id ? 'Edit User' : 'Add New User';
+        document.getElementById('userModalTitle').textContent = title;
+        document.getElementById('userAction').value = id ? 'update' : 'add';
+        document.getElementById('userId').value = id || '';
+        
+        // Fill the form
+        document.getElementById('firstName').value = firstName || '';
+        document.getElementById('lastName').value = lastName || '';
+        document.getElementById('userEmail').value = email || '';
+        document.getElementById('userRole').value = role || 'student';
+        document.getElementById('userStatus').checked = status == 1;
+        
+        // Show/hide password fields
+        const passwordFields = document.getElementById('passwordFields');
+        if (passwordFields) {
+            passwordFields.style.display = id ? 'none' : 'block';
+        }
+        
+        // Show the modal
+        console.log('Showing user modal...');
+        modal.show();
+        return false;
+    } catch (error) {
+        console.error('Error in editUser:', error);
+        alert('Error initializing user form. Please try again.');
+        return false;
+    }
+};
+
+ function confirmDelete(userId, userName) {
+    console.log('=== confirmDelete called ===');
+    console.log('userId:', userId, 'userName:', userName);
+    
+    // Check if Bootstrap is loaded
+    if (typeof bootstrap === 'undefined' || !bootstrap.Modal) {
+        console.error('Bootstrap Modal not found!');
+        alert('Error: Required libraries not loaded. Please refresh the page.');
+        return false;
+    }
+    
+    // Get modal element
+    const deleteModal = document.getElementById('deleteModal');
+    console.log('deleteModal element:', deleteModal);
+    
+    if (!deleteModal) {
+        console.error('Error: Could not find delete modal element');
+        alert('Error: Could not initialize delete confirmation. Please try again.');
+        return false;
+    }
+    
+    // Initialize modal
+    try {
+        const modal = new bootstrap.Modal(deleteModal);
+        console.log('Modal initialized:', modal);
+        
+        // Set user data
+        const nameElement = document.getElementById('deleteUserName');
+        const idElement = document.getElementById('deleteUserId');
+        console.log('Name element:', nameElement, 'ID element:', idElement);
+        
+        if (nameElement) {
+            nameElement.textContent = userName;
+            console.log('Set user name to:', userName);
+        } else {
+            console.warn('Could not find deleteUserName element');
+        }
+        
+        if (idElement) {
+            idElement.value = userId;
+            console.log('Set user ID to:', userId);
+        } else {
+            console.warn('Could not find deleteUserId element');
+        }
+        
+        // Show modal
+        console.log('Showing modal...');
+        modal.show();
+        console.log('Modal should be visible now');
+        
+        // Add debug event listeners
+        deleteModal.addEventListener('shown.bs.modal', function() {
+            console.log('Modal shown event fired');
+        });
+        
+        return false;
+        
+    } catch (error) {
+        console.error('Error in confirmDelete:', error);
+        console.error('Error details:', {
+            name: error.name,
+            message: error.message,
+            stack: error.stack
+        });
+        
+        // Fallback confirmation
+        if (confirm('Error showing delete confirmation. Are you sure you want to delete user: ' + userName + '?')) {
+            console.log('User confirmed deletion via fallback');
+            
+            // Create form
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = window.location.href.split('?')[0];
+            
+            // Add CSRF token if exists
+            const csrfToken = document.querySelector('input[name="csrf_token"]');
+            if (csrfToken) {
+                const csrfClone = csrfToken.cloneNode();
+                csrfClone.name = 'csrf_token';
+                form.appendChild(csrfClone);
+            }
+            
+            // Add action
+            const actionInput = document.createElement('input');
+            actionInput.type = 'hidden';
+            actionInput.name = 'action';
+            actionInput.value = 'delete';
+            
+            // Add user ID
+            const userIdInput = document.createElement('input');
+            userIdInput.type = 'hidden';
+            userIdInput.name = 'user_id';
+            userIdInput.value = userId;
+            
+            console.log('Form data prepared:', {
+                action: 'delete',
+                user_id: userId,
+                hasCsrf: !!csrfToken
+            });
+            
+            // Submit form
+            form.appendChild(actionInput);
+            form.appendChild(userIdInput);
+            document.body.appendChild(form);
+    }
+
+    // Faculty content management functions
+    function editContent(contentType) {
+        alert('Edit ' + contentType + ' content functionality will be implemented here.');
+        // This would open a modal or redirect to an edit page
+        // Example: window.location.href = '?tab=edit-content&type=' + contentType;
+    }
+
+    function showAddContentModal() {
+        alert('Add new content functionality will be implemented here.');
+        // This would show a modal for adding new content types
+    }
+
+    // Handle smooth scrolling for anchor links
+    $('a[href^="#"]').on('click', function(e) {
+      const href = $(this).attr('href');
+      if (href === '#') return;
+      
+      e.preventDefault();
+      const target = href.split('?')[0];
+      const $target = $(target);
+      if ($target.length) {
+        $('html, body').stop().animate({
+          'scrollTop': $target.offset().top
+        }, 900, 'swing', function() {
+          window.location.hash = target;
+        });
+　　 　 　 　
+        window.location.hash = target;
+      };
+    }
+
+    // User Management Functions
+    window.editUser = function(id, firstName = '', lastName = '', email = '', role = 'student', status = 0) {
+        try {
+            console.log('editUser called with:', {id, firstName, lastName, email, role, status});
+            const modalElement = document.getElementById('userModal');
+            if (!modalElement) {
+                console.error('Error: Could not find user modal element');
+                return false;
+            }
+
+            const modal = new bootstrap.Modal(modalElement);
+            
+            // Set form action and title
+            const title = id ? 'Edit User' : 'Add New User';
+            document.getElementById('userModalTitle').textContent = title;
+            document.getElementById('userAction').value = id ? 'update' : 'add';
+            document.getElementById('userId').value = id || '';
+            
+            // Fill the form
+            document.getElementById('firstName').value = firstName || '';
+            document.getElementById('lastName').value = lastName || '';
+            document.getElementById('userEmail').value = email || '';
+            document.getElementById('userRole').value = role || 'student';
+            document.getElementById('userStatus').checked = status == 1;
+            
+            // Show/hide password fields
+            const passwordFields = document.getElementById('passwordFields');
+            if (passwordFields) {
+                passwordFields.style.display = id ? 'none' : 'block';
+            }
+            
+            // Show the modal
+            console.log('Showing user modal...');
+            modal.show();
+            return false;
+        } catch (error) {
+            console.error('Error in editUser:', error);
+            alert('Error initializing user form. Please try again.');
+            return false;
+        }
+    };
+
+     function confirmDelete(userId, userName) {
+        console.log('=== confirmDelete called ===');
+        console.log('userId:', userId, 'userName:', userName);
+        
+        // Check if Bootstrap is loaded
+        if (typeof bootstrap === 'undefined' || !bootstrap.Modal) {
+            console.error('Bootstrap Modal not found!');
+            alert('Error: Required libraries not loaded. Please refresh the page.');
+            return false;
+        }
+        
+        // Get modal element
+        const deleteModal = document.getElementById('deleteModal');
+        console.log('deleteModal element:', deleteModal);
+        
+        if (!deleteModal) {
+            console.error('Error: Could not find delete modal element');
+            alert('Error: Could not initialize delete confirmation. Please try again.');
+            return false;
+        }
+        
+        // Initialize modal
+        try {
+            const modal = new bootstrap.Modal(deleteModal);
+            console.log('Modal initialized:', modal);
+            
+            // Set user data
+            const nameElement = document.getElementById('deleteUserName');
+            const idElement = document.getElementById('deleteUserId');
+            console.log('Name element:', nameElement, 'ID element:', idElement);
+            
+            if (nameElement) {
+                nameElement.textContent = userName;
+                console.log('Set user name to:', userName);
+            } else {
+                console.warn('Could not find deleteUserName element');
+            }
+            
+            if (idElement) {
+                idElement.value = userId;
+                console.log('Set user ID to:', userId);
+            } else {
+                console.warn('Could not find deleteUserId element');
+            }
+            
+            // Show modal
+            console.log('Showing modal...');
+            modal.show();
+            console.log('Modal should be visible now');
+            
+            // Add debug event listeners
+            deleteModal.addEventListener('shown.bs.modal', function() {
+                console.log('Modal shown event fired');
+            });
+            
+            return false;
+            
+        } catch (error) {
+            console.error('Error in confirmDelete:', error);
+            console.error('Error details:', {
+                name: error.name,
+                message: error.message,
+                stack: error.stack
+            });
+            
+            // Fallback confirmation
+            if (confirm('Error showing delete confirmation. Are you sure you want to delete user: ' + userName + '?')) {
+                console.log('User confirmed deletion via fallback');
+                
+                // Create form
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = window.location.href.split('?')[0];
+                
+                // Add CSRF token if exists
+                const csrfToken = document.querySelector('input[name="csrf_token"]');
+                if (csrfToken) {
+                    const csrfClone = csrfToken.cloneNode();
+                    csrfClone.name = 'csrf_token';
+                    form.appendChild(csrfClone);
+                }
+                
+                // Add action
+                const actionInput = document.createElement('input');
+                actionInput.type = 'hidden';
+                actionInput.name = 'action';
+                actionInput.value = 'delete';
+                
+                // Add user ID
+                const userIdInput = document.createElement('input');
+                userIdInput.type = 'hidden';
+                userIdInput.name = 'user_id';
+                userIdInput.value = userId;
+                
+                console.log('Form data prepared:', {
+                    action: 'delete',
+                    user_id: userId,
+                    hasCsrf: !!csrfToken
+                });
+                
+                // Submit form
+                form.appendChild(actionInput);
+                form.appendChild(userIdInput);
+                document.body.appendChild(form);
+                console.log('Submitting delete form...');
+                form.submit();
+            }
+            return false;
+        }
+    }
 </script>
-<style>
-    /* Sidebar Styles */
-    .sidebar {
-        background: #fff;
-        border-radius: 4px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        margin-bottom: 30px;
-        overflow: hidden;
-    }
-    
-    .sidebar-widget {
-        padding: 20px;
-    }
-    
-    .sidebar-widget:not(:last-child) {
-        border-bottom: 1px solid #eee;
-    }
-    
-    .user-avatar {
-        text-align: center;
-        padding: 20px 0;
-    }
-    
-    .user-avatar h4 {
-        margin: 10px 0 5px;
-        font-weight: 600;
-    }
-    
-    .label {
-        display: inline-block;
-        padding: 3px 8px;
-        font-size: 12px;
-        font-weight: 600;
-        line-height: 1.5;
-        color: #fff;
-        text-align: center;
-        white-space: nowrap;
-        vertical-align: baseline;
-        border-radius: 3px;
-    }
-    
-    .label-primary {
-        background-color: #4caf50;
-    }
-    
-    /* Navigation */
-    .nav-dashboard {
-        margin: 0 -20px;
-    }
-    
-    .nav-dashboard > li > a {
-        padding: 12px 20px;
-        color: #555;
-        border-left: 3px solid transparent;
-        transition: all 0.3s ease;
-    }
-    
-    .nav-dashboard > li > a:hover,
-    .nav-dashboard > li.active > a {
-        background-color: #f8f9fa;
-        color: #4caf50;
-        border-left-color: #4caf50;
-    }
-    
-    .nav-dashboard > li > a i {
-        margin-right: 8px;
-        width: 20px;
-        text-align: center;
-    }
-    
-    .nav-dashboard > li.divider {
-        height: 1px;
-        margin: 9px 0;
-        overflow: hidden;
-        background-color: #e5e5e5;
-    }
-    
-    /* Dashboard Content */
-    .feature-box {
-        background: #fff;
-        padding: 20px;
-        border-radius: 4px;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        margin-bottom: 30px;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        height: 100%;
-    }
-    
-    .feature-box:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    }
-    
-    .feature-box-icon {
-        margin-bottom: 15px;
-    }
-    
-    .feature-box-icon i {
-        font-size: 36px;
-    }
-    
-    .feature-box h3 {
-        font-size: 16px;
-        font-weight: 600;
-        margin: 0 0 10px;
-    }
-    
-    /* Responsive */
-    @media (max-width: 991px) {
-        .sidebar {
-            margin-bottom: 30px;
-        }
-    }
-    
-    @media (max-width: 767px) {
-        .feature-box {
-            margin-bottom: 20px;
-        }
-    }
-</style>
+<?php include __DIR__ . '/about_footer.php'; ?>
 </body>
 </html>
+<?php endif; ?>
